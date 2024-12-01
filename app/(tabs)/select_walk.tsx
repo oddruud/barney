@@ -7,7 +7,7 @@ import { Button } from '@/components/Button';
 import { router } from 'expo-router';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import * as Location from 'expo-location';
-import { getPlannedWalks } from '@/data/DataProxy'; // Import the function
+import { dataProxy } from '@/data/DataProxy'; // Import the function
 import { PlannedWalk } from '@/types/PlannedWalk';
 import { Text } from '@/components/Themed';
 import { IconSymbol } from '@/components/ui/IconSymbol';
@@ -37,7 +37,7 @@ export default function SelectWalkScreen() {
 
   useEffect(() => {
     const fetchWalks = async () => {
-      const fetchedWalks = await getPlannedWalks();
+      const fetchedWalks = await dataProxy.getPlannedWalks();
       setWalks(fetchedWalks);
     };
 

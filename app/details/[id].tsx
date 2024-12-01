@@ -6,7 +6,7 @@ import { Link } from 'expo-router';
 import ChatComponent from '../../components/ChatComponent';
 import WalkDetailsComponent from '../../components/WalkDetailsComponent';
 import AboutComponent from '../../components/AboutComponent';
-import { getPlannedWalks, getUserDetailsById } from '../../data/DataProxy';
+import { dataProxy } from '../../data/DataProxy';
 import { PlannedWalk } from '../../types/PlannedWalk';
 import { UserDetails } from '../../types/UserDetails';
 
@@ -20,12 +20,12 @@ export default function WalkDetails() {
 
   useEffect(() => {
     const fetchWalkDetails = async () => {
-      const walks = await getPlannedWalks();
+      const walks = await dataProxy.getPlannedWalks();
       const walk = walks.find(walk => walk.id === id);
       setWalkDetails(walk || null);
 
       if (walk) {
-        const user = await getUserDetailsById(walk.userId);
+        const user = await dataProxy.getUserDetailsById(walk.userId);
         setUserDetails(user || null);
       }
     };

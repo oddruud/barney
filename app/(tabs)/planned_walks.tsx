@@ -3,14 +3,14 @@ import { Text } from '../../components/Themed';
 import { useState, useEffect } from 'react';
 import WalkItem from '../../components/WalkItem'; // Import the new WalkItem component
 import { PlannedWalk } from '../../types/PlannedWalk';
-import { getPlannedWalks } from '../../data/DataProxy';
+import { dataProxy } from '../../data/DataProxy';
 
 export default function PlannedWalks() {
   const [plannedWalks, setPlannedWalks] = useState<PlannedWalk[]>([]);
 
   useEffect(() => {
     const fetchPlannedWalks = async () => {
-      const walks = await getPlannedWalks();
+      const walks = await dataProxy.getPlannedWalks();
       setPlannedWalks(walks);
     };
 

@@ -7,7 +7,7 @@ import { PlannedWalk } from '@/types/planned_walk';
 import WalkItem from '@/components/WalkItem';
 
 import { Link } from 'expo-router';
-import { getLatestWalk } from '@/data/DataProxy';
+import { dataProxy } from '@/data/DataProxy';
 
 // Add a new component to display walk statistics
 function WalkStatistics() {
@@ -69,7 +69,7 @@ export default function HomeScreen() {
 
   useEffect(() => {
     const fetchLatestWalk = async () => {
-      const walk = await getLatestWalk();
+      const walk = await dataProxy.getLatestWalk();
       setLatestWalk(walk);
     };
 
