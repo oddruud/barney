@@ -1,63 +1,107 @@
-import { Image, StyleSheet, Platform } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { Image, StyleSheet, Platform, View } from 'react-native';
 
-import { HelloWave } from '@/components/HelloWave';
-import ParallaxScrollView from '@/components/ParallaxScrollView';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
+import { PlannedWalk } from '@/types/planned_walk';
+import WalkItem from '@/components/WalkItem';
+
+import { Link } from 'expo-router';
+import { getLatestWalk } from '@/data/DataProxy';
+
+// Add a new component to display walk statistics
+function WalkStatistics() {
+  return (
+    <ThemedView style={styles.statisticsContainer}>
+      <ThemedText>Total Walks: 10</ThemedText>
+      <ThemedText>Total Distance: 50 km</ThemedText>
+      <ThemedText>Average Speed: 5 km/h</ThemedText>
+    </ThemedView>
+  );
+}
+
+// Add a new component to display achievement badges
+function AchievementBadges() {
+  return (
+    <ThemedView style={styles.badgesContainer}>
+      <ThemedText type="subtitle">Achievements</ThemedText>
+      <ThemedText>🏆 First Walk</ThemedText>
+      <ThemedText>🥇 10 Walks</ThemedText>
+      <ThemedText>🚀 50 km Milestone</ThemedText>
+    </ThemedView>
+  );
+}
+
+// Add a new component to display countdown to the next walk
+function NextWalkCountdown({ nextWalkTime }: { nextWalkTime: Date | null }) {
+  const [timeRemaining, setTimeRemaining] = React.useState('');
+
+  React.useEffect(() => {
+    if (!nextWalkTime) return;
+
+    const interval = setInterval(() => {
+      const now = new Date();
+      const difference = nextWalkTime.getTime() - now.getTime();
+
+      if (difference <= 0) {
+        setTimeRemaining('The next walk is starting now!');
+        clearInterval(interval);
+      } else {
+        const hours = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((difference % (1000 * 60)) / 1000);
+        setTimeRemaining(`${hours}h ${minutes}m ${seconds}s`);
+      }
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [nextWalkTime]);
+
+  return (
+    <ThemedView style={styles.countdownContainer}>
+      <ThemedText>Next Walk In: {timeRemaining}</ThemedText>
+    </ThemedView>
+  );
+}
 
 export default function HomeScreen() {
+  const [latestWalk, setLatestWalk] = useState<PlannedWalk | null>(null);
+
+  useEffect(() => {
+    const fetchLatestWalk = async () => {
+      const walk = await getLatestWalk();
+      setLatestWalk(walk);
+    };
+
+    fetchLatestWalk();
+  }, []);
+
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
-      }>
+    <View style={styles.container}>
       <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
+        <Image
+          source={require('@/assets/images/logo.jpg')}
+          style={styles.image}
+        />
       </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: 'cmd + d',
-              android: 'cmd + m',
-              web: 'F12'
-            })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-        <ThemedText>
-          Tap the Explore tab to learn more about what's included in this starter app.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          When you're ready, run{' '}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
+      <WalkStatistics />
+      <NextWalkCountdown nextWalkTime={latestWalk ? new Date(latestWalk.date) : null} />
+      {latestWalk && <WalkItem item={latestWalk} showDate={true} />}
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    padding: 16,
+    backgroundColor: '#e9eae4',
+  },
   titleContainer: {
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#e9eae4',
     gap: 8,
   },
   stepContainer: {
@@ -70,5 +114,25 @@ const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
     position: 'absolute',
+  },
+  statisticsContainer: {
+    padding: 16,
+    backgroundColor: '#e9eae4',
+    marginTop: -34,
+  },
+  badgesContainer: {
+    padding: 16,
+    backgroundColor: '#e9eae4',
+  },
+  image: {
+    width: 300,
+    height: 300,
+    marginBottom: 16,
+  },
+  countdownContainer: {
+    padding: 16,
+    borderRadius: 8,
+    marginVertical: 16,
+    backgroundColor: '#e9eae4',
   },
 });
