@@ -4,4 +4,5 @@ export type UserDetails = {
   fullName: string;
   bio: string;
   profileImage: string;
+  walksCompleted: number;
 };

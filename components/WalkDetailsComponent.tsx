@@ -62,7 +62,7 @@ const WalkDetailsComponent: React.FC<WalkDetailsComponentProps> = ({
         <View style={styles.profileContainer}>
           <TouchableOpacity onPress={onProfileImagePress}>
             <Image 
-              source={require('@/assets/images/profile.jpg')}
+              source={{ uri: walkDetails.profileImage }}
               style={styles.profileImageSmall}
             />
           </TouchableOpacity>

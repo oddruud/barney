@@ -25,7 +25,7 @@ function WalkItem({ item, showDate }: { item: PlannedWalk, showDate: boolean }) 
       <Link href={{ pathname: '/details/[id]', params: { id: item.id } }}>
         <View style={styles.walkHeader}>
           <Image
-            source={require('@/assets/images/profile.jpg')}
+            source={{ uri: item.profileImage }}
             style={styles.profileImage}
           />
           <View style={styles.walkInfo}>
