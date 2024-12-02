@@ -34,7 +34,7 @@ function ChatMessageItem({ message }: { message: ChatMessage }) {
     >
       <View style={styles.header}>
         <Text style={[styles.username, { color: getColorFromUsername(message.userName) }]}>
-          {message.userName}
+          {message.userName.charAt(0).toUpperCase() + message.userName.slice(1).toLowerCase()}
         </Text>
         <Text style={styles.date}>
           {new Date(message.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}

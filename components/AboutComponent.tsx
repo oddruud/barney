@@ -2,7 +2,6 @@ import React, { useEffect, useRef, useState } from 'react';
 import { View, Image, StyleSheet, Animated, Modal, TouchableOpacity } from 'react-native';
 import { Text } from '../components/Themed';
 import { UserDetails } from '../types/UserDetails';
-import Icon from 'react-native-vector-icons/FontAwesome';  // Import FontAwesome icons
 import { Button } from './Button';
 import StarRating from './StarRating';  // Import the new StarRating component
 import RateUserModal from './RateUserModal';  // Import the new modal component
@@ -38,7 +37,7 @@ const AboutComponent: React.FC<AboutComponentProps> = ({ user }) => {
         <Text style={styles.bioText}>{user.bio}</Text>
        
       </Animated.View>
-      <Button title="Rate host" onPress={() => setModalVisible(true)} style={styles.rateButton} />
+      <Button title={`Rate ${user.fullName}`} onPress={() => setModalVisible(true)} style={styles.rateButton} />
 
       <RateUserModal user={user} visible={modalVisible} onRate={(rating:number) => {
         setModalVisible(false)

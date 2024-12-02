@@ -93,9 +93,9 @@ export default function SelectWalkScreen() {
 
   const handleJoinWalk = () => {
     if (selectedWalk) {
-      // TODO: Handle joining the walk
-      console.log('Joining walk:', selectedWalk);
-      router.back();
+      //todo: handle joining the walk
+      //dataProxy.joinWalk(selectedWalk.id);
+    router.push(`/details/${selectedWalk.id}`);
     }
   };
 

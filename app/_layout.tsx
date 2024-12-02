@@ -5,11 +5,13 @@ import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
 import 'react-native-reanimated';
+import { router } from 'expo-router';
 
 import { useColorScheme } from '@/hooks/useColorScheme';
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
+
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();
@@ -21,6 +23,8 @@ export default function RootLayout() {
   useEffect(() => {
     if (loaded) {
       SplashScreen.hideAsync();
+      router.replace("/login");
+      
     }
   }, [loaded]);
 
@@ -30,7 +34,14 @@ export default function RootLayout() {
 
   return (
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack>
+      <Stack initialRouteName="login">
+        <Stack.Screen 
+          name="login" 
+          options={{ 
+            headerShown: false,
+            title: 'Login'
+          }} 
+        />
         <Stack.Screen 
           name="(tabs)" 
           options={{ 
@@ -51,6 +62,7 @@ export default function RootLayout() {
             title: 'Not Found'
           }} 
         />
+        
       </Stack>
       <StatusBar style="auto" />
     </ThemeProvider>
