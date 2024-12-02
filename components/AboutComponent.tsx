@@ -1,8 +1,9 @@
-import React, { useEffect, useRef } from 'react';
-import { View, Image, StyleSheet, Animated } from 'react-native';
+import React, { useEffect, useRef, useState } from 'react';
+import { View, Image, StyleSheet, Animated, Modal, TouchableOpacity } from 'react-native';
 import { Text } from '../components/Themed';
 import { UserDetails } from '../types/UserDetails';
 import Icon from 'react-native-vector-icons/FontAwesome';  // Import FontAwesome icons
+import { Button } from './Button';
 
 interface AboutComponentProps {
   user: UserDetails;
@@ -10,6 +11,7 @@ interface AboutComponentProps {
 
 const AboutComponent: React.FC<AboutComponentProps> = ({ user }) => {
   const fadeAnim = useRef(new Animated.Value(0)).current; // Initial value for opacity: 0
+  const [modalVisible, setModalVisible] = useState(false); // State for modal visibility
 
   useEffect(() => {
     Animated.timing(fadeAnim, {
@@ -20,25 +22,51 @@ const AboutComponent: React.FC<AboutComponentProps> = ({ user }) => {
   }, [fadeAnim]);
 
   return (
-    <Animated.View style={[styles.aboutContainer, { opacity: fadeAnim }]}>
-      <Image 
-        source={{ uri: user.profileImage }}
-        style={styles.profileImage}
-      />
-      <Text style={styles.textBold}>{user.fullName}</Text>
-      <View style={styles.starContainer}>
-        {[...Array(5)].map((_, index) => (
-          <Icon key={index} name="star" size={20} color="#FFD700" />  // Star icons
-        ))}
-      </View>
-      <Text style={styles.text}>{user.bio}</Text>
-      <Text style={[styles.text, styles.textLeft]}>Walks Completed: {user.walksCompleted}</Text>
-   
-    </Animated.View>
+    <View style={styles.container}>
+      <Animated.View style={[styles.aboutContainer, { opacity: fadeAnim }]}>
+        <Image 
+          source={{ uri: user.profileImage }}
+          style={styles.profileImage}
+        />
+        <Text style={styles.textBold}>{user.fullName}</Text>
+        <View style={styles.starContainer}>
+          {[...Array(5)].map((_, index) => (
+            <Icon key={index} name="star" size={20} color="#FFD700" />  // Star icons
+          ))}
+        </View>
+        <Text style={styles.text}>{user.bio}</Text>
+        <Text style={[styles.text, styles.textLeft]}>Walks Completed: {user.walksCompleted}</Text>
+      </Animated.View>
+      <Button title="Rate host" onPress={() => setModalVisible(true)} style={styles.rateButton} />
+
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={modalVisible}
+        onRequestClose={() => setModalVisible(false)}
+      >
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalText}>Rate your host</Text>
+            {/* Add rating input components here */}
+            <TouchableOpacity
+              style={styles.closeButton}
+              onPress={() => setModalVisible(false)}
+            >
+              <Text style={styles.closeButtonText}>Close</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: 'space-between',
+  },
   aboutContainer: {
     alignItems: 'center',
     padding: 20,
@@ -71,6 +99,36 @@ const styles = StyleSheet.create({
   },
   textLeft: {
     alignSelf: 'flex-start',  // Align text to the left
+  },
+  rateButton: {
+    marginBottom: 20,
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  modalContent: {
+    width: 300,
+    padding: 20,
+    backgroundColor: 'white',
+    borderRadius: 10,
+    alignItems: 'center',
+  },
+  modalText: {
+    fontSize: 18,
+    marginBottom: 20,
+  },
+  closeButton: {
+    marginTop: 20,
+    padding: 10,
+    backgroundColor: '#00796b',
+    borderRadius: 5,
+  },
+  closeButtonText: {
+    color: 'white',
+    fontSize: 16,
   },
 });
 

@@ -79,6 +79,14 @@ class RealDataProxy implements DataProxy {
     }
     return response.json();
   }
+
+  async addChatMessage(message: ChatMessage): Promise<void> {
+    await fetch('/api/chatMessages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(message),
+    });
+  }
 }
 
 export { RealDataProxy };

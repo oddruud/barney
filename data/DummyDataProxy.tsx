@@ -99,6 +99,15 @@ class DummyDataProxy implements DataProxy {
       }, 10);
     });
   }
+
+  async addChatMessage(message: ChatMessage): Promise<void> {
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        chatMessages.push(message);
+        resolve();
+      }, 10);
+    });
+  }
 }
 
 export { DummyDataProxy };

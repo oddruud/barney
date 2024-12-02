@@ -72,6 +72,21 @@ export default function ChatComponent({walkId }: ChatComponentProps) {
       }));
       setMessages(updatedMessages);
     });
+
+    // Poll for new messages every second
+    const intervalId = setInterval(() => {
+      dataProxy.getChatMessagesForWalk(walkId).then(newMessages => {
+        setMessages(prevMessages => {
+          const newUniqueMessages = newMessages.filter(
+            newMsg => !prevMessages.some(prevMsg => prevMsg.id === newMsg.id)
+          );
+          return [...prevMessages, ...newUniqueMessages];
+        });
+      });
+    }, 1000);
+
+    // Cleanup interval on component unmount
+    return () => clearInterval(intervalId);
   }, [walkId]);
 
   const handleSend = () => {
@@ -87,6 +102,13 @@ export default function ChatComponent({walkId }: ChatComponentProps) {
       };
       setMessages([...(messages || []), newMessage]);
       setInputText('');
+
+      // Send the message to the dataProxy
+      dataProxy.addChatMessage(newMessage).then(() => {
+        console.log('Message sent successfully');
+      }).catch(error => {
+        console.error('Error sending message:', error);
+      });
 
       // Simulate a bot response
       setTimeout(() => {

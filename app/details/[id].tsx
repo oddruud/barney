@@ -43,7 +43,7 @@ export default function WalkDetails() {
 
   return (
     <View style={styles.container}>
-      <Link href="/(tabs)/planned_walks" style={styles.link}>&#60; back </Link>
+      <Link href="/(tabs)/planned_walks" style={styles.backLink}>&#60; back </Link>
       {/* Tab Navigation */}
       <View style={styles.tabContainer}>
         <TouchableOpacity onPress={() => setActiveTab('details')} style={activeTab === 'details' ? styles.activeTab : styles.tab}>
@@ -86,12 +86,12 @@ const styles = StyleSheet.create({
     marginTop: 32,
     backgroundColor: '#f5f5f5',
   },
-  link: {
+  backLink: {
     color: '#00796b',
-    fontSize: 32,
+    fontSize: 20,
     fontWeight: 'bold',
     textDecorationLine: 'none',
-    marginBottom: 32,
+    marginBottom: 20,
   },
   tabContainer: {
     flexDirection: 'row',

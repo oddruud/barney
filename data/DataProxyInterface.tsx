@@ -13,6 +13,7 @@ interface DataProxy {
     getNextWalk(): Promise<PlannedWalk | null>;
     getUsersFromJoinedUserIds(walkId: string): Promise<UserDetails[]>;
     getChatMessagesForWalk(walkId: string): Promise<ChatMessage[]>;
+    addChatMessage(message: ChatMessage): Promise<void>;
 }
 
 export { DataProxy };
