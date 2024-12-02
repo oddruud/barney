@@ -64,6 +64,7 @@ export default function WalkDetails() {
           onProfileImagePress={() => setActiveTab('about')}
           onCancelPress={() => { 
             console.log("cancelling walk");
+            dataProxy.unsubscribeFromWalk(id);
             navigation.navigate("(tabs)" as never);
           }}
         />

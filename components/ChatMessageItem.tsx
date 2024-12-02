@@ -59,12 +59,18 @@ const styles = StyleSheet.create({
       alignSelf: 'flex-end',
       padding: 10,
       marginTop: 10,
+      borderWidth: 1,
+      borderColor: '#00796b',
+      borderRadius: 20,
     },
     otherUserMessage: {
       backgroundColor: '#e3ffed',
       alignSelf: 'flex-start',
       padding: 10,
       marginTop: 10,
+      borderWidth: 1,
+      borderColor: '#388e3c',
+      borderRadius: 20,
     },
     username: {
       fontWeight: 'bold',

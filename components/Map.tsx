@@ -72,6 +72,7 @@ export function Map({
       }}
       initialRegion={adjustedRegion}
       onPress={onPress}
+      mapType={'standard'}
     >
       {showRoute && markers.length > 1 && (
         <Polyline

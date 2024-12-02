@@ -1,5 +1,5 @@
 import React, { useRef, useEffect, useState } from 'react';
-import { View, Image, StyleSheet, TouchableOpacity, Animated, ScrollView } from 'react-native';
+import { View, Image, StyleSheet, TouchableOpacity, Animated, ScrollView, Linking, Platform } from 'react-native';
 import { Text } from '../components/Themed';
 import { Map } from '../components/Map';
 import { Button } from '../components/Button';
@@ -41,6 +41,19 @@ const WalkDetailsComponent: React.FC<WalkDetailsComponentProps> = ({
   // Format the date to display month and day
   const formattedDate = new Date(walkDetails.dateTime).toLocaleDateString('en-US', { month: 'long', day: 'numeric' });
 
+  const openInMaps = () => {
+    const { latitude, longitude, location } = walkDetails;
+    const encodedLocation = encodeURIComponent(location);
+    const url = Platform.select({
+      ios: `http://maps.apple.com/?ll=${latitude},${longitude}&q=${encodedLocation}&z=20`,
+      android: `geo:${latitude},${longitude}?q=${encodedLocation}`,
+    });
+
+    if (url) {
+      Linking.openURL(url).catch(err => console.error('An error occurred', err));
+    }
+  };
+
   return (
     <Animated.View style={{ flex: 1, opacity: fadeAnim }}>
       <ScrollView>
@@ -61,7 +74,7 @@ const WalkDetailsComponent: React.FC<WalkDetailsComponentProps> = ({
               longitude: walkDetails.longitude,
               latitudeDelta: 0.0922,
               longitudeDelta: 0.0421,
-              zoomLevel: 4,
+              zoomLevel:6,
             }}
             markers={[
               {
@@ -75,7 +88,7 @@ const WalkDetailsComponent: React.FC<WalkDetailsComponentProps> = ({
               },
             ]}
             width="100%"
-            height={300}
+            height={240}
           />
           
           <View style={styles.walkDetailsContainer}>
@@ -106,10 +119,16 @@ const WalkDetailsComponent: React.FC<WalkDetailsComponentProps> = ({
         </View>
       </ScrollView>
       <Button
+        title="Open in Maps"
+        onPress={openInMaps}
+        style={{ marginTop: 16, backgroundColor: '#007aff' }}
+      />
+      <Button
         title="Cancel"
         onPress={onCancelPress}
         style={{ marginTop: 16, backgroundColor: '#ff0000' }}
       />
+      
     </Animated.View>
   );
 };

@@ -34,8 +34,8 @@ function WalkItem({ item, showDate }: { item: PlannedWalk, showDate: boolean }) 
               {showDate ? `${new Date(item.dateTime).toLocaleDateString(undefined, { month: 'long', day: 'numeric' })} at ${item.dateTime.split('T')[1].slice(0, 5)}` : item.dateTime.split('T')[1].slice(0, 5)}
             </Text>
             <Text style={styles.location}>{item.location}</Text>
-            <Text style={styles.duration}>{item.duration * 60} minutes</Text>
             <Text style={styles.username}>with {item.username}</Text>
+            <Text style={styles.participants}>{item.joinedUserIds.length} / {item.maxParticipants}</Text> 
             {new Date(item.lastMessageDate) > new Date(item.lastDateMessagesChecked) && (
               <View style={styles.newMessageContainer}>
                 <IconSymbol name="paperplane.fill" size={16} color="red" style={styles.messageIcon} />
@@ -100,7 +100,7 @@ const styles = StyleSheet.create({
       marginBottom: 4,
       color: '#004d40',
     },
-    duration: {
+    participants: {
       fontSize: 14,
       color: '#666',
     },

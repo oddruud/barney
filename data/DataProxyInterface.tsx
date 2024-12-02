@@ -15,6 +15,8 @@ interface DataProxy {
     getChatMessagesForWalk(walkId: string): Promise<ChatMessage[]>;
     addChatMessage(message: ChatMessage): Promise<void>;
     updateUserProfile(name: string, description: string, profileImage: string): Promise<void>;
+    createWalk(userId: number, date: Date, duration: number, maxParticipants: number, description: string, locationName: string, location: { latitude: number, longitude: number }): Promise<PlannedWalk | null>;
+    unsubscribeFromWalk(walkId: string): Promise<void>;
 }
 
 export { DataProxy };

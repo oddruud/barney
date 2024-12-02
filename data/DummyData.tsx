@@ -155,6 +155,11 @@ export const walkingQuotes: string[] = [
   "Walking is the perfect way of moving if you want to see into the life of things. \n\n- Elizabeth von Arnim",
   "A walk in nature walks the soul back home. \n\n- Mary Davis",
   "Walking is the great adventure, the first meditation, a practice of heartiness and soul primary to humankind. \n\n- Gary Snyder",
+  "Walking is a virtue, tourism is a deadly sin. \n\n- Bruce Chatwin",
+  "The best thoughts most often come while walking. \n\n- Friedrich Nietzsche",
+  "Walking is the exact balance between spirit and humility. \n\n- Gary Snyder",
+  "A walk in the woods is a return to the soul. \n\n- Unknown",
+  "Walking is the ultimate form of transportation. \n\n- Unknown",
 ];
 
 export const chatMessages: ChatMessage[] = [

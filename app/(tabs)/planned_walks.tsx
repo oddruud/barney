@@ -80,7 +80,7 @@ const styles = StyleSheet.create({
   list: {
     flex: 1,
     height: 400,
-    marginBottom: 20,
+    marginBottom: 60,
   },
   noWalksContainer: {
     flex: 1,

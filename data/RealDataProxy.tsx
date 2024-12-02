@@ -91,6 +91,15 @@ class RealDataProxy implements DataProxy {
   async updateUserProfile(name: string, description: string, profileImage: string): Promise<void> {
     // TODO: Implement updateUserProfile
   }
+
+  async createWalk(userId: number, date: Date, duration: number, maxParticipants: number, description: string, locationName: string, location: { latitude: number, longitude: number }): Promise<PlannedWalk | null> {
+    // TODO: Implement createWalk
+    return null;
+  }
+
+  async unsubscribeFromWalk(walkId: string): Promise<void> {
+    // TODO: Implement unsubscribeFromWalk
+  }
 }
 
 export { RealDataProxy };

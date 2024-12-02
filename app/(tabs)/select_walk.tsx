@@ -132,7 +132,8 @@ export default function SelectWalkScreen() {
     const distance = calculateDistance(userLocation, walk); // Function to calculate distance
     return (
       (!startDate || walkDate >= startDate) &&
-      (!endDate || walkDate <= endDate)
+      (!endDate || walkDate <= endDate) &&
+      distance <= selectedDistance
     );
   });
 
@@ -159,7 +160,7 @@ export default function SelectWalkScreen() {
       </ThemedView>
 
       <ThemedView style={styles.sliderContainer}>
-        <ThemedText>Distance: {selectedDistance} km</ThemedText>
+        <ThemedText>Search Radius: {selectedDistance} km</ThemedText>
         <Slider
           style={styles.slider}
           minimumValue={1}
@@ -183,7 +184,8 @@ export default function SelectWalkScreen() {
             title: walk.location,
             description: walk.description
           }))}
-          height={300}
+          height={240}
+          width="100%"
           initialRegion={mapRegion}
           onMarkerPress={handleMarkerPress}
         />

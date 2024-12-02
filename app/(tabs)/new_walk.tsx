@@ -8,6 +8,7 @@ import { Button } from '@/components/Button';
 import { Map } from '@/components/Map';
 import { router } from 'expo-router';
 import * as Location from 'expo-location';
+import { dataProxy } from '@/data/DataProxy';
 
 export default function NewWalkScreen() {
   const [date, setDate] = useState(new Date());
@@ -21,7 +22,7 @@ export default function NewWalkScreen() {
   });
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [isLoadingLocation, setIsLoadingLocation] = useState(true);
-  const [groupSize, setGroupSize] = useState('1'); // Default group size
+  const [groupSize, setGroupSize] = useState('2'); // Default group size
 
   useEffect(() => {
     (async () => {
@@ -36,10 +37,25 @@ export default function NewWalkScreen() {
           latitude: currentLocation.coords.latitude,
           longitude: currentLocation.coords.longitude,
         });
+        await fetchAddress(currentLocation.coords.latitude, currentLocation.coords.longitude);
       }
       setIsLoadingLocation(false);
     })();
   }, []);
+
+  const fetchAddress = async (latitude: number, longitude: number) => {
+    try {
+      const [address] = await Location.reverseGeocodeAsync({ latitude, longitude });
+      console.log("address: ", address);
+      setLocation((prevLocation) => ({
+        ...prevLocation,
+        title: address.name || '',
+        description: `${address.street}, ${address.city}, ${address.region}, ${address.country}`
+      }));
+    } catch (error) {
+      console.error("Error fetching address:", error);
+    }
+  };
 
   const handleDateChange = (event: any, selectedDate?: Date) => {
     setShowDatePicker(false);
@@ -48,19 +64,25 @@ export default function NewWalkScreen() {
     }
   };
 
-  const handleSubmit = () => {
-    // TODO: Save walk data
-    console.log({ date, duration, description, location });
-    router.back();
-  };
+  async function createWalk() {
+    const userId = 1;
+    const locationName = location.title;
+    const walk = await dataProxy.createWalk(userId, date, parseInt(duration)/60, parseInt(groupSize), description, locationName, location);
 
-  const handleMapPress = (event: any) => {
+    //navigate to the new walk details page
+    if (walk) {
+      router.push(`/details/${walk.id}`);
+    }
+  }
+
+  const handleMapPress = async (event: any) => {
     const { latitude, longitude } = event.nativeEvent.coordinate;
     setLocation({
       ...location,
       latitude,
       longitude,
     });
+    await fetchAddress(latitude, longitude);
   };
 
   return (
@@ -128,7 +150,7 @@ export default function NewWalkScreen() {
                 title: location.title || 'Selected Location',
                 description: location.description || 'Tap to set details'
               }]}
-              height={240}
+              height={200}
               initialRegion={{
                 latitude: location.latitude,
                 longitude: location.longitude,
@@ -149,7 +171,7 @@ export default function NewWalkScreen() {
 
         {/* Submit Button */}
         <Button
-          onPress={handleSubmit}
+          onPress={createWalk}
           title="Schedule Walk"
           style={styles.submitButton}
         />
@@ -161,29 +183,29 @@ export default function NewWalkScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 30,
+    padding: 20,
     backgroundColor: '#f5f5f5',
-    marginTop: 40,
+    marginTop: 30,
   },
   title: {
-    fontSize: 28,
+    fontSize: 24,
     fontWeight: 'bold',
-    color: '#00796b', // Teal color
-    marginBottom: 16,
-    textAlign: 'center', // Center the title
+    color: '#00796b',
+    marginBottom: 12,
+    textAlign: 'center',
   },
   label: {
-    fontSize: 18,
-    marginTop: 15,
-    marginBottom: 5,
+    fontSize: 16,
+    marginTop: 10,
+    marginBottom: 4,
     color: '#555',
   },
   input: {
-    height: 50,
+    height: 40,
     borderWidth: 1,
     borderColor: '#ddd',
-    padding: 10,
-    borderRadius: 10,
+    padding: 8,
+    borderRadius: 8,
     backgroundColor: '#fff',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
@@ -194,8 +216,8 @@ const styles = StyleSheet.create({
   submitButton: {
     marginTop: 20,
     backgroundColor: '#007BFF',
-    paddingVertical: 15,
-    borderRadius: 10,
+    paddingVertical: 12,
+    borderRadius: 8,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
@@ -204,7 +226,7 @@ const styles = StyleSheet.create({
     marginBottom: 60,
   },
   descriptionInput: {
-    height: 80,
+    height: 40,
     textAlignVertical: 'top',
   },
 });
