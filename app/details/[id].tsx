@@ -69,7 +69,7 @@ export default function WalkDetails() {
       )}
 
       {activeTab === 'chat' && (
-        <ChatComponent />
+        <ChatComponent walkId={id} />
       )}
 
       {activeTab === 'about' && userDetails && (

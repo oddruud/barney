@@ -21,8 +21,8 @@ export default function PlannedWalks() {
 
   const today = new Date().toISOString().split('T')[0];
 
-  const todaysWalks = plannedWalks.filter(walk => walk.date === today);
-  const futureWalks = plannedWalks.filter(walk => walk.date > today);
+  const todaysWalks = plannedWalks.filter(walk => walk.dateTime.split('T')[0] === today);
+  const futureWalks = plannedWalks.filter(walk => new Date(walk.dateTime.split('T')[0]) > new Date(today));
 
   return (
     <View style={styles.container}>
@@ -79,6 +79,8 @@ const styles = StyleSheet.create({
   },
   list: {
     flex: 1,
+    height: 400,
+    marginBottom: 60,
   },
   noWalksContainer: {
     flex: 1,

@@ -2,10 +2,14 @@ import React, { useState, useRef, useEffect } from 'react';
 import { View, FlatList, TextInput, Button, StyleSheet, Animated, Image, Easing } from 'react-native';
 import { Text } from '../components/Themed';
 import { ChatMessage } from '../types/ChatMessage';
+import { dataProxy } from '@/data/DataProxy';
 
+type ChatComponentProps = {
+  walkId: string;
+};
 
 function ChatMessageItem({ message }: { message: ChatMessage }) {
-  const isLocalUser = message.username === 'User'; // Assuming 'User' is the local username
+  const isLocalUser = message.userName === 'You'; // Assuming 'You' is the local username
   const fadeAnim = useRef(new Animated.Value(0)).current; // Initial opacity value
   const slideAnim = useRef(new Animated.Value(isLocalUser ? 300 : -300)).current; // Initial position value
 
@@ -13,17 +17,26 @@ function ChatMessageItem({ message }: { message: ChatMessage }) {
     Animated.parallel([
       Animated.timing(fadeAnim, {
         toValue: 1,
-        duration: 1000, // Duration of the fade-in effect
+        duration: message.newMessage ? 1000 : 0, // Duration of the fade-in effect
         useNativeDriver: true,
       }),
       Animated.timing(slideAnim, {
         toValue: 0,
-        duration: 1000, // Duration of the slide-in effect
+        duration: message.newMessage ? 1000 : 0, // Duration of the slide-in effect
         easing: Easing.out(Easing.sin), // Sine ease-out effect
         useNativeDriver: true,
       }),
     ]).start();
   }, [fadeAnim, slideAnim]);
+
+  const getColorFromUsername = (username: string) => {
+    let hash = 0;
+    for (let i = 0; i < username.length; i++) {
+      hash = username.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    const color = `hsl(${hash % 360}, 70%, 50%)`; // HSL color
+    return color;
+  };
 
   return (
     <Animated.View
@@ -33,46 +46,60 @@ function ChatMessageItem({ message }: { message: ChatMessage }) {
       ]}
     >
       <View style={styles.header}>
-       
-        <Text style={styles.username}>{message.fullName}</Text>
+        <Text style={[styles.username, { color: getColorFromUsername(message.userName) }]}>
+          {message.userName}
+        </Text>
         <Text style={styles.date}>
-          {message.date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+          {new Date(message.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
         </Text>
       </View>
-      <Text style={styles.message}>{message.text}</Text>
+      <Text style={styles.message}>{message.message}</Text>
     </Animated.View>
   );
 }
 
-export default function ChatComponent() {
+export default function ChatComponent({walkId }: ChatComponentProps) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [inputText, setInputText] = useState('');
   const flatListRef = useRef<FlatList>(null);
+
+  useEffect(() => {
+    // Load initial messages from dataProxy
+    dataProxy.getChatMessagesForWalk(walkId).then(initialMessages => {
+      const updatedMessages = initialMessages.map(message => ({
+        ...message,
+        newMessage: false,
+      }));
+      setMessages(updatedMessages);
+    });
+  }, [walkId]);
 
   const handleSend = () => {
     if (inputText.trim()) {
       const newMessage: ChatMessage = {
         id: Date.now().toString(),
-        date: new Date(),
-        username: 'User', // Replace with actual username
-        fullName: 'Bob', // Replace with actual full name
-        text: inputText,
-        profileImage: '', // Replace with actual profile image URL
+        timestamp: new Date().toISOString(),
+        userName: 'You',
+        message: inputText,
+        walkId: walkId,
+        userId: 1,
+        newMessage: true,
       };
-      setMessages([...messages, newMessage]);
+      setMessages([...(messages || []), newMessage]);
       setInputText('');
 
       // Simulate a bot response
       setTimeout(() => {
         const botResponse: ChatMessage = {
           id: (Date.now() + 1).toString(),
-          date: new Date(),
-          username: 'Bot',
-          fullName: 'John Doe', // Replace with actual full name
-          text: "Thanks for your message!",
-          profileImage: '', // Replace with actual profile image URL
+          timestamp: new Date().toISOString(),
+          userName: 'John Doe',
+          message: "Thanks for your message!",
+          walkId: walkId,
+          userId: 1,
+          newMessage: true,
         };
-        setMessages((prevMessages) => [...prevMessages, botResponse]);
+        setMessages((prevMessages = []) => [...prevMessages, botResponse]);
       }, 1000); // Respond after 1 second
     }
   };
@@ -135,11 +162,13 @@ const styles = StyleSheet.create({
     backgroundColor: '#b2dfdb',
     alignSelf: 'flex-end',
     padding: 10,
+    marginTop: 10,
   },
   otherUserMessage: {
     backgroundColor: '#e3ffed',
     alignSelf: 'flex-start',
     padding: 10,
+    marginTop: 10,
   },
   username: {
     fontWeight: 'bold',

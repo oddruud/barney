@@ -103,7 +103,7 @@ export default function SelectWalkScreen() {
   };
 
   const filteredWalks = walks.filter(walk => {
-    const walkDate = new Date(walk.date);
+    const walkDate = new Date(walk.dateTime);
     return (
       (!startDate || walkDate >= startDate) &&
       (!endDate || walkDate <= endDate)
@@ -152,7 +152,7 @@ export default function SelectWalkScreen() {
       {selectedWalk && (
         <Animated.View style={[styles.walkDetails, { opacity: fadeAnim }]}>
           <ThemedView style={styles.walkHeader}>
-            <Text style={styles.textBold}>{selectedWalk.location}, {new Date(selectedWalk.date).toLocaleDateString(undefined, { month: 'long', day: 'numeric' })} at {selectedWalk.time}</Text>
+            <Text style={styles.textBold}>{selectedWalk.location}, {new Date(selectedWalk.dateTime).toLocaleDateString(undefined, { month: 'long', day: 'numeric' })} at {selectedWalk.dateTime.split('T')[1].slice(0, 5)}</Text>
           </ThemedView>
           <ThemedText>{selectedWalk.description}</ThemedText>
           <ThemedText>with {selectedWalk.username}</ThemedText>
@@ -160,7 +160,7 @@ export default function SelectWalkScreen() {
             <IconSymbol name="timer" size={16} color="#333" style={styles.icon} />
             <ThemedText>{selectedWalk.duration * 60} minutes   </ThemedText>
             <IconSymbol name="person" size={16} color="#333" style={styles.icon} />
-            <ThemedText>{selectedWalk.joinedParticipants} / {selectedWalk.maxParticipants}
+            <ThemedText>{selectedWalk.joinedUserIds.length} / {selectedWalk.maxParticipants}
             </ThemedText>
           </View>
           <Button

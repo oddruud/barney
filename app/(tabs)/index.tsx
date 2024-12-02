@@ -3,11 +3,10 @@ import { Image, StyleSheet, Platform, View, Animated } from 'react-native';
 
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
-import { PlannedWalk } from '@/types/planned_walk';
+import { PlannedWalk } from '@/types/PlannedWalk';
 import WalkItem from '@/components/WalkItem';
-
-import { Link } from 'expo-router';
 import { dataProxy } from '@/data/DataProxy';
+import { Text } from '@/components/Themed';
 
 // Add a new component to display walk statistics
 function WalkStatistics() {
@@ -59,52 +58,52 @@ function NextWalkCountdown({ nextWalkTime }: { nextWalkTime: Date | null }) {
 
   return (
     <ThemedView style={styles.countdownContainer}>
-      <ThemedText>Next Walk In: {timeRemaining}</ThemedText>
+      <Text style={styles.nextWalkText}>Next Walk In: {timeRemaining}</Text>
     </ThemedView>
   );
 }
 
 // Modify the RandomWalkingQuote component to include a fade-in effect
 function RandomWalkingQuote() {
-  const quotes = [
-    "Walking is the best possible exercise. Habituate yourself to walk very far. \n\n- Thomas Jefferson",
-    "An early-morning walk is a blessing for the whole day. \n\n- Henry David Thoreau",
-    "Walking is man's best medicine. \n\n- Hippocrates",
-    "All truly great thoughts are conceived while walking. \n\n- Friedrich Nietzsche",
-    "The journey of a thousand miles begins with one step. \n\n- Lao Tzu"
-  ];
-
-  const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
+  const [quote, setQuote] = useState<string>('');
 
   // Create an animated value for opacity
   const fadeAnim = React.useRef(new Animated.Value(0)).current;
 
-  // Use useEffect to trigger the fade-in animation
+  // Fetch the random quote and trigger the fade-in animation
   useEffect(() => {
-    Animated.timing(fadeAnim, {
-      toValue: 1,
-      duration: 1000, // Duration of the fade-in effect in milliseconds
-      useNativeDriver: true,
-    }).start();
+    const fetchQuote = async () => {
+      const randomQuote = await dataProxy.getRandomWalkingQuote();
+      setQuote(randomQuote);
+
+      // Trigger the fade-in animation after setting the quote
+      Animated.timing(fadeAnim, {
+        toValue: 1,
+        duration: 1000, // Duration of the fade-in effect in milliseconds
+        useNativeDriver: true,
+      }).start();
+    };
+
+    fetchQuote();
   }, [fadeAnim]);
 
   return (
     <Animated.View style={[styles.quoteContainer, { opacity: fadeAnim }]}>
-      <ThemedText style={styles.customFont}>{randomQuote}</ThemedText>
+      <ThemedText style={styles.customFont}>{quote}</ThemedText>
     </Animated.View>
   );
 }
 
 export default function HomeScreen() {
-  const [latestWalk, setLatestWalk] = useState<PlannedWalk | null>(null);
+  const [nextWalk, setNextWalk] = useState<PlannedWalk | null>(null);
 
   useEffect(() => {
-    const fetchLatestWalk = async () => {
-      const walk = await dataProxy.getLatestWalk();
-      setLatestWalk(walk);
+    const fetchNextWalk = async () => {
+      const walk = await dataProxy.getNextWalk();
+      setNextWalk(walk);
     };
 
-    fetchLatestWalk();
+    fetchNextWalk();
   }, []);
 
   return (
@@ -116,10 +115,12 @@ export default function HomeScreen() {
         />
       </ThemedView>
       <RandomWalkingQuote />
-      <NextWalkCountdown 
-        nextWalkTime={latestWalk ? new Date(`${latestWalk.date}T${latestWalk.time}`) : null} 
-      />
-      {latestWalk && <WalkItem item={latestWalk} showDate={true} />}
+      {nextWalk && (
+        <NextWalkCountdown 
+          nextWalkTime={new Date(`${nextWalk.dateTime}`)} 
+        />
+      )}
+      {nextWalk && <WalkItem item={nextWalk} showDate={true} />}
     </View>
   );
 }
@@ -167,6 +168,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     marginVertical: 16,
     backgroundColor: '#e9eae4',
+    fontFamily: 'Voltaire-Frangela',
   },
   quoteContainer: {
     padding: 16,
@@ -177,5 +179,9 @@ const styles = StyleSheet.create({
   customFont: {
     fontFamily: 'Voltaire-Frangela',
     fontSize: 24,
+  },
+  nextWalkText: {
+    fontFamily: 'SpaceMono',
+    fontSize: 16,
   },
 });

@@ -1,6 +1,7 @@
 import { PlannedWalk } from '../types/PlannedWalk';
 import { UserDetails } from '../types/UserDetails';
-import { plannedWalks as dummyPlannedWalks, userDetails as dummyUserDetails } from './DummyData';
+import { ChatMessage } from '../types/ChatMessage';
+import { plannedWalks as dummyPlannedWalks, userDetails as dummyUserDetails, walkingQuotes, chatMessages } from './DummyData';
 import { DataProxy } from './DataProxyInterface'; // Adjust the path as necessary
 
 // Implement the DummyDataProxy class
@@ -8,9 +9,8 @@ class DummyDataProxy implements DataProxy {
   async getPlannedWalks(): Promise<PlannedWalk[]> {
     return new Promise((resolve) => {
       setTimeout(() => {
-        console.log('Fetching planned walks');
         resolve(dummyPlannedWalks);
-      }, 500);
+      }, 10);
     });
   }
 
@@ -58,5 +58,47 @@ class DummyDataProxy implements DataProxy {
       }, 500);
     });
   }
+
+  async getUsersFromJoinedUserIds(walkId: string): Promise<UserDetails[]> {
+    return new Promise((resolve) => {
+      const walk = dummyPlannedWalks.find(walk => walk.id === walkId);
+      if (!walk) {
+        resolve([]);
+        return;
+      }
+
+      const users = walk.joinedUserIds.map(userId => {
+        return dummyUserDetails.find(user => user.id === userId);
+      }).filter(user => user !== undefined) as UserDetails[];
+
+      resolve(users);
+    });
+  }
+
+  // Updated method to return a promise
+  getRandomWalkingQuote(): Promise<string> {
+    return new Promise((resolve) => {
+      resolve(walkingQuotes[Math.floor(Math.random() * walkingQuotes.length)]);
+    });
+  }
+
+  async getNextWalk(): Promise<PlannedWalk | null> {
+    const walks = await this.getPlannedWalks();
+    const currentDate = new Date();
+    const futureWalks = walks.filter(walk => new Date(walk.dateTime) > currentDate);
+    if (futureWalks.length === 0) return null;
+    futureWalks.sort((a, b) => new Date(a.dateTime).getTime() - new Date(b.dateTime).getTime());
+    return futureWalks[0];
+  }
+
+  async getChatMessagesForWalk(walkId: string): Promise<ChatMessage[]> {
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        const messages = chatMessages.filter(message => message.walkId === walkId);
+        resolve(messages);
+      }, 10);
+    });
+  }
 }
+
 export { DummyDataProxy };

@@ -1,6 +1,6 @@
 import { PlannedWalk } from '../types/PlannedWalk';
 import { UserDetails } from '../types/UserDetails';
-
+import { ChatMessage } from '../types/ChatMessage';
 // Define the DataProxy interface
 interface DataProxy {
     getPlannedWalks(): Promise<PlannedWalk[]>;
@@ -9,6 +9,10 @@ interface DataProxy {
     deletePlannedWalk(id: string): Promise<void>;
     getLatestWalk(): Promise<PlannedWalk | null>;
     getUserDetailsById(id: number): Promise<UserDetails | null>;
-  }
+    getRandomWalkingQuote(): Promise<string>;
+    getNextWalk(): Promise<PlannedWalk | null>;
+    getUsersFromJoinedUserIds(walkId: string): Promise<UserDetails[]>;
+    getChatMessagesForWalk(walkId: string): Promise<ChatMessage[]>;
+}
 
 export { DataProxy };

@@ -1,7 +1,6 @@
 export interface PlannedWalk {
     id: string;
-    date: string;
-    time: string;
+    dateTime: string;
     location: string;
     description: string;
     duration: number;
@@ -11,7 +10,8 @@ export interface PlannedWalk {
     latitude: number;
     longitude: number;
     profileImage: string;
-    hasNewMessages: boolean;
-    joinedParticipants: number;
+    lastMessageDate:string;
+    lastDateMessagesChecked: string;
     maxParticipants: number;
+    joinedUserIds: number[];
   }

@@ -14,7 +14,7 @@ const AboutComponent: React.FC<AboutComponentProps> = ({ user }) => {
   useEffect(() => {
     Animated.timing(fadeAnim, {
       toValue: 1,
-      duration: 1000,
+      duration: 0,
       useNativeDriver: true,
     }).start();
   }, [fadeAnim]);

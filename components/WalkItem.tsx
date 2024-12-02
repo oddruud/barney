@@ -6,6 +6,7 @@ import { Link } from 'expo-router';
 import { PlannedWalk } from '../types/PlannedWalk';
 import { StyleSheet } from 'react-native';
 import { IconSymbol } from '../components/ui/IconSymbol';
+import { Map } from '../components/Map';
 
 
 function WalkItem({ item, showDate }: { item: PlannedWalk, showDate: boolean }) {
@@ -15,7 +16,7 @@ function WalkItem({ item, showDate }: { item: PlannedWalk, showDate: boolean }) 
   useEffect(() => {
     Animated.timing(fadeAnim, {
       toValue: 1,
-      duration: 2000,
+      duration: 500,
       useNativeDriver: true,
     }).start();
   }, [fadeAnim]);
@@ -30,18 +31,29 @@ function WalkItem({ item, showDate }: { item: PlannedWalk, showDate: boolean }) 
           />
           <View style={styles.walkInfo}>
             <Text style={styles.date}>
-              {showDate ? `${new Date(item.date).toLocaleDateString(undefined, { month: 'long', day: 'numeric' })} at ${item.time}` : item.time}
+              {showDate ? `${new Date(item.dateTime).toLocaleDateString(undefined, { month: 'long', day: 'numeric' })} at ${item.dateTime.split('T')[1].slice(0, 5)}` : item.dateTime.split('T')[1].slice(0, 5)}
             </Text>
             <Text style={styles.location}>{item.location}</Text>
             <Text style={styles.duration}>{item.duration * 60} minutes</Text>
             <Text style={styles.username}>with {item.username}</Text>
-            {item.hasNewMessages && (
+            {new Date(item.lastMessageDate) > new Date(item.lastDateMessagesChecked) && (
               <View style={styles.newMessageContainer}>
                 <IconSymbol name="paperplane.fill" size={16} color="red" style={styles.messageIcon} />
                 <Text style={styles.newMessageIndicator}>New Messages</Text>
               </View>
             )}
           </View>
+          <Map
+            initialRegion={{
+              latitude: item.latitude,
+              longitude: item.longitude,
+              latitudeDelta: 0.01,
+              longitudeDelta: 0.01,
+            }}
+            markers={[{ id: item.id, coordinate: { latitude: item.latitude, longitude: item.longitude } }]}
+            width={80}
+            height={80}
+          />
         </View>
       </Link>
     </Animated.View>
@@ -78,7 +90,7 @@ const styles = StyleSheet.create({
       flex: 1,
     },
     date: {
-      fontSize: 16,
+      fontSize: 14,
       fontWeight: 'bold',
       color: '#00796b',
       marginBottom: 4,

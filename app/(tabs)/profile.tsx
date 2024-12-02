@@ -5,6 +5,7 @@ import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { useState } from 'react';
 import { Button } from '@/components/Button';
+import { Text } from '@/components/Themed';
 
 const windowHeight = Dimensions.get('window').height;
 
@@ -34,7 +35,7 @@ export default function ProfileScreen() {
   return (
   <ThemedView>
       <ThemedView style={styles.container}>
-      <ThemedText type="title">Profile</ThemedText>
+      <Text style={styles.title}>Profile</Text>
 
         <TouchableOpacity onPress={pickImage} style={styles.profileImageContainer}>
           {profileImage ? (
@@ -88,6 +89,13 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     gap: 8,
     marginBottom: 20,
+  },
+  title: {
+    fontSize: 28,
+    fontWeight: 'bold',
+    color: '#00796b', // Teal color
+    marginBottom: 16,
+    textAlign: 'center', // Center the title
   },
   container: {
     height: windowHeight,
