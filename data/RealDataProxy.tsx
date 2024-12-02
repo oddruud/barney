@@ -87,6 +87,10 @@ class RealDataProxy implements DataProxy {
       body: JSON.stringify(message),
     });
   }
+
+  async updateUserProfile(name: string, description: string, profileImage: string): Promise<void> {
+    // TODO: Implement updateUserProfile
+  }
 }
 
 export { RealDataProxy };

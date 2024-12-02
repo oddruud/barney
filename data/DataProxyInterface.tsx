@@ -14,6 +14,7 @@ interface DataProxy {
     getUsersFromJoinedUserIds(walkId: string): Promise<UserDetails[]>;
     getChatMessagesForWalk(walkId: string): Promise<ChatMessage[]>;
     addChatMessage(message: ChatMessage): Promise<void>;
+    updateUserProfile(name: string, description: string, profileImage: string): Promise<void>;
 }
 
 export { DataProxy };

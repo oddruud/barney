@@ -15,6 +15,7 @@ export function Button({ title, style, onPress, ...props }: ButtonProps) {
     <TouchableOpacity
       style={[styles.button, { backgroundColor }, style]}
       activeOpacity={0.7}
+      onPress={onPress}
       {...props}
     >
       <ThemedText

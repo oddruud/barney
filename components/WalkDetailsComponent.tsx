@@ -80,7 +80,7 @@ const WalkDetailsComponent: React.FC<WalkDetailsComponentProps> = ({
           
           <View style={styles.walkDetailsContainer}>
           
-            <Text style={styles.text}>{walkDetails.description}</Text>
+            <Text style={styles.descriptionText}>{walkDetails.description}</Text>
             <View style={styles.durationContainer}>
               <IconSymbol name="timer" size={16} color="#333" style={styles.icon} />
               <ThemedText>{walkDetails.duration * 60} minutes</ThemedText>
@@ -93,7 +93,6 @@ const WalkDetailsComponent: React.FC<WalkDetailsComponentProps> = ({
             </View>
           </View> 
           
-          <Text style={styles.participantsText}>participants:</Text> 
           <View style={styles.usersListContainer}>
             {users
               .filter(user => user.id !== walkDetails.userId)
@@ -129,24 +128,20 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderColor: '#00796b',
   },
-  text: {
-    fontSize: 16,
-    color: '#333',
-    marginBottom: 8,
-  },
-  participantsText: {
-    fontSize: 16,
-    color: '#333',
-    marginBottom: 8,
-  },
-  hostText: {
-    fontSize: 20,
-    color: '#333',
-    marginBottom: 8,
-  },
   textBold: {
     fontSize: 16,
     fontWeight: 'bold',
+    color: '#333',
+    marginBottom: 8,
+  },
+  descriptionText: {
+    fontSize: 18,
+    color: '#333',
+    marginBottom: 8,
+    fontStyle: 'italic',
+  },
+  hostText: {
+    fontSize: 16,
     color: '#333',
     marginBottom: 8,
   },

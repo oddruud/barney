@@ -53,7 +53,7 @@ export default function WalkDetails() {
           <Text style={styles.tabText}>Chat</Text>
         </TouchableOpacity>
         <TouchableOpacity onPress={() => setActiveTab('about')} style={activeTab === 'about' ? styles.activeTab : styles.tab}>
-          <Text style={styles.tabText}>About Host</Text>
+          <Text style={styles.tabText}>About Organizer</Text>
         </TouchableOpacity>
       </View>
 
@@ -63,7 +63,8 @@ export default function WalkDetails() {
           walkDetails={walkDetails}
           onProfileImagePress={() => setActiveTab('about')}
           onCancelPress={() => { 
-            navigation.navigate("(tabs)");
+            console.log("cancelling walk");
+            navigation.navigate("(tabs)" as never);
           }}
         />
       )}

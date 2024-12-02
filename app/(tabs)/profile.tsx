@@ -6,6 +6,8 @@ import { ThemedView } from '@/components/ThemedView';
 import { useState } from 'react';
 import { Button } from '@/components/Button';
 import { Text } from '@/components/Themed';
+import StarRating from '@/components/StarRating';
+import { dataProxy } from '@/data/DataProxy';
 
 const windowHeight = Dimensions.get('window').height;
 
@@ -27,9 +29,14 @@ export default function ProfileScreen() {
     }
   };
 
-  const handleSave = () => {
-    // TODO: Implement save functionality
+  const handleSave = async () => {
     console.log('Saving profile...');
+  
+    dataProxy.updateUserProfile(
+      name ?? '',
+      description ?? '',
+      profileImage ?? ''
+    );
   };
 
   return (
@@ -66,6 +73,11 @@ export default function ProfileScreen() {
             onChangeText={setDescription}
             placeholderTextColor="#808080"
           />
+        </ThemedView>
+
+        <ThemedView style={styles.ratingContainer}>
+          <ThemedText style={styles.label}>Rating</ThemedText>
+          <StarRating count={5} size={30} color="#FFD700" userCount={5} />
         </ThemedView>
 
         <Button 
@@ -158,5 +170,9 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     padding: 12,
     minHeight: 40,
+  },
+  ratingContainer: {
+    marginVertical: 20,
+    alignItems: 'center',
   },
 });

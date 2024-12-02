@@ -108,6 +108,10 @@ class DummyDataProxy implements DataProxy {
       }, 10);
     });
   }
+
+  async updateUserProfile(name: string, description: string, profileImage: string): Promise<void> {
+    // TODO: Implement updateUserProfile
+  }
 }
 
 export { DummyDataProxy };

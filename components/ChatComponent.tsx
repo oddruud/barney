@@ -3,60 +3,11 @@ import { View, FlatList, TextInput, Button, StyleSheet, Animated, Image, Easing 
 import { Text } from '../components/Themed';
 import { ChatMessage } from '../types/ChatMessage';
 import { dataProxy } from '@/data/DataProxy';
+import ChatMessageItem from './ChatMessageItem';
 
 type ChatComponentProps = {
   walkId: string;
 };
-
-function ChatMessageItem({ message }: { message: ChatMessage }) {
-  const isLocalUser = message.userName === 'You'; // Assuming 'You' is the local username
-  const fadeAnim = useRef(new Animated.Value(0)).current; // Initial opacity value
-  const slideAnim = useRef(new Animated.Value(isLocalUser ? 300 : -300)).current; // Initial position value
-
-  useEffect(() => {
-    Animated.parallel([
-      Animated.timing(fadeAnim, {
-        toValue: 1,
-        duration: message.newMessage ? 1000 : 0, // Duration of the fade-in effect
-        useNativeDriver: true,
-      }),
-      Animated.timing(slideAnim, {
-        toValue: 0,
-        duration: message.newMessage ? 1000 : 0, // Duration of the slide-in effect
-        easing: Easing.out(Easing.sin), // Sine ease-out effect
-        useNativeDriver: true,
-      }),
-    ]).start();
-  }, [fadeAnim, slideAnim]);
-
-  const getColorFromUsername = (username: string) => {
-    let hash = 0;
-    for (let i = 0; i < username.length; i++) {
-      hash = username.charCodeAt(i) + ((hash << 5) - hash);
-    }
-    const color = `hsl(${hash % 360}, 70%, 50%)`; // HSL color
-    return color;
-  };
-
-  return (
-    <Animated.View
-      style={[
-        isLocalUser ? styles.localUserMessage : styles.otherUserMessage,
-        { opacity: fadeAnim, transform: [{ translateX: slideAnim }] },
-      ]}
-    >
-      <View style={styles.header}>
-        <Text style={[styles.username, { color: getColorFromUsername(message.userName) }]}>
-          {message.userName}
-        </Text>
-        <Text style={styles.date}>
-          {new Date(message.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-        </Text>
-      </View>
-      <Text style={styles.message}>{message.message}</Text>
-    </Animated.View>
-  );
-}
 
 export default function ChatComponent({walkId }: ChatComponentProps) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -121,7 +72,13 @@ export default function ChatComponent({walkId }: ChatComponentProps) {
           userId: 1,
           newMessage: true,
         };
-        setMessages((prevMessages = []) => [...prevMessages, botResponse]);
+
+        dataProxy.addChatMessage(botResponse).then(() => {
+            console.log('bot response sent successfully');
+          }).catch(error => {
+            console.error('Error sending message:', error);
+          });
+
       }, 1000); // Respond after 1 second
     }
   };
@@ -174,12 +131,6 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     backgroundColor: '#ffffff',
   },
-  message: {
-    padding: 12,
-    marginVertical: 4,
-    borderRadius: 20,
-    maxWidth: '80%',
-  },
   localUserMessage: {
     backgroundColor: '#b2dfdb',
     alignSelf: 'flex-end',
@@ -191,25 +142,5 @@ const styles = StyleSheet.create({
     alignSelf: 'flex-start',
     padding: 10,
     marginTop: 10,
-  },
-  username: {
-    fontWeight: 'bold',
-    marginBottom: 4,
-  },
-  date: {
-    fontSize: 10,
-    color: '#888',
-    marginTop: 4,
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  profileImage: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    marginRight: 8,
   },
 });

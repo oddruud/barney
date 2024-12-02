@@ -11,7 +11,21 @@ import { dataProxy } from '@/data/DataProxy'; // Import the function
 import { PlannedWalk } from '@/types/PlannedWalk';
 import { Text } from '@/components/Themed';
 import { IconSymbol } from '@/components/ui/IconSymbol';
+import Slider from '@react-native-community/slider'; // Correct import for default export
 
+// Define the haversineDistance function
+const haversineDistance = (lat1: number, lon1: number, lat2: number, lon2: number): number => {
+  const toRad = (value: number) => (value * Math.PI) / 180;
+  const R = 6371; // Radius of the Earth in kilometers
+  const dLat = toRad(lat2 - lat1);
+  const dLon = toRad(lon2 - lon1);
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
+    Math.sin(dLon / 2) * Math.sin(dLon / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return R * c; // Distance in kilometers
+};
 
 export default function SelectWalkScreen() {
   const [selectedWalk, setSelectedWalk] = useState<PlannedWalk | null>(null);
@@ -21,6 +35,13 @@ export default function SelectWalkScreen() {
   const [endDate, setEndDate] = useState<Date | null>(null);
   const [fadeAnim] = useState(new Animated.Value(0)); // Initial opacity value
   const [walks, setWalks] = useState<PlannedWalk[]>([]);
+  const [selectedDistance, setSelectedDistance] = useState<number>(10); // Default distance in kilometers
+  const [mapRegion, setMapRegion] = useState({
+    latitude: 41.1579, // Default to Porto's latitude
+    longitude: -8.6291, // Default to Porto's longitude
+    latitudeDelta: 0.0922,
+    longitudeDelta: 0.0421,
+  });
 
   useEffect(() => {
     (async () => {
@@ -31,7 +52,16 @@ export default function SelectWalkScreen() {
       }
 
       let location = await Location.getCurrentPositionAsync({});
+      console.log('Location:', location);
       setUserLocation(location);
+
+      // Update map region based on user location
+      setMapRegion({
+        latitude: location.coords.latitude,
+        longitude: location.coords.longitude,
+        latitudeDelta: 0.0922,
+        longitudeDelta: 0.0421,
+      });
     })();
   }, []);
 
@@ -55,20 +85,6 @@ export default function SelectWalkScreen() {
       fadeAnim.setValue(0); // Reset opacity when no walk is selected
     }
   }, [selectedWalk]);
-
-  const initialRegion = userLocation
-    ? {
-        latitude: userLocation.coords.latitude,
-        longitude: userLocation.coords.longitude,
-        latitudeDelta: 0.0922,
-        longitudeDelta: 0.0421,
-      }
-    : {
-        latitude: 41.1579, // Default latitude
-        longitude: -8.6291, // Default longitude
-        latitudeDelta: 0.0922,
-        longitudeDelta: 0.0421,
-      };
 
   const handleMarkerPress = (marker: any) => {
     const walk = walks.find(w => w.id === marker.id);
@@ -102,8 +118,18 @@ export default function SelectWalkScreen() {
     setEndDate(date || null);
   };
 
+  const calculateDistance = (userLocation: Location.LocationObject | null, walk: PlannedWalk) => {
+    if (!userLocation) return Infinity;
+    const { latitude, longitude } = userLocation.coords;
+    const walkLatitude = walk.latitude;
+    const walkLongitude = walk.longitude;
+    // Calculate distance using Haversine formula or any other method
+    return haversineDistance(latitude, longitude, walkLatitude, walkLongitude);
+  };
+
   const filteredWalks = walks.filter(walk => {
     const walkDate = new Date(walk.dateTime);
+    const distance = calculateDistance(userLocation, walk); // Function to calculate distance
     return (
       (!startDate || walkDate >= startDate) &&
       (!endDate || walkDate <= endDate)
@@ -132,7 +158,21 @@ export default function SelectWalkScreen() {
         />
       </ThemedView>
 
-      {Platform.OS !== 'web' && (
+      <ThemedView style={styles.sliderContainer}>
+        <ThemedText>Distance: {selectedDistance} km</ThemedText>
+        <Slider
+          style={styles.slider}
+          minimumValue={1}
+          maximumValue={50}
+          step={1}
+          value={selectedDistance}
+          onValueChange={setSelectedDistance}
+          minimumTrackTintColor="#00796b"
+          maximumTrackTintColor="#ccc"
+        />
+      </ThemedView>
+
+      {Platform.OS !== 'web' && userLocation && (
         <Map
           markers={filteredWalks.map(walk => ({
             id: walk.id,
@@ -144,7 +184,7 @@ export default function SelectWalkScreen() {
             description: walk.description
           }))}
           height={300}
-          initialRegion={initialRegion}
+          initialRegion={mapRegion}
           onMarkerPress={handleMarkerPress}
         />
       )}
@@ -237,5 +277,12 @@ const styles = StyleSheet.create({
   },
   icon: {
     marginRight: 4,
+  },
+  sliderContainer: {
+    marginBottom: 20,
+  },
+  slider: {
+    width: '100%',
+    height: 40,
   },
 });

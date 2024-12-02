@@ -15,7 +15,7 @@ export default function NewWalkScreen() {
   const [description, setDescription] = useState('');
   const [location, setLocation] = useState({
     latitude: 41.1579,
-    longitude: -7.6291,
+    longitude: -8.6291,
     title: '',
     description: ''
   });
@@ -132,8 +132,8 @@ export default function NewWalkScreen() {
               initialRegion={{
                 latitude: location.latitude,
                 longitude: location.longitude,
-                latitudeDelta: 0.005,
-                longitudeDelta: 0.005,
+                latitudeDelta: 0.010,
+                longitudeDelta: 0.010,
               }}
               onPress={handleMapPress}
               onMarkerPress={(marker) => {

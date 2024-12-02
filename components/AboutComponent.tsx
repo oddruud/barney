@@ -4,6 +4,8 @@ import { Text } from '../components/Themed';
 import { UserDetails } from '../types/UserDetails';
 import Icon from 'react-native-vector-icons/FontAwesome';  // Import FontAwesome icons
 import { Button } from './Button';
+import StarRating from './StarRating';  // Import the new StarRating component
+import RateUserModal from './RateUserModal';  // Import the new modal component
 
 interface AboutComponentProps {
   user: UserDetails;
@@ -29,35 +31,20 @@ const AboutComponent: React.FC<AboutComponentProps> = ({ user }) => {
           style={styles.profileImage}
         />
         <Text style={styles.textBold}>{user.fullName}</Text>
-        <View style={styles.starContainer}>
-          {[...Array(5)].map((_, index) => (
-            <Icon key={index} name="star" size={20} color="#FFD700" />  // Star icons
-          ))}
-        </View>
-        <Text style={styles.text}>{user.bio}</Text>
-        <Text style={[styles.text, styles.textLeft]}>Walks Completed: {user.walksCompleted}</Text>
+        <Text style={styles.text}>Active Since: {new Date(user.activeSince).toLocaleDateString()}</Text>
+        <Text style={styles.text}>Walks Completed: {user.walksCompleted}</Text>
+        <StarRating count={5} userCount={5} /> 
+        
+        <Text style={styles.bioText}>{user.bio}</Text>
+       
       </Animated.View>
       <Button title="Rate host" onPress={() => setModalVisible(true)} style={styles.rateButton} />
 
-      <Modal
-        animationType="slide"
-        transparent={true}
-        visible={modalVisible}
-        onRequestClose={() => setModalVisible(false)}
-      >
-        <View style={styles.modalContainer}>
-          <View style={styles.modalContent}>
-            <Text style={styles.modalText}>Rate your host</Text>
-            {/* Add rating input components here */}
-            <TouchableOpacity
-              style={styles.closeButton}
-              onPress={() => setModalVisible(false)}
-            >
-              <Text style={styles.closeButtonText}>Close</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </Modal>
+      <RateUserModal user={user} visible={modalVisible} onRate={(rating:number) => {
+        setModalVisible(false)
+        console.log(rating)
+        //dataProxy.rateUser(user.id, rating)
+      }} />
     </View>
   );
 };
@@ -84,8 +71,15 @@ const styles = StyleSheet.create({
   text: {
     fontSize: 16,
     color: '#333',
-    marginBottom: 8,
-    marginTop: 8,
+    marginBottom: 4,
+    marginTop: 4,
+  },
+  bioText: {
+    fontSize: 16,
+    color: '#333',
+    marginBottom: 4,
+    marginTop: 16,
+    fontStyle: 'italic',
   },
   textBold: {
     fontSize: 16,
@@ -102,33 +96,6 @@ const styles = StyleSheet.create({
   },
   rateButton: {
     marginBottom: 20,
-  },
-  modalContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-  },
-  modalContent: {
-    width: 300,
-    padding: 20,
-    backgroundColor: 'white',
-    borderRadius: 10,
-    alignItems: 'center',
-  },
-  modalText: {
-    fontSize: 18,
-    marginBottom: 20,
-  },
-  closeButton: {
-    marginTop: 20,
-    padding: 10,
-    backgroundColor: '#00796b',
-    borderRadius: 5,
-  },
-  closeButtonText: {
-    color: 'white',
-    fontSize: 16,
   },
 });
 
