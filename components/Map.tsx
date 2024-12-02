@@ -16,6 +16,7 @@ type Props = {
     longitude: number;
     latitudeDelta: number;
     longitudeDelta: number;
+    zoomLevel?: number;
   };
   markers?: Marker[];
   width?: number | string;
@@ -38,6 +39,7 @@ export function Map({
     longitude: -8.6291,
     latitudeDelta: 0.0922,
     longitudeDelta: 0.0421,
+    zoomLevel: 3,
   },
   markers = [],
   width = Dimensions.get('window').width,
@@ -54,13 +56,21 @@ export function Map({
   const MapView = require('react-native-maps').default;
   const { Marker, Polyline } = require('react-native-maps');
 
+  // Calculate latitudeDelta and longitudeDelta based on zoomLevel
+  const zoomFactor = initialRegion.zoomLevel || 1; //Math.pow(2, 20 - (initialRegion.zoomLevel || 10));
+  const adjustedRegion = {
+    ...initialRegion,
+    latitudeDelta: initialRegion.latitudeDelta / zoomFactor,
+    longitudeDelta: initialRegion.longitudeDelta / zoomFactor,
+  };
+
   return (
     <MapView 
       style={{
         width,
         height
       }}
-      initialRegion={initialRegion}
+      initialRegion={adjustedRegion}
       onPress={onPress}
     >
       {showRoute && markers.length > 1 && (

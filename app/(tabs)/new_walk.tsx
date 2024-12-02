@@ -15,7 +15,7 @@ export default function NewWalkScreen() {
   const [description, setDescription] = useState('');
   const [location, setLocation] = useState({
     latitude: 41.1579,
-    longitude: -8.6291,
+    longitude: -7.6291,
     title: '',
     description: ''
   });

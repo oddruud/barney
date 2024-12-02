@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Image, StyleSheet, Platform, View } from 'react-native';
+import { Image, StyleSheet, Platform, View, Animated } from 'react-native';
 
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
@@ -64,6 +64,37 @@ function NextWalkCountdown({ nextWalkTime }: { nextWalkTime: Date | null }) {
   );
 }
 
+// Modify the RandomWalkingQuote component to include a fade-in effect
+function RandomWalkingQuote() {
+  const quotes = [
+    "Walking is the best possible exercise. Habituate yourself to walk very far. \n\n- Thomas Jefferson",
+    "An early-morning walk is a blessing for the whole day. \n\n- Henry David Thoreau",
+    "Walking is man's best medicine. \n\n- Hippocrates",
+    "All truly great thoughts are conceived while walking. \n\n- Friedrich Nietzsche",
+    "The journey of a thousand miles begins with one step. \n\n- Lao Tzu"
+  ];
+
+  const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
+
+  // Create an animated value for opacity
+  const fadeAnim = React.useRef(new Animated.Value(0)).current;
+
+  // Use useEffect to trigger the fade-in animation
+  useEffect(() => {
+    Animated.timing(fadeAnim, {
+      toValue: 1,
+      duration: 1000, // Duration of the fade-in effect in milliseconds
+      useNativeDriver: true,
+    }).start();
+  }, [fadeAnim]);
+
+  return (
+    <Animated.View style={[styles.quoteContainer, { opacity: fadeAnim }]}>
+      <ThemedText style={styles.customFont}>{randomQuote}</ThemedText>
+    </Animated.View>
+  );
+}
+
 export default function HomeScreen() {
   const [latestWalk, setLatestWalk] = useState<PlannedWalk | null>(null);
 
@@ -84,8 +115,10 @@ export default function HomeScreen() {
           style={styles.image}
         />
       </ThemedView>
-      <WalkStatistics />
-      <NextWalkCountdown nextWalkTime={latestWalk ? new Date(latestWalk.date) : null} />
+      <RandomWalkingQuote />
+      <NextWalkCountdown 
+        nextWalkTime={latestWalk ? new Date(`${latestWalk.date}T${latestWalk.time}`) : null} 
+      />
       {latestWalk && <WalkItem item={latestWalk} showDate={true} />}
     </View>
   );
@@ -134,5 +167,15 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     marginVertical: 16,
     backgroundColor: '#e9eae4',
+  },
+  quoteContainer: {
+    padding: 16,
+    backgroundColor: '#e9eae4',
+    marginVertical: 16,
+    borderRadius: 8,
+  },
+  customFont: {
+    fontFamily: 'Voltaire-Frangela',
+    fontSize: 24,
   },
 });
