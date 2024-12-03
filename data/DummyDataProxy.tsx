@@ -213,6 +213,12 @@ class DummyDataProxy implements DataProxy {
       resolve(dummyUserDetails[randomIndex]);
     });
   }
+
+  async checkSessionValidity(userId: number): Promise<boolean> {
+    return new Promise((resolve) => {
+      resolve(true);
+    });
+  }
 }
 
 export { DummyDataProxy };

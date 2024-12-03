@@ -1,5 +1,5 @@
 import React, { useRef, useEffect, useState } from 'react';
-import { View, Image, StyleSheet, TouchableOpacity, Animated, ScrollView, Linking, Platform } from 'react-native';
+import { View, Image, StyleSheet, TouchableOpacity, Animated, ScrollView, Linking, Platform, Modal } from 'react-native';
 import { Text } from '../components/Themed';
 import { Map } from '../components/Map';
 import { Button } from '../components/Button';
@@ -29,6 +29,7 @@ const WalkDetailsComponent: React.FC<WalkDetailsComponentProps> = ({
   const [isLocalUserJoined, setIsLocalUserJoined] = useState(false);
   const [updateState, setUpdateState] = useState(0);
   const scaleFadeAnim = useRef(new Animated.Value(0)).current; // Initial value for scale and opacity: 0
+  const [isAreYouSureModalVisible, setIsAreYouSureModalVisible] = useState(false);
 
   const isOrganizer = user?.id === walkDetails.userId;
 
@@ -37,9 +38,7 @@ const WalkDetailsComponent: React.FC<WalkDetailsComponentProps> = ({
       const users = await dataProxy.getUsersFromJoinedUserIds(walkDetails.id);
       setUsers(users);
     };
-    console.log("walk details useEffect did run!");
     fetchUsersFromJoinedUserIds();
-
     setIsLocalUserJoined(walkDetails.joinedUserIds.includes(user?.id ?? 0));
 
     Animated.timing(fadeAnim, {
@@ -71,6 +70,13 @@ const WalkDetailsComponent: React.FC<WalkDetailsComponentProps> = ({
     if (url) {
       Linking.openURL(url).catch(err => console.error('An error occurred', err));
     }
+  };
+
+  const handleCancelPress = async () => {
+    setIsLocalUserJoined(false);
+    await onCancelPress();
+    setUpdateState(updateState + 1);
+    setIsAreYouSureModalVisible(false);
   };
 
   return (
@@ -106,6 +112,7 @@ const WalkDetailsComponent: React.FC<WalkDetailsComponentProps> = ({
               longitudeDelta: 0.0421,
               zoomLevel:6,
             }}
+            showUserLocation={true}
             markers={[
               {
                 id: '1',
@@ -160,35 +167,51 @@ const WalkDetailsComponent: React.FC<WalkDetailsComponentProps> = ({
       <Button
         title="Open in Maps"
         onPress={openInMaps}
-        style={{ marginTop: 16, backgroundColor: '#007aff' }}
+        style={styles.buttonStyle}
       />
 
       {!isLocalUserJoined && (
         <Button
           title="Join"
-          onPress={async ()=> {
+          onPress={async () => {
             setIsLocalUserJoined(true);
             await onJoinPress();
             setUpdateState(updateState + 1);
           }}
-          style={{ marginTop: 16, backgroundColor: '#007aff' }}
+          style={styles.buttonStyle}
         />
       )}
 
       {isLocalUserJoined && (
         <Button
-          title="Cancel"
-          onPress={async ()=> {
-            setIsLocalUserJoined(false);
-            await onCancelPress();
-            setUpdateState(updateState + 1);
-            
+          title={isOrganizer ? "Cancel Walk" : "Leave Walk"}
+          onPress={() => {
+            if (isOrganizer) {
+              setIsAreYouSureModalVisible(true);
+            } else {
+              handleCancelPress();
+            }
           }}
-          style={{ marginTop: 16, backgroundColor: '#ff0000' }}
+          style={styles.cancelButton}
         />
       )}
-      
-      
+
+      <Modal
+        transparent={true}
+        visible={isAreYouSureModalVisible}
+        animationType="fade"
+        onRequestClose={() => setIsAreYouSureModalVisible(false)}
+      >
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalText}>Are you sure you want to cancel the walk?</Text>
+            <View style={styles.modalButtons}>
+              <Button title="Yes" onPress={handleCancelPress} style={styles.modalButtonYes} />
+              <Button title="No" onPress={() => setIsModalVisible(false)} style={styles.modalButton} />
+            </View>
+          </View>
+        </View>
+      </Modal>
     </Animated.View>
   );
 };
@@ -262,6 +285,42 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#007aff',
     marginLeft: 8,
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  modalContent: {
+    width: 300,
+    padding: 20,
+    backgroundColor: 'white',
+    borderRadius: 10,
+    alignItems: 'center',
+  },
+  modalText: {
+    fontSize: 18,
+    marginBottom: 20,
+  },
+  modalButtons: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  modalButton: {
+    marginHorizontal: 10,
+  },
+  modalButtonYes: {
+    marginHorizontal: 10,
+    backgroundColor: '#ff0000',
+  },
+  cancelButton: {
+    marginTop: 16,
+    backgroundColor: '#ff0000',
+  },
+  buttonStyle: {
+    marginTop: 16,
+    backgroundColor: '#007aff',
   },
 });
 

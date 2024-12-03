@@ -142,6 +142,7 @@ export default function NewWalkScreen() {
             <ThemedText>Loading location...</ThemedText>
           ) : (
             <Map
+              showUserLocation={true}
               markers={[{
                 id: '1',
                 coordinate: {

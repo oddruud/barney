@@ -1,283 +1,62 @@
-import { StyleSheet, Platform, Image, Animated, TouchableOpacity, View } from 'react-native';
-import { ThemedView } from '@/components/ThemedView';
-import { ThemedText } from '@/components/ThemedText';
-import { Map } from '@/components/Map';
-import { useState, useEffect } from 'react';
-import { Button } from '@/components/Button';
-import { router } from 'expo-router';
-import DateTimePicker from '@react-native-community/datetimepicker';
-import * as Location from 'expo-location';
-import { dataProxy } from '@/data/DataProxy'; // Import the function
-import { PlannedWalk } from '@/types/PlannedWalk';
-import { Text } from '@/components/Themed';
-import { IconSymbol } from '@/components/ui/IconSymbol';
-import Slider from '@react-native-community/slider'; // Correct import for default export
-import { useUser } from '@/contexts/UserContext';
-import { haversineDistance } from '@/utils/geoUtils';
+import React, { useState } from 'react';
+import { View, StyleSheet, TouchableOpacity } from 'react-native';
+import { Text } from '../../components/Themed';
+import SelectWalkInArea from '../../components/SelectWalkInArea';
+
 export default function SelectWalkScreen() {
-    const { user } = useUser();
-  const [selectedWalk, setSelectedWalk] = useState<PlannedWalk | null>(null);
-  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
-  const [userLocation, setUserLocation] = useState<Location.LocationObject | null>(null);
-  const [startDate, setStartDate] = useState<Date | null>(null);
-  const [endDate, setEndDate] = useState<Date | null>(null);
-  const [fadeAnim] = useState(new Animated.Value(0)); // Initial opacity value
-  const [walks, setWalks] = useState<PlannedWalk[]>([]);
-  const [selectedDistance, setSelectedDistance] = useState<number>(10); // Default distance in kilometers
-  const [mapRegion, setMapRegion] = useState({
-    latitude: 41.1579, // Default to Porto's latitude
-    longitude: -8.6291, // Default to Porto's longitude
-    latitudeDelta: 0.0922,
-    longitudeDelta: 0.0421,
-  });
-
-  useEffect(() => {
-    (async () => {
-      let { status } = await Location.requestForegroundPermissionsAsync();
-      if (status !== 'granted') {
-        console.log('Permission to access location was denied');
-        return;
-      }
-
-      let location = await Location.getCurrentPositionAsync({});
-      console.log('Location:', location);
-      setUserLocation(location);
-
-      // Update map region based on user location
-      setMapRegion({
-        latitude: location.coords.latitude,
-        longitude: location.coords.longitude,
-        latitudeDelta: 0.0922,
-        longitudeDelta: 0.0421,
-      });
-    })();
-  }, []);
-
-  useEffect(() => {
-    const fetchWalks = async () => {
-      const fetchedWalks = await dataProxy.getPlannedWalks();
-      setWalks(fetchedWalks);
-    };
-
-    fetchWalks();
-  }, []);
-
-  useEffect(() => {
-    if (selectedWalk) {
-      Animated.timing(fadeAnim, {
-        toValue: 1,
-        duration: 500, // Duration of the fade-in effect
-        useNativeDriver: true,
-      }).start();
-    } else {
-      fadeAnim.setValue(0); // Reset opacity when no walk is selected
-    }
-  }, [selectedWalk]);
-
-  useEffect(() => {
-    setStartDate(new Date());
-    setEndDate(new Date());
-  }, []);
-
-  const handleMarkerPress = (marker: any) => {
-    const walk = walks.find(w => w.id === marker.id);
-    setSelectedWalk(walk || null);
-  };
-
-  const handleCheckOutWalk = () => {
-    if (selectedWalk) {
-        router.push(`/details/${selectedWalk.id}`);
-    }
-  };
-
-  const handleDateChange = (event: any, date?: Date) => {
-    setSelectedDate(date || null);
-  };
-
-  const handleShowUserProfile = () => {
-    if (selectedWalk) {
-      // TODO: Navigate to the user's profile
-      console.log('Showing profile for:', selectedWalk.username);
-    }
-  };
-
-  const handleStartDateChange = (event: any, date?: Date) => {
-    setStartDate(date || null);
-  };
-
-  const handleEndDateChange = (event: any, date?: Date) => {
-    setEndDate(date || null);
-  };
-
-  const calculateDistance = (userLocation: Location.LocationObject | null, walk: PlannedWalk) => {
-    if (!userLocation) return Infinity;
-    const { latitude, longitude } = userLocation.coords;
-    const walkLatitude = walk.latitude;
-    const walkLongitude = walk.longitude;
-    // Calculate distance using Haversine formula or any other method
-    return haversineDistance(latitude, longitude, walkLatitude, walkLongitude);
-  };
-
-
-  const filteredWalks = walks.filter(walk => {
-    const walkDate = new Date(walk.dateTime);
-    const distance = calculateDistance(userLocation, walk); // Function to calculate distance
-    return (
-      walkDate >= new Date() && // Ensure the walk is in the future
-      (!startDate || walkDate >= startDate) &&
-      (!endDate || walkDate <= endDate) &&
-      distance <= selectedDistance &&
-      !walk.joinedUserIds.includes(user.id) // Exclude walks the user has already joined
-    );
-  });
+  // State for managing active tab
+  const [activeTab, setActiveTab] = useState('myArea');
 
   return (
-    <ThemedView style={styles.container}>
-      <ThemedText style={styles.title}>Join a Walk</ThemedText>
+    <View style={styles.container}>
+      {/* Tab Navigation */}
+      <View style={styles.tabContainer}>
+        <TouchableOpacity onPress={() => setActiveTab('myArea')} style={activeTab === 'myArea' ? styles.activeTab : styles.tab}>
+          <Text style={styles.tabText}>My Area</Text>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={() => setActiveTab('invites')} style={activeTab === 'invites' ? styles.activeTab : styles.tab}>
+          <Text style={styles.tabText}>Invites</Text>
+        </TouchableOpacity>
+      </View>
 
-      <ThemedView style={styles.dateContainer}>
-        <ThemedText>From:</ThemedText>
-        <DateTimePicker
-          value={startDate || new Date()}
-          mode="date"
-          display="default"
-          onChange={handleStartDateChange}
-        />
-
-        <ThemedText>To:</ThemedText>
-        <DateTimePicker
-          value={endDate || new Date()}
-          mode="date"
-          display="default"
-          onChange={handleEndDateChange}
-        />
-      </ThemedView>
-
-      <ThemedView style={styles.sliderContainer}>
-        <ThemedText>Search Radius: {selectedDistance} km</ThemedText>
-        <Slider
-          style={styles.slider}
-          minimumValue={1}
-          maximumValue={50}
-          step={1}
-          value={selectedDistance}
-          onValueChange={setSelectedDistance}
-          minimumTrackTintColor="#00796b"
-          maximumTrackTintColor="#ccc"
-        />
-      </ThemedView>
-
-      {Platform.OS !== 'web' && userLocation && (
-        <Map
-          markers={filteredWalks.map(walk => ({
-            id: walk.id,
-            coordinate: {
-              latitude: walk.latitude,
-              longitude: walk.longitude,
-            },
-            title: walk.location,
-            description: walk.description
-          }))}
-          height={240}
-          width="100%"
-          initialRegion={mapRegion}
-          onMarkerPress={handleMarkerPress}
-        />
+      {/* Tab Content */}
+      {activeTab === 'myArea' && (
+        <SelectWalkInArea minSearchRadius={1} maxSearchRadius={50} initialStartDate={new Date()} initialEndDate={new Date(new Date().setDate(new Date().getDate() + 7))} />
       )}
 
-      {selectedWalk && (
-        <Animated.View style={[styles.walkDetails, { opacity: fadeAnim }]}>
-          <ThemedView style={styles.walkHeader}>
-            <Text style={styles.textBold}>{selectedWalk.location}, {new Date(selectedWalk.dateTime).toLocaleDateString(undefined, { month: 'long', day: 'numeric' })} at {selectedWalk.dateTime.split('T')[1].slice(0, 5)}</Text>
-          </ThemedView>
-          <ThemedText>{selectedWalk.description}</ThemedText>
-          <ThemedText>with {selectedWalk.username}</ThemedText>
-          <View style={styles.durationContainer}>
-            <IconSymbol name="timer" size={16} color="#333" style={styles.icon} />
-            <ThemedText>{selectedWalk.duration * 60} minutes   </ThemedText>
-            <IconSymbol name="person" size={16} color="#333" style={styles.icon} />
-            <ThemedText>{selectedWalk.joinedUserIds.length} / {selectedWalk.maxParticipants}
-            </ThemedText>
-          </View>
-          <Button
-            title="Check out"
-            onPress={handleCheckOutWalk}
-            style={styles.checkOutButton}
-          />
-        </Animated.View>
+      {activeTab === 'invites' && (
+        <Text>Invites Content</Text> // Replace with your actual component for invites
       )}
-    </ThemedView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 20,
-    marginTop: 50,
+    marginTop: 32,
+    backgroundColor: '#ffffff',
   },
-  title: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: '#00796b', // Teal color
-    marginBottom: 16,
-    marginTop: 16,
-    textAlign: 'center', // Center the title
-  },
-  walkDetails: {
-    marginTop: 20,
-    padding: 15,
-    borderRadius: 10,
-    borderWidth: 1,
-    borderColor: '#ccc',
-  },
-  walkHeader: {
+  tabContainer: {
     flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 3,
+    justifyContent: 'flex-start',
+    marginTop: 16,
+    padding: 16,
   },
-  profileImage: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
+  tab: {
+    padding: 10,
+    backgroundColor: '#0E1111',
+    borderRadius: 10,
     marginRight: 10,
   },
-  walkTitle: {
-    fontSize: 18,
+  activeTab: {
+    padding: 10,
+    backgroundColor: '#00796b',
+    borderRadius: 10,
+    marginRight: 10,
+  },
+  tabText: {
+    color: '#fff',
     fontWeight: 'bold',
-    flex: 1,
-  },
-  checkOutButton: {
-    marginTop: 15,
-  },
-  profileButton: {
-    marginTop: 10,
-  },
-  dateContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 20,
-  },
-  durationContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 0,
-  },
-  textBold: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#333',
-    marginBottom: 8,
-  },
-  icon: {
-    marginRight: 4,
-  },
-  sliderContainer: {
-    marginBottom: 20,
-  },
-  slider: {
-    width: '100%',
-    height: 40,
-  },
+  }
 });

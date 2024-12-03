@@ -1,4 +1,6 @@
-import { StyleSheet, Dimensions, Linking, Platform } from 'react-native';
+import { StyleSheet, Dimensions, Linking, Platform, Image } from 'react-native';
+import { useEffect, useState } from 'react';
+import * as Location from 'expo-location';
 
 type Marker = {
   id: string;
@@ -19,6 +21,7 @@ type Props = {
     zoomLevel?: number;
   };
   markers?: Marker[];
+  showUserLocation?: boolean;
   width?: number | string;
   height?: number | string;
   onMarkerPress?: (marker: Marker) => void;
@@ -42,12 +45,36 @@ export function Map({
     zoomLevel: 3,
   },
   markers = [],
+  showUserLocation = false,
   width = Dimensions.get('window').width,
   height = 600,
   onMarkerPress,
   showRoute = false,
   onPress
 }: Props) {
+  const [userLocation, setUserLocation] = useState<Marker['coordinate'] | null>(null);
+
+  useEffect(() => {
+    (
+        
+     async () => {
+        if (showUserLocation) {
+            let { status } = await Location.requestForegroundPermissionsAsync();
+            if (status !== 'granted') {
+                console.log('Permission to access location was denied');
+                return;
+            }
+
+            let location = await Location.getCurrentPositionAsync({});
+            setUserLocation({
+                latitude: location.coords.latitude,
+                longitude: location.coords.longitude,
+                });
+        }
+      }
+    )();
+  }, [userLocation]);
+
   if (Platform.OS === 'web') {
     return null;
   }
@@ -74,6 +101,17 @@ export function Map({
       onPress={onPress}
       mapType={'standard'}
     >
+      {userLocation && showUserLocation && (
+        <Marker
+          coordinate={userLocation}
+          title="You"
+        >
+            <Image
+                source={require('../assets/images/circle.png')}
+                style={{ width: 20 , height: 20 }}
+            />
+        </Marker>
+      )}
       {showRoute && markers.length > 1 && (
         <Polyline
           coordinates={markers.map(marker => marker.coordinate)}

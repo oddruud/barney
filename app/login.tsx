@@ -37,8 +37,9 @@ export default function LoginScreen() {
     const checkLoggedIn = async () => {
         const userData: UserDetails | null = await LocalUserData.getInstance().getUserData();
         //todo check with server if user session is still valid
+        const sessionValid = await dataProxy.checkSessionValidity(userData?.id);
         
-        if (userData) {
+        if (userData && sessionValid) {
             setUser(userData);
             //TODO show logging in visual
             router.replace("/(tabs)");

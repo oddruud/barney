@@ -22,6 +22,7 @@ interface DataProxy {
     unsubscribeFromWalk(walkId: string, userId: number): Promise<PlannedWalk | null>;
     joinWalk(walkId: string, userId: number): Promise<PlannedWalk | null>;
     getLocalUserData(): Promise<UserDetails | null>;
+    checkSessionValidity(userId: number): Promise<boolean>;
 }
 
 export { DataProxy };

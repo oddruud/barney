@@ -6,7 +6,6 @@ import { StatusBar } from 'expo-status-bar';
 import { useEffect, useState } from 'react';
 import 'react-native-reanimated';
 import { router } from 'expo-router';
-import LocalUserData from '@/data/LocalData';
 import { UserDetails } from '@/types/UserDetails';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { UserProvider } from '@/contexts/UserContext';

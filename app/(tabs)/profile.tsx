@@ -23,7 +23,6 @@ export default function ProfileScreen() {
   const [isModalVisible, setIsModalVisible] = useState(false);
 
   useEffect(() => {
-    console.log('Profile screen user:', user);
     
     if (user) {
       setName(user.fullName);
@@ -46,7 +45,7 @@ export default function ProfileScreen() {
   };
 
   const handleSave = async () => {
-    console.log('Saving changes');
+
     setIsModalVisible(true);
     const updatedUser = await dataProxy.updateUserProfile(
       user?.id ?? 0,
@@ -67,7 +66,6 @@ export default function ProfileScreen() {
 
   const handleLogout = () => {
     LocalUserData.getInstance().clearUserData();
-    setUser(null);
     router.replace("/login");
   };
 
@@ -85,8 +83,6 @@ export default function ProfileScreen() {
       </View>
     </Modal>
     <ThemedView style={styles.container}>
-      <Text style={styles.title}>Profile</Text>
-
       <TouchableOpacity onPress={pickImage} style={styles.profileImageContainer}>
         {profileImage ? (
           <Image source={{ uri: profileImage }} style={styles.profileImage} />

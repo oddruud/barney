@@ -122,6 +122,11 @@ class RealDataProxy implements DataProxy {
     // TODO: Implement getUserData
     return null;
   }
+
+  async checkSessionValidity(userId: number): Promise<boolean> {
+    // TODO: Implement checkSessionValidity
+    return false;
+  }
 }
 
 export { RealDataProxy };
