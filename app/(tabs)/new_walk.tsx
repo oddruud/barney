@@ -78,7 +78,7 @@ export default function NewWalkScreen() {
         });
         
         // TODO: fetch address only if location changed
-        //await fetchAddress(currentLocation.coords.latitude, currentLocation.coords.longitude);
+        //
       }
       setIsLoadingLocation(false);
     })();
@@ -134,12 +134,10 @@ export default function NewWalkScreen() {
       latitude,
       longitude,
     });
-    await fetchAddress(latitude, longitude);
   };
 
   const handleSearch = async (query: string) => {
     setSearchQuery(query);
-    // Example search logic: filter users based on the query
     const allUsers = await dataProxy.getAllUsers();
 
     const results = allUsers.filter(user => user.fullName.toLowerCase().includes(query.toLowerCase()));
@@ -271,7 +269,10 @@ export default function NewWalkScreen() {
           style={styles.inviteButton}
         />
         <Button
-          onPress={createWalk}
+          onPress={async () => {
+            await fetchAddress(location.latitude, location.longitude);
+            createWalk();
+          }}
           title="Schedule Walk"
           style={styles.submitButton}
         />

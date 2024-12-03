@@ -212,7 +212,6 @@ export const walkingQuotes: string[] = [
   "The best way to lengthen out our days is to walk steadily and with a purpose. \n\n- Charles Dickens",
   "Walking is the perfect way of moving if you want to see into the life of things. \n\n- Elizabeth von Arnim",
   "A walk in nature walks the soul back home. \n\n- Mary Davis",
-  "Walking is the great adventure, the first meditation, a practice of heartiness and soul primary to humankind. \n\n- Gary Snyder",
   "Walking is a virtue, tourism is a deadly sin. \n\n- Bruce Chatwin",
   "The best thoughts most often come while walking. \n\n- Friedrich Nietzsche",
   "Walking is the exact balance between spirit and humility. \n\n- Gary Snyder",

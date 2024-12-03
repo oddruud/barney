@@ -2,7 +2,6 @@ import React, { useState, useRef, useEffect } from 'react';
 import { View, StyleSheet, Image, TextInput, FlatList, TouchableOpacity } from 'react-native';
 import { Text } from '../../components/Themed';
 import { useRoute, useNavigation } from '@react-navigation/native';
-import { Link } from 'expo-router';
 import ChatComponent from '../../components/ChatComponent';
 import WalkDetailsComponent from '../../components/WalkDetailsComponent';
 import AboutComponent from '../../components/AboutComponent';
@@ -25,8 +24,6 @@ export default function WalkDetails() {
   const [organizerDetails, setOrganizerDetails] = useState<UserDetails | null>(null);
 
   useEffect(() => {
-    console.log("[id].tsx: walk details useEffect did run!");
-
     const fetchWalkDetails = async () => {
       const walk = await dataProxy.getPlannedWalk(id);    
       setWalkDetails(walk || null);
@@ -40,12 +37,6 @@ export default function WalkDetails() {
 
     fetchWalkDetails();
   }, [id, walkDetails]);
-
-  useEffect(() => {
-    if (walkDetails) {
-      console.log("Walk details updated for real:", walkDetails);
-    }
-  }, [walkDetails]);
 
     // State for managing active tab
     const [activeTab, setActiveTab] = useState('details');
@@ -90,11 +81,8 @@ export default function WalkDetails() {
           }}
           onJoinPress={async () => {
             if (user) {
-              //remove self from invitedUserIds on join
-              console.log("Joining walk");
               const newWalkDetails = await dataProxy.joinWalk(walkDetails.id, user.id);
               await dataProxy.declineInvite(walkDetails.id, user.id);
-              console.log("Joining walk:", newWalkDetails);
               setWalkDetails(newWalkDetails);
               await sleep(10);
             }

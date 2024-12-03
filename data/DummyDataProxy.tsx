@@ -130,10 +130,12 @@ class DummyDataProxy implements DataProxy {
     });
   }
 
-  async getNextWalk(): Promise<PlannedWalk | null> {
+  async getNextWalkForUser(userId: number): Promise<PlannedWalk | null> {
     const walks = await this.getPlannedWalks();
     const currentDate = new Date();
-    const futureWalks = walks.filter(walk => new Date(walk.dateTime) > currentDate);
+    const futureWalks = walks.filter(walk => 
+        new Date(walk.dateTime) > currentDate && walk.joinedUserIds.includes(userId)
+    );
     if (futureWalks.length === 0) return null;
     futureWalks.sort((a, b) => new Date(a.dateTime).getTime() - new Date(b.dateTime).getTime());
     return futureWalks[0];

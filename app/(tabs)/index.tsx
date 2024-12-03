@@ -6,30 +6,8 @@ import { ThemedView } from '@/components/ThemedView';
 import { PlannedWalk } from '@/types/PlannedWalk';
 import WalkItem from '@/components/WalkItem';
 import { dataProxy } from '@/data/DataProxy';
+import { useUser } from '@/contexts/UserContext';
 import { Text } from '@/components/Themed';
-
-// Add a new component to display walk statistics
-function WalkStatistics() {
-  return (
-    <ThemedView style={styles.statisticsContainer}>
-      <ThemedText>Total Walks: 10</ThemedText>
-      <ThemedText>Total Distance: 50 km</ThemedText>
-      <ThemedText>Average Speed: 5 km/h</ThemedText>
-    </ThemedView>
-  );
-}
-
-// Add a new component to display achievement badges
-function AchievementBadges() {
-  return (
-    <ThemedView style={styles.badgesContainer}>
-      <ThemedText type="subtitle">Achievements</ThemedText>
-      <ThemedText>🏆 First Walk</ThemedText>
-      <ThemedText>🥇 10 Walks</ThemedText>
-      <ThemedText>🚀 50 km Milestone</ThemedText>
-    </ThemedView>
-  );
-}
 
 // Add a new component to display countdown to the next walk
 function NextWalkCountdown({ nextWalkTime }: { nextWalkTime: Date | null }) {
@@ -95,11 +73,12 @@ function RandomWalkingQuote() {
 }
 
 export default function HomeScreen() {
+  const { user } = useUser();
   const [nextWalk, setNextWalk] = useState<PlannedWalk | null>(null);
 
   useEffect(() => {
     const fetchNextWalk = async () => {
-      const walk = await dataProxy.getNextWalk();
+      const walk = await dataProxy.getNextWalkForUser(user?.id ?? 0);
       setNextWalk(walk);
     };
 

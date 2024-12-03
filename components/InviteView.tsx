@@ -45,7 +45,7 @@ export default function InviteView() {
   
           {invitedWalks.length === 0 && (
             <View style={styles.noWalksContainer}>
-              <Text style={styles.noWalksText}>No Invites</Text>
+              <Text style={styles.noWalksText}>No Pending Invites</Text>
             </View>
           )}
         </>

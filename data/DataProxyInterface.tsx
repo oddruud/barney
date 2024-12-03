@@ -15,7 +15,7 @@ interface DataProxy {
     getLatestWalk(): Promise<PlannedWalk | null>;
     getUserDetailsById(id: number): Promise<UserDetails | null>;
     getRandomWalkingQuote(): Promise<string>;
-    getNextWalk(): Promise<PlannedWalk | null>;
+    getNextWalkForUser(userId: number): Promise<PlannedWalk | null>;
     getUsersFromJoinedUserIds(walkId: string): Promise<UserDetails[]>;
     getChatMessagesForWalk(walkId: string): Promise<ChatMessage[]>;
     addChatMessage(message: ChatMessage): Promise<void>;

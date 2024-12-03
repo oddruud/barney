@@ -34,6 +34,7 @@ const WalkDetailsComponent: React.FC<WalkDetailsComponentProps> = ({
   const scaleFadeAnim = useRef(new Animated.Value(0)).current; // Initial value for scale and opacity: 0
   const [isAreYouSureModalVisible, setIsAreYouSureModalVisible] = useState(false);
   const buttonAnim = useRef(new Animated.Value(100)).current; // Initial value for vertical position: 100
+  const zoomAnim = useRef(new Animated.Value(6)).current; // Initial zoom level
 
   const isOrganizer = user?.id === walkDetails.userId;
 
@@ -69,6 +70,15 @@ const WalkDetailsComponent: React.FC<WalkDetailsComponentProps> = ({
       useNativeDriver: true,
     }).start();
   }, [buttonAnim]);
+
+  useEffect(() => {
+    // Animate zoom level
+    Animated.timing(zoomAnim, {
+      toValue: 12, // Target zoom level
+      duration: 1000, // Duration of the zoom animation
+      useNativeDriver: false, // Native driver doesn't support non-transform properties
+    }).start();
+  }, [zoomAnim]);
 
   // Format the date to display month and day
   const formattedDate = new Date(walkDetails.dateTime).toLocaleDateString('en-US', { month: 'long', day: 'numeric' });
@@ -130,7 +140,7 @@ const WalkDetailsComponent: React.FC<WalkDetailsComponentProps> = ({
               longitude: walkDetails.longitude,
               latitudeDelta: 0.0922,
               longitudeDelta: 0.0421,
-              zoomLevel:6,
+              zoomLevel: 3, // Use animated zoom level
             }}
             showUserLocation={true}
             markers={[
