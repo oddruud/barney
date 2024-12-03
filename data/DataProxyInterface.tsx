@@ -6,9 +6,10 @@ import { ChatMessage } from '../types/ChatMessage';
 interface DataProxy {
     getPlannedWalks(): Promise<PlannedWalk[]>;
     getPlannedWalksByUserId(userId: number): Promise<PlannedWalk[]>;
+    getPlannedWalk(walkId: string): Promise<PlannedWalk | null>;
     addPlannedWalk(walk: PlannedWalk): Promise<void>;
     updatePlannedWalk(id: string, updatedWalk: Partial<PlannedWalk>): Promise<void>;
-    deletePlannedWalk(id: string): Promise<void>;
+    cancelPlannedWalk(id: string): Promise<void>;
     getLatestWalk(): Promise<PlannedWalk | null>;
     getUserDetailsById(id: number): Promise<UserDetails | null>;
     getRandomWalkingQuote(): Promise<string>;

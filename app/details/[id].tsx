@@ -10,6 +10,10 @@ import { dataProxy } from '../../data/DataProxy';
 import { PlannedWalk } from '../../types/PlannedWalk';
 import { UserDetails } from '../../types/UserDetails';
 import { useUser } from '@/contexts/UserContext';
+import { router } from 'expo-router';
+
+// Define a sleep function
+const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
 export default function WalkDetails() {
   const route = useRoute();
@@ -20,9 +24,10 @@ export default function WalkDetails() {
   const [organizerDetails, setOrganizerDetails] = useState<UserDetails | null>(null);
 
   useEffect(() => {
+    console.log("[id].tsx: walk details useEffect did run!");
+
     const fetchWalkDetails = async () => {
-      const walks = await dataProxy.getPlannedWalks();
-      const walk = walks.find(walk => walk.id === id);
+      const walk = await dataProxy.getPlannedWalk(id);    
       setWalkDetails(walk || null);
 
       if (walk) {
@@ -33,8 +38,13 @@ export default function WalkDetails() {
     };
 
     fetchWalkDetails();
-  }, [id]);
-  
+  }, [id, walkDetails]);
+
+  useEffect(() => {
+    if (walkDetails) {
+      console.log("Walk details updated for real:", walkDetails);
+    }
+  }, [walkDetails]);
 
     // State for managing active tab
     const [activeTab, setActiveTab] = useState('details');
@@ -68,8 +78,14 @@ export default function WalkDetails() {
           onCancelPress={async () => { 
             console.log("cancelling walk");
             if (user) {
-              const newWalkDetails = await dataProxy.unsubscribeFromWalk(walkDetails.id, user.id);
-              setWalkDetails(newWalkDetails);
+              if (user.id === walkDetails.userId) {
+                await dataProxy.cancelPlannedWalk(walkDetails.id);
+                router.push('/(tabs)/planned_walks');
+              } else {
+                const newWalkDetails = await dataProxy.unsubscribeFromWalk(walkDetails.id, user.id);
+                setWalkDetails(newWalkDetails);
+                await sleep(10);
+              }
             }
           }}
           onJoinPress={async () => {
@@ -77,6 +93,7 @@ export default function WalkDetails() {
             if (user) {
               const newWalkDetails = await dataProxy.joinWalk(walkDetails.id, user.id);
               setWalkDetails(newWalkDetails);
+              await sleep(10);
             }
           }}
         />

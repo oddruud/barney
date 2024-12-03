@@ -9,6 +9,11 @@ class RealDataProxy implements DataProxy {
     return response.json();
   }
 
+  async getPlannedWalk(walkId: string): Promise<PlannedWalk | null> {
+    const response = await fetch(`/api/plannedWalks/${walkId}`);
+    return response.json();
+  }
+
   async getPlannedWalksByUserId(userId: number): Promise<PlannedWalk[]> {
     const response = await fetch(`/api/plannedWalksByUserId/${userId}`);
     return response.json();
@@ -34,7 +39,7 @@ class RealDataProxy implements DataProxy {
     });
   }
 
-  async deletePlannedWalk(id: string): Promise<void> {
+  async cancelPlannedWalk(id: string): Promise<void> {
     await fetch(`/api/plannedWalks/${id}`, {
       method: 'DELETE',
     });

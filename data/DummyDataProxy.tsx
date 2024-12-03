@@ -14,10 +14,18 @@ class DummyDataProxy implements DataProxy {
     });
   }
 
+  async getPlannedWalk(walkId: string): Promise<PlannedWalk | null> {
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        resolve(dummyPlannedWalks.find(walk => walk.id === walkId) || null);
+      }, 10);
+    });
+  }
+
   async getPlannedWalksByUserId(userId: number): Promise<PlannedWalk[]> {
     return new Promise((resolve) => {
       setTimeout(() => {
-        resolve(dummyPlannedWalks.filter(walk => walk.joinedUserIds.includes(userId)));
+        resolve(dummyPlannedWalks.filter(walk => walk.joinedUserIds.includes(userId) && !walk.cancelled));
       }, 10);
     });
   }
@@ -42,10 +50,13 @@ class DummyDataProxy implements DataProxy {
     });
   }
 
-  async deletePlannedWalk(id: string): Promise<void> {
+  async cancelPlannedWalk(id: string): Promise<void> {
     return new Promise((resolve) => {
       setTimeout(() => {
-        dummyPlannedWalks = dummyPlannedWalks.filter(walk => walk.id !== id);
+        const walk = dummyPlannedWalks.find(walk => walk.id === id);
+        if (walk) {
+          walk.cancelled = true;
+        }
         resolve();
       }, 500);
     });
@@ -172,7 +183,7 @@ class DummyDataProxy implements DataProxy {
         walk.joinedUserIds = walk.joinedUserIds.filter(id => id !== userId);
 
         resolve(walk);
-      }, 500); // Simulate async delay
+      }, 10); // Simulate async delay
     });
   }
 
@@ -191,13 +202,15 @@ class DummyDataProxy implements DataProxy {
         }
         
         resolve(walk);
-      }, 500); // Simulate async delay
+      }, 10); // Simulate async delay
     });
   }
 
+  //get a random user from the dummyUserDetails array
   async getLocalUserData(): Promise<UserDetails | null> {
     return new Promise((resolve) => {
-      resolve(dummyUserDetails[0]);
+      const randomIndex = Math.floor(Math.random() * dummyUserDetails.length);
+      resolve(dummyUserDetails[randomIndex]);
     });
   }
 }

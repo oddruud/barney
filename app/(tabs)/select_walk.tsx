@@ -12,22 +12,10 @@ import { PlannedWalk } from '@/types/PlannedWalk';
 import { Text } from '@/components/Themed';
 import { IconSymbol } from '@/components/ui/IconSymbol';
 import Slider from '@react-native-community/slider'; // Correct import for default export
-
-// Define the haversineDistance function
-const haversineDistance = (lat1: number, lon1: number, lat2: number, lon2: number): number => {
-  const toRad = (value: number) => (value * Math.PI) / 180;
-  const R = 6371; // Radius of the Earth in kilometers
-  const dLat = toRad(lat2 - lat1);
-  const dLon = toRad(lon2 - lon1);
-  const a =
-    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-    Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
-    Math.sin(dLon / 2) * Math.sin(dLon / 2);
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-  return R * c; // Distance in kilometers
-};
-
+import { useUser } from '@/contexts/UserContext';
+import { haversineDistance } from '@/utils/geoUtils';
 export default function SelectWalkScreen() {
+    const { user } = useUser();
   const [selectedWalk, setSelectedWalk] = useState<PlannedWalk | null>(null);
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [userLocation, setUserLocation] = useState<Location.LocationObject | null>(null);
@@ -86,6 +74,11 @@ export default function SelectWalkScreen() {
     }
   }, [selectedWalk]);
 
+  useEffect(() => {
+    setStartDate(new Date());
+    setEndDate(new Date());
+  }, []);
+
   const handleMarkerPress = (marker: any) => {
     const walk = walks.find(w => w.id === marker.id);
     setSelectedWalk(walk || null);
@@ -125,13 +118,16 @@ export default function SelectWalkScreen() {
     return haversineDistance(latitude, longitude, walkLatitude, walkLongitude);
   };
 
+
   const filteredWalks = walks.filter(walk => {
     const walkDate = new Date(walk.dateTime);
     const distance = calculateDistance(userLocation, walk); // Function to calculate distance
     return (
+      walkDate >= new Date() && // Ensure the walk is in the future
       (!startDate || walkDate >= startDate) &&
       (!endDate || walkDate <= endDate) &&
-      distance <= selectedDistance
+      distance <= selectedDistance &&
+      !walk.joinedUserIds.includes(user.id) // Exclude walks the user has already joined
     );
   });
 
@@ -253,7 +249,6 @@ const styles = StyleSheet.create({
   },
   checkOutButton: {
     marginTop: 15,
-    width: 100,
   },
   profileButton: {
     marginTop: 10,

@@ -27,29 +27,36 @@ const WalkDetailsComponent: React.FC<WalkDetailsComponentProps> = ({
   const fadeAnim = useRef(new Animated.Value(0)).current; // Initial value for opacity: 0
   const [users, setUsers] = useState<UserDetails[]>([]);
   const [isLocalUserJoined, setIsLocalUserJoined] = useState(false);
+  const [updateState, setUpdateState] = useState(0);
+  const scaleFadeAnim = useRef(new Animated.Value(0)).current; // Initial value for scale and opacity: 0
+
+  const isOrganizer = user?.id === walkDetails.userId;
 
   useEffect(() => {
     const fetchUsersFromJoinedUserIds = async () => {
       const users = await dataProxy.getUsersFromJoinedUserIds(walkDetails.id);
       setUsers(users);
     };
-
+    console.log("walk details useEffect did run!");
     fetchUsersFromJoinedUserIds();
 
-    const isLocalUserJoined = async() => {
-      setIsLocalUserJoined(walkDetails.joinedUserIds.includes(user?.id ?? 0));
-    };
-
-    isLocalUserJoined();
+    setIsLocalUserJoined(walkDetails.joinedUserIds.includes(user?.id ?? 0));
 
     Animated.timing(fadeAnim, {
       toValue: 1,
       duration: 0, // Duration of the fade-in effect
       useNativeDriver: true,
     }).start();
-  }, [fadeAnim, walkDetails]);
+  }, [walkDetails, user, fadeAnim, isLocalUserJoined, updateState]);
 
-  
+  useEffect(() => {
+    Animated.timing(scaleFadeAnim, {
+      toValue: 1,
+      duration: 500, // Duration of the scale and fade effect
+      useNativeDriver: true,
+    }).start();
+  }, [scaleFadeAnim, updateState]);
+
   // Format the date to display month and day
   const formattedDate = new Date(walkDetails.dateTime).toLocaleDateString('en-US', { month: 'long', day: 'numeric' });
 
@@ -66,13 +73,22 @@ const WalkDetailsComponent: React.FC<WalkDetailsComponentProps> = ({
     }
   };
 
-
   return (
     <Animated.View style={{ flex: 1, opacity: fadeAnim }}>
       <ScrollView>
         <View style={{ flex: 1 }}>
-        <Text style={styles.textBold}>{walkDetails.location}, {formattedDate} at {walkDetails.dateTime.split('T')[1].slice(0, 5)}</Text>
-        <View style={styles.profileContainer}>
+          <Text style={styles.textBold}>
+            {walkDetails.location}, {formattedDate} at {walkDetails.dateTime.split('T')[1].slice(0, 5)}
+          </Text>
+          <Animated.View
+            style={[
+              styles.profileContainer,
+              {
+                opacity: scaleFadeAnim,
+                transform: [{ scale: scaleFadeAnim }],
+              },
+            ]}
+          >
             <TouchableOpacity onPress={onProfileImagePress}>
               <Image 
                 source={{ uri: walkDetails.profileImage }}
@@ -80,7 +96,8 @@ const WalkDetailsComponent: React.FC<WalkDetailsComponentProps> = ({
               />
             </TouchableOpacity>
             <Text style={styles.hostText}>With {walkDetails.username}</Text>
-          </View>
+            {isOrganizer && <Text style={styles.organizerText}>(You)</Text>}
+          </Animated.View>
           <Map
             initialRegion={{
               latitude: walkDetails.latitude,
@@ -105,8 +122,7 @@ const WalkDetailsComponent: React.FC<WalkDetailsComponentProps> = ({
           />
           
           <View style={styles.walkDetailsContainer}>
-          
-            <Text style={styles.descriptionText}>{mutableWalkDetails.description}</Text>
+            <Text style={styles.descriptionText}>{walkDetails.description}</Text>
             <View style={styles.durationContainer}>
               <IconSymbol name="timer" size={16} color="#333" style={styles.icon} />
               <ThemedText>{walkDetails.duration * 60} minutes</ThemedText>
@@ -123,10 +139,19 @@ const WalkDetailsComponent: React.FC<WalkDetailsComponentProps> = ({
             {users
               .filter(user => user.id !== walkDetails.userId)
               .map((user) => (
-                <View key={user.id} style={styles.userItem}>
+                <Animated.View
+                  key={user.id}
+                  style={[
+                    styles.userItem,
+                    {
+                      opacity: scaleFadeAnim,
+                      transform: [{ scale: scaleFadeAnim }],
+                    },
+                  ]}
+                >
                   <Image source={{ uri: user.profileImage }} style={styles.userImage} />
                   <Text style={styles.userName}>{user.fullName}</Text>
-                </View>
+                </Animated.View>
               ))}
           </View>
         </View>
@@ -141,9 +166,10 @@ const WalkDetailsComponent: React.FC<WalkDetailsComponentProps> = ({
       {!isLocalUserJoined && (
         <Button
           title="Join"
-          onPress={()=> {
-            onJoinPress()
-            console.log("joining walk");
+          onPress={async ()=> {
+            setIsLocalUserJoined(true);
+            await onJoinPress();
+            setUpdateState(updateState + 1);
           }}
           style={{ marginTop: 16, backgroundColor: '#007aff' }}
         />
@@ -152,9 +178,11 @@ const WalkDetailsComponent: React.FC<WalkDetailsComponentProps> = ({
       {isLocalUserJoined && (
         <Button
           title="Cancel"
-          onPress={()=> {
-            onCancelPress()
-            console.log("cancelling walk");
+          onPress={async ()=> {
+            setIsLocalUserJoined(false);
+            await onCancelPress();
+            setUpdateState(updateState + 1);
+            
           }}
           style={{ marginTop: 16, backgroundColor: '#ff0000' }}
         />
@@ -229,6 +257,11 @@ const styles = StyleSheet.create({
   userName: {
     fontSize: 16,
     color: '#333',
+  },
+  organizerText: {
+    fontSize: 14,
+    color: '#007aff',
+    marginLeft: 8,
   },
 });
 

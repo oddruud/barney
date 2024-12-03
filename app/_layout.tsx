@@ -3,7 +3,7 @@ import { useFonts } from 'expo-font';
 import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import 'react-native-reanimated';
 import { router } from 'expo-router';
 import LocalUserData from '@/data/LocalData';
@@ -16,6 +16,7 @@ SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();
+  const [user, setUser] = useState<UserDetails>();
   const [loaded] = useFonts({
     'SpaceMono': require('../assets/fonts/SpaceMono-Regular.ttf'),
     'Voltaire-Frangela': require('../assets/fonts/Voltaire-Frangela.ttf'),
@@ -24,17 +25,7 @@ export default function RootLayout() {
   useEffect(() => {
     if (loaded) {
       SplashScreen.hideAsync();
-
-      const localUserData = LocalUserData.getInstance();
-      localUserData.getUserData().then((userData: UserDetails | null) => {
-        console.log(userData);
-        if (userData) {
-          router.replace("/(tabs)");
-        } else {
-          router.replace("/login");
-        }
-      });
-      
+      router.replace("/login"); 
     }
   }, [loaded]);
 

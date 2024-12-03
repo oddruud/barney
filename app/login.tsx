@@ -34,6 +34,19 @@ export default function LoginScreen() {
         await login();
     };
 
+    const checkLoggedIn = async () => {
+        const userData: UserDetails | null = await LocalUserData.getInstance().getUserData();
+        //todo check with server if user session is still valid
+        
+        if (userData) {
+            setUser(userData);
+            //TODO show logging in visual
+            router.replace("/(tabs)");
+        }
+    }
+
+    checkLoggedIn();
+
     const login = async () => {
         const localUserData = LocalUserData.getInstance();
         try {

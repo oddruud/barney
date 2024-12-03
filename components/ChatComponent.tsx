@@ -62,15 +62,27 @@ export default function ChatComponent({walkId, user }: ChatComponentProps) {
         console.error('Error sending message:', error);
       });
 
+      // Array of possible bot responses
+      const botResponses = [
+        "Thanks for your message!",
+        "I'll get back to you soon.",
+        "How can I assist you further?",
+        "Your message has been received.",
+        "Thank you for reaching out!"
+      ];
+
+      // Select a random message from the array
+      const randomResponse = botResponses[Math.floor(Math.random() * botResponses.length)];
+
       // Simulate a bot response
       setTimeout(() => {
         const botResponse: ChatMessage = {
           id: (Date.now() + 1).toString(),
           timestamp: new Date().toISOString(),
           userName: 'John Doe',
-          message: "Thanks for your message!",
+          message: randomResponse, // Use the random message
           walkId: walkId,
-          userId: 1,
+          userId: 10,
           newMessage: true,
         };
 

@@ -14,4 +14,5 @@ export interface PlannedWalk {
     lastDateMessagesChecked: string;
     maxParticipants: number;
     joinedUserIds: number[];
+    cancelled: boolean;
   }
