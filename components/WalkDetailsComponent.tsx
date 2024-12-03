@@ -4,24 +4,29 @@ import { Text } from '../components/Themed';
 import { Map } from '../components/Map';
 import { Button } from '../components/Button';
 import { IconSymbol } from '../components/ui/IconSymbol';
-import { PlannedWalk } from '../types/PlannedWalk';
 import { ThemedText } from '../components/ThemedText';
-import { dataProxy } from '../data/DataProxy';
+import { PlannedWalk } from '../types/PlannedWalk';
 import { UserDetails } from '../types/UserDetails';
+import { dataProxy } from '../data/DataProxy';
 
 interface WalkDetailsComponentProps {
   walkDetails: PlannedWalk;
+  user: UserDetails | null;
   onProfileImagePress: () => void;
   onCancelPress: () => void;
+  onJoinPress: () => void;
 }
 
 const WalkDetailsComponent: React.FC<WalkDetailsComponentProps> = ({
   walkDetails,
+  user,
   onProfileImagePress,
   onCancelPress,
+  onJoinPress,
 }) => {
   const fadeAnim = useRef(new Animated.Value(0)).current; // Initial value for opacity: 0
   const [users, setUsers] = useState<UserDetails[]>([]);
+  const [isLocalUserJoined, setIsLocalUserJoined] = useState(false);
 
   useEffect(() => {
     const fetchUsersFromJoinedUserIds = async () => {
@@ -31,13 +36,20 @@ const WalkDetailsComponent: React.FC<WalkDetailsComponentProps> = ({
 
     fetchUsersFromJoinedUserIds();
 
+    const isLocalUserJoined = async() => {
+      setIsLocalUserJoined(walkDetails.joinedUserIds.includes(user?.id ?? 0));
+    };
+
+    isLocalUserJoined();
+
     Animated.timing(fadeAnim, {
       toValue: 1,
       duration: 0, // Duration of the fade-in effect
       useNativeDriver: true,
     }).start();
-  }, [fadeAnim]);
+  }, [fadeAnim, walkDetails]);
 
+  
   // Format the date to display month and day
   const formattedDate = new Date(walkDetails.dateTime).toLocaleDateString('en-US', { month: 'long', day: 'numeric' });
 
@@ -53,6 +65,7 @@ const WalkDetailsComponent: React.FC<WalkDetailsComponentProps> = ({
       Linking.openURL(url).catch(err => console.error('An error occurred', err));
     }
   };
+
 
   return (
     <Animated.View style={{ flex: 1, opacity: fadeAnim }}>
@@ -93,7 +106,7 @@ const WalkDetailsComponent: React.FC<WalkDetailsComponentProps> = ({
           
           <View style={styles.walkDetailsContainer}>
           
-            <Text style={styles.descriptionText}>{walkDetails.description}</Text>
+            <Text style={styles.descriptionText}>{mutableWalkDetails.description}</Text>
             <View style={styles.durationContainer}>
               <IconSymbol name="timer" size={16} color="#333" style={styles.icon} />
               <ThemedText>{walkDetails.duration * 60} minutes</ThemedText>
@@ -118,16 +131,35 @@ const WalkDetailsComponent: React.FC<WalkDetailsComponentProps> = ({
           </View>
         </View>
       </ScrollView>
+      
       <Button
         title="Open in Maps"
         onPress={openInMaps}
         style={{ marginTop: 16, backgroundColor: '#007aff' }}
       />
-      <Button
-        title="Cancel"
-        onPress={onCancelPress}
-        style={{ marginTop: 16, backgroundColor: '#ff0000' }}
-      />
+
+      {!isLocalUserJoined && (
+        <Button
+          title="Join"
+          onPress={()=> {
+            onJoinPress()
+            console.log("joining walk");
+          }}
+          style={{ marginTop: 16, backgroundColor: '#007aff' }}
+        />
+      )}
+
+      {isLocalUserJoined && (
+        <Button
+          title="Cancel"
+          onPress={()=> {
+            onCancelPress()
+            console.log("cancelling walk");
+          }}
+          style={{ marginTop: 16, backgroundColor: '#ff0000' }}
+        />
+      )}
+      
       
     </Animated.View>
   );

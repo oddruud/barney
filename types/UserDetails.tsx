@@ -6,4 +6,6 @@ export type UserDetails = {
   bio: string;
   profileImage: string;
   walksCompleted: number;
+  rating: number;
+  numberOfRatings: number;
 };

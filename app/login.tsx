@@ -4,7 +4,14 @@ import { Video, ResizeMode } from 'expo-av';
 import { Button } from '@/components/Button';
 import { router } from 'expo-router';
 import { Text } from '@/components/Themed';
+import LocalUserData from '@/data/LocalData';
+import { dataProxy } from '@/data/DataProxy';
+import { UserDetails } from '@/types/UserDetails';
+import { useUser } from '@/contexts/UserContext';
+
 export default function LoginScreen() {
+    const { setUser } = useUser();
+
     const videoSource = 'https://roboruud.nl/walk.mp4';    
     const fadeAnim = useRef(new Animated.Value(0)).current; // Initial opacity value of 0
     const buttonFadeAnim = useRef(new Animated.Value(0)).current; // Initial opacity value for button
@@ -23,16 +30,26 @@ export default function LoginScreen() {
         }).start();
     }, [fadeAnim, buttonFadeAnim]);
 
-    const responseGoogle = (response: any) => {
-        console.log(response);
-        // Handle Google login response
+    const handleLoginPress = async () => {
+        await login();
     };
 
-    const handleLoginPress = () => {
-        // Handle login button press
-        console.log('Login button pressed');
-        router.replace("/(tabs)");
-    };
+    const login = async () => {
+        const localUserData = LocalUserData.getInstance();
+        try {
+            //todo actual login flow
+            const userData: UserDetails | null = await dataProxy.getLocalUserData();
+            
+            if (userData) {
+                console.log("logged in user", userData);
+                localUserData.saveUserData(userData);
+                setUser(userData);
+                router.replace("/(tabs)");
+            }
+        } catch (error) {
+            console.error("Error fetching user data:", error);
+        }
+    }
 
     const screenWidth = Dimensions.get('window').width;
     const scaledFontSize = screenWidth * 0.1; // Adjust the multiplier as needed

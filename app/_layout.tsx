@@ -6,12 +6,13 @@ import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
 import 'react-native-reanimated';
 import { router } from 'expo-router';
-
+import LocalUserData from '@/data/LocalData';
+import { UserDetails } from '@/types/UserDetails';
 import { useColorScheme } from '@/hooks/useColorScheme';
+import { UserProvider } from '@/contexts/UserContext';
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
-
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();
@@ -23,7 +24,16 @@ export default function RootLayout() {
   useEffect(() => {
     if (loaded) {
       SplashScreen.hideAsync();
-      router.replace("/login");
+
+      const localUserData = LocalUserData.getInstance();
+      localUserData.getUserData().then((userData: UserDetails | null) => {
+        console.log(userData);
+        if (userData) {
+          router.replace("/(tabs)");
+        } else {
+          router.replace("/login");
+        }
+      });
       
     }
   }, [loaded]);
@@ -34,8 +44,9 @@ export default function RootLayout() {
 
   return (
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack initialRouteName="login">
-        <Stack.Screen 
+      <UserProvider>
+        <Stack initialRouteName="login">
+          <Stack.Screen 
           name="login" 
           options={{ 
             headerShown: false,
@@ -64,7 +75,8 @@ export default function RootLayout() {
         />
         
       </Stack>
-      <StatusBar style="auto" />
+        <StatusBar style="auto" />
+      </UserProvider>
     </ThemeProvider>
   );
 }

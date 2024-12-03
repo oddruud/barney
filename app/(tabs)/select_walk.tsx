@@ -91,11 +91,9 @@ export default function SelectWalkScreen() {
     setSelectedWalk(walk || null);
   };
 
-  const handleJoinWalk = () => {
+  const handleCheckOutWalk = () => {
     if (selectedWalk) {
-      //todo: handle joining the walk
-      //dataProxy.joinWalk(selectedWalk.id);
-    router.push(`/details/${selectedWalk.id}`);
+        router.push(`/details/${selectedWalk.id}`);
     }
   };
 
@@ -206,9 +204,9 @@ export default function SelectWalkScreen() {
             </ThemedText>
           </View>
           <Button
-            title="Join"
-            onPress={handleJoinWalk}
-            style={styles.joinButton}
+            title="Check out"
+            onPress={handleCheckOutWalk}
+            style={styles.checkOutButton}
           />
         </Animated.View>
       )}
@@ -253,7 +251,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     flex: 1,
   },
-  joinButton: {
+  checkOutButton: {
     marginTop: 15,
     width: 100,
   },

@@ -32,7 +32,7 @@ const AboutComponent: React.FC<AboutComponentProps> = ({ user }) => {
         <Text style={styles.textBold}>{user.fullName}</Text>
         <Text style={styles.text}>Active Since: {new Date(user.activeSince).toLocaleDateString()}</Text>
         <Text style={styles.text}>Walks Completed: {user.walksCompleted}</Text>
-        <StarRating count={5} userCount={5} /> 
+        <StarRating count={parseInt(user.rating.toFixed(1))} userCount={user.numberOfRatings} /> 
         
         <Text style={styles.bioText}>{user.bio}</Text>
        

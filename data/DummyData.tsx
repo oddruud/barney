@@ -99,6 +99,8 @@ export const userDetails: UserDetails[] = [
     bio: 'A passionate walker and nature enthusiast, John has been exploring trails and parks for over a decade. With a keen interest in botany and wildlife, he often shares his knowledge with fellow walkers. John believes in the therapeutic power of nature and enjoys organizing community walks to promote wellness and environmental awareness.',
     profileImage: 'https://cdn.britannica.com/92/212692-050-D53981F5/labradoodle-dog-stick-running-grass.jpg',
     walksCompleted: 10,
+    rating: 4.5,
+    numberOfRatings: 20,
   },
   {
     id: 2,
@@ -108,6 +110,8 @@ export const userDetails: UserDetails[] = [
     activeSince: '2024-12-01T09:00',
     bio: 'Jane is a nature lover who enjoys hiking and exploring the great outdoors. She is passionate about sustainability and is always looking for ways to reduce her carbon footprint. Jane is also a keen photographer and loves capturing the beauty of nature through her lens.',
     profileImage: 'https://discoverymood.com/wp-content/uploads/2020/04/Mental-Strong-Women-min.jpg',
+    rating: 4.7,
+    numberOfRatings: 15,
   },
   {
     id: 3,
@@ -117,6 +121,8 @@ export const userDetails: UserDetails[] = [
     bio: 'Carlos is an avid hiker and enjoys discovering new trails. He is a fitness enthusiast and often combines his love for walking with his workout routines.',
     profileImage: 'https://upload.wikimedia.org/wikipedia/commons/6/69/Mn_roy2.jpg',
     walksCompleted: 15,
+    rating: 4.8,
+    numberOfRatings: 25,
   },
   {
     id: 4,
@@ -126,6 +132,8 @@ export const userDetails: UserDetails[] = [
     bio: 'Ana loves the tranquility of nature and often goes for walks to clear her mind. She is also a yoga instructor and incorporates walking into her wellness practices.',
     profileImage: 'https://static01.nyt.com/images/2021/01/17/arts/wonderwoman1984-anatomy1/wonderwoman1984-anatomy1-videoSixteenByNine3000-v2.jpg',
     walksCompleted: 8,
+    rating: 4.6,
+    numberOfRatings: 18,
   },
   {
     id: 5,
@@ -135,6 +143,8 @@ export const userDetails: UserDetails[] = [
     bio: 'Miguel is a coastal walker who enjoys the sound of the waves and the fresh sea breeze. He is a marine biologist and often shares interesting facts about marine life during his walks.',
     profileImage: 'https://t4.ftcdn.net/jpg/02/24/86/95/240_F_224869519_aRaeLneqALfPNBzg0xxMZXghtvBXkfIA.jpg',
     walksCompleted: 20,
+    rating: 4.9,
+    numberOfRatings: 30,
   },
 ];
 

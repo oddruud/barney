@@ -9,14 +9,15 @@ import AboutComponent from '../../components/AboutComponent';
 import { dataProxy } from '../../data/DataProxy';
 import { PlannedWalk } from '../../types/PlannedWalk';
 import { UserDetails } from '../../types/UserDetails';
+import { useUser } from '@/contexts/UserContext';
 
 export default function WalkDetails() {
   const route = useRoute();
   const navigation = useNavigation();
   const { id } = route.params as { id: string };
-
+  const { user } = useUser();
   const [walkDetails, setWalkDetails] = useState<PlannedWalk | null>(null);
-  const [userDetails, setUserDetails] = useState<UserDetails | null>(null);
+  const [organizerDetails, setOrganizerDetails] = useState<UserDetails | null>(null);
 
   useEffect(() => {
     const fetchWalkDetails = async () => {
@@ -26,8 +27,9 @@ export default function WalkDetails() {
 
       if (walk) {
         const user = await dataProxy.getUserDetailsById(walk.userId);
-        setUserDetails(user || null);
+        setOrganizerDetails(user || null);
       }
+
     };
 
     fetchWalkDetails();
@@ -61,21 +63,31 @@ export default function WalkDetails() {
       {activeTab === 'details' && (
         <WalkDetailsComponent
           walkDetails={walkDetails}
+          user={user}
           onProfileImagePress={() => setActiveTab('about')}
-          onCancelPress={() => { 
+          onCancelPress={async () => { 
             console.log("cancelling walk");
-            dataProxy.unsubscribeFromWalk(id);
-            navigation.navigate("(tabs)" as never);
+            if (user) {
+              const newWalkDetails = await dataProxy.unsubscribeFromWalk(walkDetails.id, user.id);
+              setWalkDetails(newWalkDetails);
+            }
+          }}
+          onJoinPress={async () => {
+            console.log("joining walk");
+            if (user) {
+              const newWalkDetails = await dataProxy.joinWalk(walkDetails.id, user.id);
+              setWalkDetails(newWalkDetails);
+            }
           }}
         />
       )}
 
       {activeTab === 'chat' && (
-        <ChatComponent walkId={id} />
+        <ChatComponent walkId={id} user={user}/>
       )}
 
-      {activeTab === 'about' && userDetails && (
-        <AboutComponent user={userDetails} />
+      {activeTab === 'about' && organizerDetails && (
+        <AboutComponent user={organizerDetails} />
       )}
     </View>
   );

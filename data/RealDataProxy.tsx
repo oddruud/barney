@@ -9,6 +9,11 @@ class RealDataProxy implements DataProxy {
     return response.json();
   }
 
+  async getPlannedWalksByUserId(userId: number): Promise<PlannedWalk[]> {
+    const response = await fetch(`/api/plannedWalksByUserId/${userId}`);
+    return response.json();
+  }
+
   async addPlannedWalk(walk: PlannedWalk): Promise<void> {
     await fetch('/api/plannedWalks', {
       method: 'POST',
@@ -88,8 +93,9 @@ class RealDataProxy implements DataProxy {
     });
   }
 
-  async updateUserProfile(name: string, description: string, profileImage: string): Promise<void> {
+  async updateUserProfile(id:number, name: string, bio: string, profileImage: string): Promise<UserDetails | null> {
     // TODO: Implement updateUserProfile
+    return null;
   }
 
   async createWalk(userId: number, date: Date, duration: number, maxParticipants: number, description: string, locationName: string, location: { latitude: number, longitude: number }): Promise<PlannedWalk | null> {
@@ -97,8 +103,19 @@ class RealDataProxy implements DataProxy {
     return null;
   }
 
-  async unsubscribeFromWalk(walkId: string): Promise<void> {
+  async unsubscribeFromWalk(walkId: string, userId: number): Promise<PlannedWalk | null> {
     // TODO: Implement unsubscribeFromWalk
+    return null;
+  }
+
+  async joinWalk(walkId: string, userId: number): Promise<PlannedWalk | null> {
+    // TODO: Implement joinWalk
+    return null;
+  }
+
+  async getLocalUserData(): Promise<UserDetails | null> {
+    // TODO: Implement getUserData
+    return null;
   }
 }
 

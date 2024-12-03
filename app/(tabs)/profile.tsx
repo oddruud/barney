@@ -1,5 +1,6 @@
 import { StyleSheet, Image, Platform, Switch, TouchableOpacity, TextInput, Dimensions } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
+import { useEffect } from 'react';
 
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
@@ -8,13 +9,24 @@ import { Button } from '@/components/Button';
 import { Text } from '@/components/Themed';
 import StarRating from '@/components/StarRating';
 import { dataProxy } from '@/data/DataProxy';
+import LocalUserData from '@/data/LocalData';
+import { useUser } from '@/contexts/UserContext';
 
 const windowHeight = Dimensions.get('window').height;
 
 export default function ProfileScreen() {
+  const { user, setUser } = useUser();
   const [profileImage, setProfileImage] = useState<string | null>(null);
-  const [description, setDescription] = useState('');
+  const [bio, setBio] = useState('');
   const [name, setName] = useState('');
+
+  useEffect(() => {
+    if (user) {
+      setName(user.fullName);
+      setBio(user.bio);
+      setProfileImage(user.profileImage);
+    }
+  }, [user]);
 
   const pickImage = async () => {
     const result = await ImagePicker.launchImageLibraryAsync({
@@ -30,13 +42,17 @@ export default function ProfileScreen() {
   };
 
   const handleSave = async () => {
-    console.log('Saving profile...');
-  
-    dataProxy.updateUserProfile(
+    const updatedUser = await dataProxy.updateUserProfile(
+      user?.id ?? 0,
       name ?? '',
-      description ?? '',
+      bio ?? '',
       profileImage ?? ''
     );
+    
+    if (updatedUser) {
+      LocalUserData.getInstance().saveUserData(updatedUser);
+      setUser(updatedUser);
+    }
   };
 
   return (
@@ -69,8 +85,8 @@ export default function ProfileScreen() {
             style={styles.descriptionInput}
             multiline
             placeholder="Tell us about yourself..."
-            value={description}
-            onChangeText={setDescription}
+            value={bio}
+            onChangeText={setBio}
             placeholderTextColor="#808080"
           />
         </ThemedView>

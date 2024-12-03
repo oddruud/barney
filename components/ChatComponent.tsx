@@ -3,12 +3,14 @@ import { View, FlatList, TextInput, Button, StyleSheet, Animated, Image, Easing 
 import { ChatMessage } from '../types/ChatMessage';
 import { dataProxy } from '@/data/DataProxy';
 import ChatMessageItem from './ChatMessageItem';
+import { UserDetails } from '../types/UserDetails';
 
 type ChatComponentProps = {
   walkId: string;
+  user: UserDetails | null;
 };
 
-export default function ChatComponent({walkId }: ChatComponentProps) {
+export default function ChatComponent({walkId, user }: ChatComponentProps) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [inputText, setInputText] = useState('');
   const flatListRef = useRef<FlatList>(null);
@@ -47,7 +49,7 @@ export default function ChatComponent({walkId }: ChatComponentProps) {
         userName: 'You',
         message: inputText,
         walkId: walkId,
-        userId: 1,
+        userId: user?.id ?? 0,
         newMessage: true,
       };
       setMessages([...(messages || []), newMessage]);
@@ -95,7 +97,7 @@ export default function ChatComponent({walkId }: ChatComponentProps) {
           ref={flatListRef}
           data={messages}
           keyExtractor={(item) => item.id}
-          renderItem={({ item }) => <ChatMessageItem message={item} />}
+          renderItem={({ item }) => <ChatMessageItem message={item} isLocalUser={item.userId === user?.id} />}
         />
       </View>
       <TextInput

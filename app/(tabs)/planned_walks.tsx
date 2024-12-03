@@ -4,14 +4,16 @@ import { useState, useEffect } from 'react';
 import WalkItem from '../../components/WalkItem'; // Import the new WalkItem component
 import { PlannedWalk } from '../../types/PlannedWalk';
 import { dataProxy } from '../../data/DataProxy';
+import { useUser } from '@/contexts/UserContext';
 
 export default function PlannedWalks() {
+  const { user } = useUser();
   const [plannedWalks, setPlannedWalks] = useState<PlannedWalk[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchPlannedWalks = async () => {
-      const walks = await dataProxy.getPlannedWalks();
+      const walks = await dataProxy.getPlannedWalksByUserId(user?.id ?? 0);
       setPlannedWalks(walks);
       setLoading(false);
     };

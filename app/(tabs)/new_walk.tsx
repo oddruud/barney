@@ -9,8 +9,10 @@ import { Map } from '@/components/Map';
 import { router } from 'expo-router';
 import * as Location from 'expo-location';
 import { dataProxy } from '@/data/DataProxy';
+import { useUser } from '@/contexts/UserContext';
 
 export default function NewWalkScreen() {
+  const { user } = useUser();
   const [date, setDate] = useState(new Date());
   const [duration, setDuration] = useState('30'); // in minutes
   const [description, setDescription] = useState('');
@@ -65,9 +67,8 @@ export default function NewWalkScreen() {
   };
 
   async function createWalk() {
-    const userId = 1;
     const locationName = location.title;
-    const walk = await dataProxy.createWalk(userId, date, parseInt(duration)/60, parseInt(groupSize), description, locationName, location);
+    const walk = await dataProxy.createWalk(user?.id ?? 0, date, parseInt(duration) / 60, parseInt(groupSize), description, locationName, location);
 
     //navigate to the new walk details page
     if (walk) {
