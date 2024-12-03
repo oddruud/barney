@@ -13,7 +13,7 @@ export default function SelectWalkScreen() {
       {/* Tab Navigation */}
       <View style={styles.tabContainer}>
         <TouchableOpacity onPress={() => setActiveTab('myArea')} style={activeTab === 'myArea' ? styles.activeTab : styles.tab}>
-          <Text style={styles.tabText}>My Area</Text>
+          <Text style={styles.tabText}>Find Walks</Text>
         </TouchableOpacity>
         <TouchableOpacity onPress={() => setActiveTab('invites')} style={activeTab === 'invites' ? styles.activeTab : styles.tab}>
           <Text style={styles.tabText}>Invites</Text>
