@@ -157,7 +157,7 @@ const styles = StyleSheet.create({
   container: {
     height: windowHeight,
     padding: 20,
-    marginTop: 30,
+    marginTop: 70,
   },
   slider: {
     width: '100%',
@@ -177,6 +177,8 @@ const styles = StyleSheet.create({
     width: 120,
     height: 120,
     borderRadius: 60,
+    borderWidth: 1,
+    borderColor: '#808080',
   },
   profileImagePlaceholder: {
     width: 120,

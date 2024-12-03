@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { View, StyleSheet, TouchableOpacity } from 'react-native';
 import { Text } from '../../components/Themed';
 import SelectWalkInArea from '../../components/SelectWalkInArea';
+import InviteView from '../../components/InviteView';
 
 export default function SelectWalkScreen() {
   // State for managing active tab
@@ -25,7 +26,7 @@ export default function SelectWalkScreen() {
       )}
 
       {activeTab === 'invites' && (
-        <Text>Invites Content</Text> // Replace with your actual component for invites
+        <InviteView />
       )}
     </View>
   );

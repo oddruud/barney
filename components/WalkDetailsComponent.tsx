@@ -15,6 +15,7 @@ interface WalkDetailsComponentProps {
   onProfileImagePress: () => void;
   onCancelPress: () => void;
   onJoinPress: () => void;
+  onDeclineInvite: () => void;
 }
 
 const WalkDetailsComponent: React.FC<WalkDetailsComponentProps> = ({
@@ -23,13 +24,16 @@ const WalkDetailsComponent: React.FC<WalkDetailsComponentProps> = ({
   onProfileImagePress,
   onCancelPress,
   onJoinPress,
+  onDeclineInvite,
 }) => {
   const fadeAnim = useRef(new Animated.Value(0)).current; // Initial value for opacity: 0
   const [users, setUsers] = useState<UserDetails[]>([]);
   const [isLocalUserJoined, setIsLocalUserJoined] = useState(false);
   const [updateState, setUpdateState] = useState(0);
+  const [isInvited, setIsInvited] = useState(false);
   const scaleFadeAnim = useRef(new Animated.Value(0)).current; // Initial value for scale and opacity: 0
   const [isAreYouSureModalVisible, setIsAreYouSureModalVisible] = useState(false);
+  const buttonAnim = useRef(new Animated.Value(100)).current; // Initial value for vertical position: 100
 
   const isOrganizer = user?.id === walkDetails.userId;
 
@@ -39,14 +43,16 @@ const WalkDetailsComponent: React.FC<WalkDetailsComponentProps> = ({
       setUsers(users);
     };
     fetchUsersFromJoinedUserIds();
+    
     setIsLocalUserJoined(walkDetails.joinedUserIds.includes(user?.id ?? 0));
+    setIsInvited(walkDetails.invitedUserIds.includes(user?.id ?? 0));
 
     Animated.timing(fadeAnim, {
       toValue: 1,
       duration: 0, // Duration of the fade-in effect
       useNativeDriver: true,
     }).start();
-  }, [walkDetails, user, fadeAnim, isLocalUserJoined, updateState]);
+  }, [walkDetails, user, fadeAnim, isLocalUserJoined, updateState, isInvited]);
 
   useEffect(() => {
     Animated.timing(scaleFadeAnim, {
@@ -55,6 +61,14 @@ const WalkDetailsComponent: React.FC<WalkDetailsComponentProps> = ({
       useNativeDriver: true,
     }).start();
   }, [scaleFadeAnim, updateState]);
+
+  useEffect(() => {
+    Animated.timing(buttonAnim, {
+      toValue: 0,
+      duration: 500, // Duration of the slide-up effect
+      useNativeDriver: true,
+    }).start();
+  }, [buttonAnim]);
 
   // Format the date to display month and day
   const formattedDate = new Date(walkDetails.dateTime).toLocaleDateString('en-US', { month: 'long', day: 'numeric' });
@@ -77,6 +91,12 @@ const WalkDetailsComponent: React.FC<WalkDetailsComponentProps> = ({
     await onCancelPress();
     setUpdateState(updateState + 1);
     setIsAreYouSureModalVisible(false);
+  };
+
+  const handleDeclineInvite = async () => {
+    // Logic to handle declining the invite
+    console.log('Invite declined');
+    // You might want to update the state or call a function here
   };
 
   return (
@@ -164,37 +184,50 @@ const WalkDetailsComponent: React.FC<WalkDetailsComponentProps> = ({
         </View>
       </ScrollView>
       
-      <Button
-        title="Open in Maps"
-        onPress={openInMaps}
-        style={styles.buttonStyle}
-      />
-
-      {!isLocalUserJoined && (
+      <Animated.View style={{ transform: [{ translateY: buttonAnim }] }}>
         <Button
-          title="Join"
-          onPress={async () => {
-            setIsLocalUserJoined(true);
-            await onJoinPress();
-            setUpdateState(updateState + 1);
-          }}
+          title="Open in Maps"
+          onPress={openInMaps}
           style={styles.buttonStyle}
         />
-      )}
 
-      {isLocalUserJoined && (
-        <Button
-          title={isOrganizer ? "Cancel Walk" : "Leave Walk"}
-          onPress={() => {
-            if (isOrganizer) {
-              setIsAreYouSureModalVisible(true);
-            } else {
-              handleCancelPress();
-            }
-          }}
-          style={styles.cancelButton}
-        />
-      )}
+        {!isLocalUserJoined && (
+          <View style={styles.buttonRow}>
+            <Button
+              title="Join"
+              onPress={async () => {
+                setIsLocalUserJoined(true);
+                await onJoinPress();
+                setUpdateState(updateState + 1);
+              }}
+              style={isInvited ? styles.joinButton : styles.fullWidthButton}
+            />
+            {isInvited && (
+              <Button
+                title="Decline"
+                onPress={async () => {
+                  await onDeclineInvite();
+                }}
+                style={styles.declineButton}
+              />
+            )}
+          </View>
+        )}
+
+        {isLocalUserJoined && (
+          <Button
+            title={isOrganizer ? "Cancel Walk" : "Leave Walk"}
+            onPress={() => {
+              if (isOrganizer) {
+                setIsAreYouSureModalVisible(true);
+              } else {
+                handleCancelPress();
+              }
+            }}
+            style={styles.cancelButton}
+          />
+        )}
+      </Animated.View>
 
       <Modal
         transparent={true}
@@ -207,7 +240,7 @@ const WalkDetailsComponent: React.FC<WalkDetailsComponentProps> = ({
             <Text style={styles.modalText}>Are you sure you want to cancel the walk?</Text>
             <View style={styles.modalButtons}>
               <Button title="Yes" onPress={handleCancelPress} style={styles.modalButtonYes} />
-              <Button title="No" onPress={() => setIsModalVisible(false)} style={styles.modalButton} />
+              <Button title="No" onPress={() => setIsAreYouSureModalVisible(false)} style={styles.modalButton} />
             </View>
           </View>
         </View>
@@ -320,6 +353,23 @@ const styles = StyleSheet.create({
   },
   buttonStyle: {
     marginTop: 16,
+    backgroundColor: '#007aff',
+  },
+  joinButton: {
+    width: '45%',
+    backgroundColor: '#007aff',
+  },
+  declineButton: {
+    backgroundColor: '#ff0000',
+    width: '45%',
+  },
+  buttonRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: 16,
+  },
+  fullWidthButton: {
+    width: '100%',
     backgroundColor: '#007aff',
   },
 });

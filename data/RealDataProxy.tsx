@@ -19,6 +19,16 @@ class RealDataProxy implements DataProxy {
     return response.json();
   }
 
+  async getInvitedPlannedWalksByUserId(userId: number): Promise<PlannedWalk[]> {
+    const response = await fetch(`/api/invitedPlannedWalksByUserId/${userId}`);
+    return response.json();
+  }
+
+  async declineInvite(walkId: string, userId: number): Promise<PlannedWalk | null> {
+    // TODO: Implement declineInvite
+    return null;
+  }
+
   async addPlannedWalk(walk: PlannedWalk): Promise<void> {
     await fetch('/api/plannedWalks', {
       method: 'POST',
@@ -103,7 +113,7 @@ class RealDataProxy implements DataProxy {
     return null;
   }
 
-  async createWalk(userId: number, date: Date, duration: number, maxParticipants: number, description: string, locationName: string, location: { latitude: number, longitude: number }): Promise<PlannedWalk | null> {
+  async createWalk(userId: number, date: Date, duration: number, maxParticipants: number, description: string, locationName: string, location: { latitude: number, longitude: number }, invitedUserIds: number[]): Promise<PlannedWalk | null> {
     // TODO: Implement createWalk
     return null;
   }
@@ -121,6 +131,11 @@ class RealDataProxy implements DataProxy {
   async getLocalUserData(): Promise<UserDetails | null> {
     // TODO: Implement getUserData
     return null;
+  }
+
+  async getAllUsers(): Promise<UserDetails[]> {
+    // TODO: Implement getAllUsers
+    return [];
   }
 
   async checkSessionValidity(userId: number): Promise<boolean> {

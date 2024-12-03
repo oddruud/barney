@@ -30,6 +30,35 @@ class DummyDataProxy implements DataProxy {
     });
   }
 
+  async getInvitedPlannedWalksByUserId(userId: number): Promise<PlannedWalk[]> {
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        const currentDate = new Date();
+        resolve(dummyPlannedWalks.filter(walk => 
+          walk.invitedUserIds.includes(userId) && 
+          !walk.joinedUserIds.includes(userId) &&
+          new Date(walk.dateTime) > currentDate
+        ));
+      }, 10);
+    });
+  }
+
+  async declineInvite(walkId: string, userId: number): Promise<PlannedWalk | null> {
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        const walk = dummyPlannedWalks.find(walk => walk.id === walkId);
+        if (!walk) {
+          resolve(null);
+          return;
+        }
+
+        walk.invitedUserIds = walk.invitedUserIds.filter(id => id !== userId);
+
+        resolve(walk);
+      }, 10);
+    });
+  }
+
   async addPlannedWalk(walk: PlannedWalk): Promise<void> {
     return new Promise((resolve) => {
       setTimeout(() => {
@@ -146,7 +175,7 @@ class DummyDataProxy implements DataProxy {
     });
   }
 
-  async createWalk(userId: number, date: Date, duration: number, maxParticipants: number, description: string, locationName: string, location: { latitude: number, longitude: number }): Promise<PlannedWalk | null> {
+  async createWalk(userId: number, date: Date, duration: number, maxParticipants: number, description: string, locationName: string, location: { latitude: number, longitude: number }, invitedUserIds: number[]): Promise<PlannedWalk | null> {
     const newWalk: PlannedWalk = {
       id: Date.now().toString(),
       userId: userId,
@@ -163,6 +192,8 @@ class DummyDataProxy implements DataProxy {
       lastDateMessagesChecked: '',
       maxParticipants: maxParticipants,
       joinedUserIds: [userId],
+      invitedUserIds: invitedUserIds,
+      cancelled: false,
     };
 
     dummyPlannedWalks.push(newWalk);
@@ -212,6 +243,10 @@ class DummyDataProxy implements DataProxy {
       const randomIndex = Math.floor(Math.random() * dummyUserDetails.length);
       resolve(dummyUserDetails[randomIndex]);
     });
+  }
+
+  async getAllUsers(): Promise<UserDetails[]> {
+    return dummyUserDetails;
   }
 
   async checkSessionValidity(userId: number): Promise<boolean> {

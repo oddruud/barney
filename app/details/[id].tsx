@@ -1,11 +1,12 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { View, StyleSheet, Image, TextInput, FlatList, Button, TouchableOpacity } from 'react-native';
+import { View, StyleSheet, Image, TextInput, FlatList, TouchableOpacity } from 'react-native';
 import { Text } from '../../components/Themed';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import { Link } from 'expo-router';
 import ChatComponent from '../../components/ChatComponent';
 import WalkDetailsComponent from '../../components/WalkDetailsComponent';
 import AboutComponent from '../../components/AboutComponent';
+import { Button } from '../../components/Button';
 import { dataProxy } from '../../data/DataProxy';
 import { PlannedWalk } from '../../types/PlannedWalk';
 import { UserDetails } from '../../types/UserDetails';
@@ -55,7 +56,7 @@ export default function WalkDetails() {
 
   return (
     <View style={styles.container}>
-      <Link href="/(tabs)/planned_walks" style={styles.backLink}>&#60; back </Link>
+      <Button style ={styles.backButton} title="Back" onPress={() => router.back()} />
       {/* Tab Navigation */}
       <View style={styles.tabContainer}>
         <TouchableOpacity onPress={() => setActiveTab('details')} style={activeTab === 'details' ? styles.activeTab : styles.tab}>
@@ -76,11 +77,10 @@ export default function WalkDetails() {
           user={user}
           onProfileImagePress={() => setActiveTab('about')}
           onCancelPress={async () => { 
-            console.log("cancelling walk");
             if (user) {
               if (user.id === walkDetails.userId) {
                 await dataProxy.cancelPlannedWalk(walkDetails.id);
-                router.push('/(tabs)/planned_walks');
+                router.back();
               } else {
                 const newWalkDetails = await dataProxy.unsubscribeFromWalk(walkDetails.id, user.id);
                 setWalkDetails(newWalkDetails);
@@ -89,11 +89,21 @@ export default function WalkDetails() {
             }
           }}
           onJoinPress={async () => {
-            console.log("joining walk");
             if (user) {
+              //remove self from invitedUserIds on join
+              console.log("Joining walk");
               const newWalkDetails = await dataProxy.joinWalk(walkDetails.id, user.id);
+              await dataProxy.declineInvite(walkDetails.id, user.id);
+              console.log("Joining walk:", newWalkDetails);
               setWalkDetails(newWalkDetails);
               await sleep(10);
+            }
+          }}
+          onDeclineInvite={async () => {
+            if (user) {
+              await dataProxy.declineInvite(walkDetails.id, user.id);
+              await sleep(100);
+              router.back();
             }
           }}
         />
@@ -117,12 +127,13 @@ const styles = StyleSheet.create({
     marginTop: 32,
     backgroundColor: '#f5f5f5',
   },
-  backLink: {
-    color: '#00796b',
+  backButton: {
+    color: '#000000',
     fontSize: 20,
     fontWeight: 'bold',
     textDecorationLine: 'none',
     marginBottom: 20,
+    width: 100,
   },
   tabContainer: {
     flexDirection: 'row',

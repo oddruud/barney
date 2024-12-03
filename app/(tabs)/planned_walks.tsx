@@ -1,3 +1,4 @@
+import React from 'react';
 import { StyleSheet, FlatList, View } from 'react-native';
 import { Text } from '../../components/Themed';
 import { useState, useEffect } from 'react';
@@ -5,21 +6,25 @@ import WalkItem from '../../components/WalkItem'; // Import the new WalkItem com
 import { PlannedWalk } from '../../types/PlannedWalk';
 import { dataProxy } from '../../data/DataProxy';
 import { useUser } from '@/contexts/UserContext';
+import { useFocusEffect } from '@react-navigation/native';
 
 export default function PlannedWalks() {
   const { user } = useUser();
   const [plannedWalks, setPlannedWalks] = useState<PlannedWalk[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const fetchPlannedWalks = async () => {
-      const walks = await dataProxy.getPlannedWalksByUserId(user?.id ?? 0);
-      setPlannedWalks(walks);
-      setLoading(false);
-    };
+  useFocusEffect(
+    React.useCallback(() => {
+      const fetchPlannedWalks = async () => {
+        setLoading(true);
+        const walks = await dataProxy.getPlannedWalksByUserId(user?.id ?? 0);
+        setPlannedWalks(walks);
+        setLoading(false);
+      };
 
-    fetchPlannedWalks();
-  }, []);
+      fetchPlannedWalks();
+    }, [user?.id])
+  );
 
   const today = new Date().toISOString().split('T')[0];
 
