@@ -1,13 +1,16 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { View, StyleSheet, Animated, Dimensions, Image } from 'react-native';
+import { View, StyleSheet, Animated, Dimensions, Image, TextInput, Text } from 'react-native';
 import { Video, ResizeMode } from 'expo-av';
 import { Button } from '@/components/Button';
 import { router } from 'expo-router';
-import { Text } from '@/components/Themed';
 import LocalUserData from '@/data/LocalData';
 import { dataProxy } from '@/data/DataProxy';
 import { UserDetails } from '@/types/UserDetails';
 import { useUser } from '@/contexts/UserContext';
+import { authentication } from '@/data/authentication/Authentication';
+import { getAuth, onAuthStateChanged, User } from "firebase/auth";
+import { FirebaseError } from 'firebase/app';
+
 
 function sleep(ms: number) {
     return new Promise(resolve => setTimeout(resolve, ms));
@@ -15,7 +18,10 @@ function sleep(ms: number) {
 
 export default function LoginScreen() {
     const { setUser } = useUser();
-    const [isLoading, setIsLoading] = useState(false);
+    const [isLoggingIn, setIsLoggingIn] = useState(false);
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const [errorMessage, setErrorMessage] = useState('');
 
     const videoSource = 'https://roboruud.nl/walk.mp4';    
     const fadeAnim = useRef(new Animated.Value(0)).current; // Initial opacity value of 0
@@ -35,37 +41,68 @@ export default function LoginScreen() {
         }).start();
     }, [fadeAnim, buttonFadeAnim]);
 
-    const handleLoginPress = async () => {
-        setIsLoading(true);
-        await login();
-        setIsLoading(false);
-    };
 
-    const checkLoggedIn = async () => {
-        const userData: UserDetails | null = await LocalUserData.getInstance().getUserData();
-        //todo check with server if user session is still valid
-        const sessionValid = await dataProxy.checkSessionValidity(userData?.id);
+    useEffect(() => {
+        console.log("errorMessage", errorMessage);
+    }, [errorMessage]);
+
+    const auth = getAuth();
+
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        // User is signed in, see docs for a list of available properties
+        // https://firebase.google.com/docs/reference/js/auth.user
+        const uid = user.uid;
+        console.log("user signed in", user);
+        setIsLoggingIn(false);
+        loadUserData(uid);
+
+        // ...
+      }else {
+        setIsLoggingIn(false);
+      }
+    });
+
+    const handleSignUpPress = async () => {
+        const result: User | null | FirebaseError = await authentication.signUpWithEmailAndPassword(email, password);
+        console.log("sign up result", result);
         
-        if (userData && sessionValid) {
-            setUser(userData);
-            //TODO show logging in visual
-            router.replace("/(tabs)");
+        if (result instanceof FirebaseError) {
+            setErrorMessage(result.message);
+        }else{
+            console.log("sign up success", result);
+            const user = result as User;
+            await dataProxy.registerUser(user.uid ?? '', user.email ?? '');
         }
     }
 
-    checkLoggedIn();
+    const handleLoginPress = async () => {
+        setIsLoggingIn(true);
+        setErrorMessage('');
+        console.log("test login press");
+        try {
+            const result: User | null | FirebaseError = await authentication.loginWithEmailAndPassword(email, password);
+            console.log("login result", result);
+            
+            if (result instanceof FirebaseError) {
+                setErrorMessage(result.message);
+            }
+        } catch (error: any) {
+            setErrorMessage(error.message);
+            console.error("Login error:", error);
+        } finally {
+            setIsLoggingIn(false);
+        }
+    }
 
-    const login = async () => {
+
+    const loadUserData = async (uid: string) => {
         const localUserData = LocalUserData.getInstance();
         try {
-            // Introduce a delay before starting the login process
-            await sleep(2000); // Sleep for 2 seconds
-
-            //todo actual login flow
-            const userData: UserDetails | null = await dataProxy.getLocalUserData();
+            //TODO will be removed soon
+            const userData: UserDetails | null = await dataProxy.getLocalUserData(uid);
             
             if (userData) {
-                console.log("logged in user", userData);
                 localUserData.saveUserData(userData);
                 setUser(userData);
                 router.replace("/(tabs)");
@@ -92,18 +129,49 @@ export default function LoginScreen() {
                 isLooping={true}
                 style={styles.video}
             />
-            {isLoading && (
+
+            
+
+            {isLoggingIn && (
                 <Image
                     source={require('../assets/images/loading.gif')}
                     style={styles.loadingImage}
                 />
             )}
-            {!isLoading && (
+            {!isLoggingIn && (
                 <Animated.View style={[styles.loginButtonContainer, { opacity: buttonFadeAnim }]}>
-                    <Button style={styles.loginButton}
-                        title="Login" 
-                        onPress={handleLoginPress} 
-                    />
+                    <View style={styles.inputContainer}>
+                        <Text style={styles.label}>Email</Text>
+                        <TextInput
+                            style={styles.input}
+                            placeholder="Enter your email"
+                            value={email}
+                            onChangeText={setEmail}
+                            keyboardType="email-address"
+                            autoCapitalize="none"
+                        />
+                        <Text style={styles.label}>Password</Text>
+                        <TextInput
+                            style={styles.input}
+                            placeholder="Enter your password"
+                            value={password}
+                            onChangeText={setPassword}
+                            secureTextEntry
+                        />
+                    </View>
+                    {errorMessage ? (
+                        <Text style={styles.errorText}>{errorMessage}</Text>
+                    ) : null}
+                    <View style={styles.buttonRow}>
+                        <Button style={styles.loginButton}
+                            title="Login" 
+                            onPress={handleLoginPress} 
+                        />
+                        <Button style={styles.loginButton}
+                            title="Sign Up" 
+                            onPress={handleSignUpPress} 
+                        />
+                    </View>
                 </Animated.View>
             )}
             <Animated.Text style={[styles.title, { opacity: fadeAnim, fontSize: scaledFontSize }]}>
@@ -128,14 +196,14 @@ const styles = StyleSheet.create({
       height: '100%',
     },
     loginButton: {
-      position: 'absolute',
       alignSelf: 'center',
-      bottom: 60,
+      bottom: 10,
       opacity: 0.7,
       backgroundColor: '#000000',
       padding: 10,
       borderRadius: 10,
-      width: 200,
+      width: '40%',
+      marginHorizontal: 10,
     },
     loginButtonContainer: {
       position: 'absolute',
@@ -155,5 +223,29 @@ const styles = StyleSheet.create({
         alignSelf: 'center',
         width: 40,
         height: 40,
+    },
+    buttonRow: {
+        flexDirection: 'row',
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    inputContainer: {
+        marginBottom: 20,
+        width: '80%',
+    },
+    label: {
+        color: 'white',
+        marginBottom: 5,
+    },
+    input: {
+        backgroundColor: 'white',
+        padding: 10,
+        borderRadius: 5,
+        marginBottom: 10,
+    },
+    errorText: {
+        color: 'red',
+        marginBottom: 10,
+        textAlign: 'center',
     },
 });

@@ -23,7 +23,8 @@ interface DataProxy {
     createWalk(userId: number, date: Date, duration: number, maxParticipants: number, description: string, locationName: string, location: { latitude: number, longitude: number }, invitedUserIds: number[]): Promise<PlannedWalk | null>;
     unsubscribeFromWalk(walkId: string, userId: number): Promise<PlannedWalk | null>;
     joinWalk(walkId: string, userId: number): Promise<PlannedWalk | null>;
-    getLocalUserData(): Promise<UserDetails | null>;
+    registerUser(uid: string, email: string): Promise<UserDetails | null>;
+    getLocalUserData(uid: string): Promise<UserDetails | null>;
     getAllUsers(): Promise<UserDetails[]>;
     checkSessionValidity(userId: number): Promise<boolean>;
 }

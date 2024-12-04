@@ -11,8 +11,11 @@ import { dataProxy } from '@/data/DataProxy';
 import LocalUserData from '@/data/LocalData';
 import { useUser } from '@/contexts/UserContext';
 import { router } from 'expo-router';
+import { authentication } from '@/data/authentication/Authentication';
+import { getAuth, onAuthStateChanged } from "firebase/auth";
 
 const windowHeight = Dimensions.get('window').height;
+
 
 export default function ProfileScreen() {
   const { user, setUser } = useUser();
@@ -56,6 +59,18 @@ export default function ProfileScreen() {
     }).start();
   }, []);
 
+
+const auth = getAuth();
+
+onAuthStateChanged(auth, (user) => {
+  if (user) {
+ 
+  } else {
+    LocalUserData.getInstance().clearUserData();
+    router.replace("/login");
+  }
+});
+
   const pickImage = async () => {
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
@@ -89,9 +104,8 @@ export default function ProfileScreen() {
     }, 1000);
   };
 
-  const handleLogout = () => {
-    LocalUserData.getInstance().clearUserData();
-    router.replace("/login");
+  const handleLogout = async () => {
+    await authentication.logout();
   };
 
   return (

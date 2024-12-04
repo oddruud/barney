@@ -238,9 +238,14 @@ class DummyDataProxy implements DataProxy {
       }, 10); // Simulate async delay
     });
   }
-
+  async registerUser(uid: string, email: string): Promise<UserDetails | null> {
+    return new Promise((resolve) => {
+      console.log("register user", uid, email);
+      resolve(null);
+    });
+  }
   //get a random user from the dummyUserDetails array
-  async getLocalUserData(): Promise<UserDetails | null> {
+  async getLocalUserData(uid: string): Promise<UserDetails | null> {
     return new Promise((resolve) => {
       const randomIndex = Math.floor(Math.random() * dummyUserDetails.length);
       resolve(dummyUserDetails[randomIndex]);

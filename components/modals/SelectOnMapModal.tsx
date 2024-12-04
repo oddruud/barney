@@ -4,6 +4,7 @@ import { Map } from '@/components/Map';
 import { StyleSheet } from 'react-native';
 import { Button } from '@/components/Button';
 import { Text } from '@/components/Themed';
+import { fetchAddress } from '@/utils/geoUtils';
 
 interface SelectOnMapModalProps {
   visible: boolean;
@@ -17,6 +18,7 @@ interface SelectOnMapModalProps {
 
 const SelectOnMapModal: React.FC<SelectOnMapModalProps> = ({visible, initialLocation, onLocationSelect, onRequestClose }) => {
   const [location, setLocation] = useState(initialLocation);
+  const [address, setAddress] = useState('');
   const opacity = useRef(new Animated.Value(0)).current;
   const scale = useRef(new Animated.Value(0)).current;
 
@@ -50,10 +52,17 @@ const SelectOnMapModal: React.FC<SelectOnMapModalProps> = ({visible, initialLoca
     }
   }, [visible]);
 
-  const handleMapPress = (event: any) => {
+  const handleMapPress = async (event: any) => {
     const { latitude, longitude } = event.nativeEvent.coordinate;
     setLocation({ latitude, longitude });
     onLocationSelect({ latitude, longitude });
+
+    try {
+      const address = await fetchAddress(latitude, longitude);
+      setAddress(address.title);
+    } catch (error) {
+      console.error('Error fetching address:', error);
+    }
   };
 
   return (
@@ -92,6 +101,12 @@ const SelectOnMapModal: React.FC<SelectOnMapModalProps> = ({visible, initialLoca
           <View style={styles.modalTextContainer}>
             <Text style={styles.modalText}>Place a pin on the map to select the walk start location</Text>
           </View>
+
+          {address && (
+            <View style={styles.modalAddressContainer}>
+              <Text style={styles.modalAddressText}>{address}</Text>
+            </View>
+          )}
         </View>
       </Animated.View>
     </Modal>
@@ -121,6 +136,21 @@ const styles = StyleSheet.create({
       shadowOpacity: 0.25,
       shadowRadius: 3.84,
       elevation: 5,
+    },
+    modalAddressContainer: {
+      position: 'absolute',
+      bottom: 120,
+      backgroundColor: 'white',
+      padding: 10,
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.25,
+      shadowRadius: 3.84,
+      elevation: 5,
+    },
+    modalAddressText: {
+      fontSize: 16,
+      textAlign: 'center',
     }
   });
 

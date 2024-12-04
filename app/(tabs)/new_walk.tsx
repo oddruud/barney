@@ -1,6 +1,6 @@
 import React, { useRef, useEffect } from 'react';
 import { useState } from 'react';
-import { StyleSheet, Platform, ScrollView, View, Image, Modal, TextInput, FlatList, TouchableOpacity, Text, Animated } from 'react-native';
+import { StyleSheet, Platform, ScrollView, View, TouchableOpacity, Text, Animated } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
@@ -16,6 +16,7 @@ import { useFocusEffect } from '@react-navigation/native';
 import { Easing } from 'react-native';
 import SelectOnMapModal from '@/components/modals/SelectOnMapModal';
 import InviteUsersModal from '@/components/modals/InviteUsersModal';
+import { fetchAddress } from '@/utils/geoUtils';
 
 export default function NewWalkScreen() {
   const { user } = useUser();
@@ -35,7 +36,6 @@ export default function NewWalkScreen() {
   const [invitedUsers, setInvitedUsers] = useState<UserDetails[]>([]); // New state for invited users
   const [isInviteUserModalVisible, setIsInviteUserModalVisible] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-  const [searchResults, setSearchResults] = useState<UserDetails[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isSelectOnMapModalVisible, setIsSelectOnMapModalVisible] = useState(false); // New state for modal visibility
   const [allUsers, setAllUsers] = useState<UserDetails[]>([]);
@@ -84,8 +84,6 @@ export default function NewWalkScreen() {
       setGroupSize('2');
       setInvitedUsers([]);
       setIsInviteUserModalVisible(false);
-      setSearchQuery('');
-      setSearchResults([]);
       setIsLoading(true);
       
       return () => {
@@ -94,13 +92,19 @@ export default function NewWalkScreen() {
     }, [])
   );
 
+  const fetchAddressAndUpdateLocation = async (latitude: number, longitude: number) => {
+    const address = await fetchAddress(latitude, longitude);
+    setLocation((prevLocation) => ({
+      ...prevLocation,
+      ...address
+    }));
+  };
+
   useFocusEffect(
     React.useCallback(() => {
       (async () => {
         // Request location permissions
         const { status } = await Location.requestForegroundPermissionsAsync();
-        
-        console.log("location: ", location);
 
         if (status === 'granted') {
           // Get current location
@@ -110,26 +114,13 @@ export default function NewWalkScreen() {
             latitude: currentLocation.coords.latitude,
             longitude: currentLocation.coords.longitude,
           });
+
+          await fetchAddressAndUpdateLocation(location.latitude, location.longitude);
         }
         setIsLoadingLocation(false);
       })();
     }, [])
   );
-
-
-
-  const fetchAddress = async (latitude: number, longitude: number) => {
-    try {
-      const [address] = await Location.reverseGeocodeAsync({ latitude, longitude });
-      setLocation((prevLocation) => ({
-        ...prevLocation,
-        title: address.name || '',
-        description: `${address.street}, ${address.city}, ${address.region}, ${address.country}`
-      }));
-    } catch (error) {
-      console.error("Error fetching address:", error);
-    }
-  };
 
   const handleDateChange = (event: any, selectedDate?: Date) => {
     setShowDatePicker(false);
@@ -141,6 +132,7 @@ export default function NewWalkScreen() {
   async function createWalk() {
     const locationName = location.title;
     const invitedUserIds = invitedUsers.map(user => user.id); // Extract user IDs
+
     const walk = await dataProxy.createWalk(
       user?.id ?? 0,
       date,
@@ -166,7 +158,6 @@ export default function NewWalkScreen() {
   const inviteUser = () => {
     setIsInviteUserModalVisible(true);
     setSearchQuery('');
-    setSearchResults([]);
   };
 
   const selectUser = (user: UserDetails) => {
@@ -254,23 +245,27 @@ export default function NewWalkScreen() {
         <Text style={styles.locationText}>Location: {location.title}</Text>
 
         {/* Invited Users List */}
-        <ThemedText style={styles.label}>Invited Users</ThemedText>
-        <View style={styles.invitedUsersContainer}>
-          {invitedUsers.map(user => (
-            <TouchableOpacity
-              key={user.id}
-              onPress={() => setInvitedUsers(invitedUsers.filter(invitedUser => invitedUser.id !== user.id))}
-            >
-              <Animated.Image
-                source={{ uri: user.profileImage }}
-                style={[
-                  styles.profileImage,
-                  { transform: [{ scale: scaleAnimation }] } // Apply scale animation
-                ]}
-              />
-            </TouchableOpacity>
-          ))}
-        </View>
+        {invitedUsers.length > 0 && (
+          <>
+            <ThemedText style={styles.label}>Invited Friends</ThemedText>
+            <View style={styles.invitedUsersContainer}>
+              {invitedUsers.map(user => (
+                <TouchableOpacity
+                  key={user.id}
+                  onPress={() => setInvitedUsers(invitedUsers.filter(invitedUser => invitedUser.id !== user.id))}
+                >
+                  <Animated.Image
+                    source={{ uri: user.profileImage }}
+                    style={[
+                      styles.profileImage,
+                      { transform: [{ scale: scaleAnimation }] } // Apply scale animation
+                    ]}
+                  />
+                </TouchableOpacity>
+              ))}
+            </View>
+          </>
+        )}
 
       </ScrollView>
 
@@ -281,12 +276,12 @@ export default function NewWalkScreen() {
       <View style={styles.buttonRow}>
         <Button
           onPress={inviteUser}
-          title="Invite User"
+          title="Invite Friends"
           style={styles.inviteButton}
         />
         <Button
           onPress={async () => {
-            await fetchAddress(location.latitude, location.longitude);
+            await fetchAddressAndUpdateLocation(location.latitude, location.longitude);
             createWalk();
           }}
           title="Schedule Walk"
@@ -299,7 +294,7 @@ export default function NewWalkScreen() {
    <InviteUsersModal
      visible={isInviteUserModalVisible}
      searchQuery={searchQuery}
-     allUsers={allUsers}
+     users={allUsers}
      onSelectUser={selectUser}
      onClose={() => setIsInviteUserModalVisible(false)}
    />
@@ -314,7 +309,7 @@ export default function NewWalkScreen() {
               title: '',
               description: ''
             });
-            await fetchAddress(location.latitude, location.longitude);
+            await fetchAddressAndUpdateLocation(location.latitude, location.longitude);
           }}
           onRequestClose={() => setIsSelectOnMapModalVisible(false)} // Allow closing the modal
         />

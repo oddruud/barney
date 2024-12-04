@@ -21,7 +21,6 @@ const InviteUsersModal: React.FC<InviteUsersModalProps> = ({
   const [query, setQuery] = useState(searchQuery);
   const [searchResults, setSearchResults] = useState<UserDetails[]>([]);
 
-  const fadeAnim = useRef(new Animated.Value(0)).current; // Initial opacity value
   const springAnim = useRef(new Animated.Value(0.8)).current; // Initial scale value
 
   useEffect(() => {
@@ -31,12 +30,8 @@ const InviteUsersModal: React.FC<InviteUsersModalProps> = ({
         friction: 5,
         useNativeDriver: true,
       }).start();
-    } else {
-      
     }
-  }, [visible]);
-
-  useEffect(() => {
+    
     setQuery('');
     setSearchResults([]);
   }, [visible]);
@@ -52,6 +47,7 @@ const InviteUsersModal: React.FC<InviteUsersModalProps> = ({
     const results = users.filter(user =>
       user.fullName.toLowerCase().includes(query.toLowerCase())
     );
+
     setSearchResults(results);
   };
 
@@ -76,8 +72,7 @@ const InviteUsersModal: React.FC<InviteUsersModalProps> = ({
             <TouchableOpacity onPress={() => onSelectUser(item)}>
               <Animated.View
                 style={[
-                  styles.userItemContainer,
-                  { opacity: fadeAnim, transform: [{ scale: springAnim }] },
+                  styles.userItemContainer
                 ]}
               >
                 <Image

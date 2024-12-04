@@ -128,7 +128,12 @@ class RealDataProxy implements DataProxy {
     return null;
   }
 
-  async getLocalUserData(): Promise<UserDetails | null> {
+  async registerUser(uid: string, email: string): Promise<UserDetails | null> {
+    // TODO: Implement registerUser
+    return null;
+  }
+
+  async getLocalUserData(uid: string): Promise<UserDetails | null> {
     // TODO: Implement getUserData
     return null;
   }
@@ -141,6 +146,11 @@ class RealDataProxy implements DataProxy {
   async checkSessionValidity(userId: number): Promise<boolean> {
     // TODO: Implement checkSessionValidity
     return false;
+  }
+
+  async getNextWalkForUser(userId: number): Promise<PlannedWalk | null> {
+    // TODO: Implement getNextWalkForUser
+    return null;
   }
 }
 
