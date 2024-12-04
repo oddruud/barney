@@ -22,6 +22,7 @@ export default function ProfileScreen() {
   const [name, setName] = useState('');
   const [isModalVisible, setIsModalVisible] = useState(false);
   const scaleValue = useRef(new Animated.Value(1)).current;
+  const buttonPosition = useRef(new Animated.Value(100)).current;
 
   useEffect(() => {
     
@@ -47,6 +48,14 @@ export default function ProfileScreen() {
       });
     }
   }, [profileImage]);
+
+  useEffect(() => {
+    Animated.timing(buttonPosition, {
+      toValue: 0, // Move to original position
+      duration: 500, // Animation duration
+      useNativeDriver: true,
+    }).start();
+  }, []);
 
   const pickImage = async () => {
     const result = await ImagePicker.launchImageLibraryAsync({
@@ -139,17 +148,19 @@ export default function ProfileScreen() {
         <StarRating count={parseInt(user.rating.toFixed(1))} userCount={user.numberOfRatings} size={30} color="#FFD700"  />
       </ThemedView>
 
-      <Button 
-        title="Save Changes" 
-        onPress={handleSave}
-        style={styles.saveButton}
-      />
+      <Animated.View style={{ transform: [{ translateY: buttonPosition }] }}>
+        <Button 
+          title="Save Changes" 
+          onPress={handleSave}
+          style={styles.saveButton}
+        />
 
-      <Button 
-        title="Logout" 
-        onPress={handleLogout}
-        style={styles.logoutButton}
-      />
+        <Button 
+          title="Logout" 
+          onPress={handleLogout}
+          style={styles.logoutButton}
+        />
+      </Animated.View>
     </ThemedView>
   </ThemedView>
   );

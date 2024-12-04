@@ -1,5 +1,5 @@
-import React, { useEffect, useRef } from 'react';
-import { View, StyleSheet, Animated, Dimensions } from 'react-native';
+import React, { useEffect, useRef, useState } from 'react';
+import { View, StyleSheet, Animated, Dimensions, Image } from 'react-native';
 import { Video, ResizeMode } from 'expo-av';
 import { Button } from '@/components/Button';
 import { router } from 'expo-router';
@@ -9,8 +9,13 @@ import { dataProxy } from '@/data/DataProxy';
 import { UserDetails } from '@/types/UserDetails';
 import { useUser } from '@/contexts/UserContext';
 
+function sleep(ms: number) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
 export default function LoginScreen() {
     const { setUser } = useUser();
+    const [isLoading, setIsLoading] = useState(false);
 
     const videoSource = 'https://roboruud.nl/walk.mp4';    
     const fadeAnim = useRef(new Animated.Value(0)).current; // Initial opacity value of 0
@@ -31,7 +36,9 @@ export default function LoginScreen() {
     }, [fadeAnim, buttonFadeAnim]);
 
     const handleLoginPress = async () => {
+        setIsLoading(true);
         await login();
+        setIsLoading(false);
     };
 
     const checkLoggedIn = async () => {
@@ -51,6 +58,9 @@ export default function LoginScreen() {
     const login = async () => {
         const localUserData = LocalUserData.getInstance();
         try {
+            // Introduce a delay before starting the login process
+            await sleep(2000); // Sleep for 2 seconds
+
             //todo actual login flow
             const userData: UserDetails | null = await dataProxy.getLocalUserData();
             
@@ -82,12 +92,20 @@ export default function LoginScreen() {
                 isLooping={true}
                 style={styles.video}
             />
-            <Animated.View style={[styles.loginButtonContainer, { opacity: buttonFadeAnim }]}>
-                <Button style = {styles.loginButton}
-                    title="Login" 
-                    onPress={handleLoginPress} 
+            {isLoading && (
+                <Image
+                    source={require('../assets/images/loading.gif')}
+                    style={styles.loadingImage}
                 />
-            </Animated.View>
+            )}
+            {!isLoading && (
+                <Animated.View style={[styles.loginButtonContainer, { opacity: buttonFadeAnim }]}>
+                    <Button style={styles.loginButton}
+                        title="Login" 
+                        onPress={handleLoginPress} 
+                    />
+                </Animated.View>
+            )}
             <Animated.Text style={[styles.title, { opacity: fadeAnim, fontSize: scaledFontSize }]}>
                 Let's Walk
             </Animated.Text>
@@ -130,5 +148,12 @@ const styles = StyleSheet.create({
       fontFamily: 'Voltaire-Frangela',
       fontSize: 42,
       color: 'white',
+    },
+    loadingImage: {
+        position: 'absolute',
+        bottom: 90,
+        alignSelf: 'center',
+        width: 40,
+        height: 40,
     },
 });

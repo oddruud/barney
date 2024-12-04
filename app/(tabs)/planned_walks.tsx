@@ -2,7 +2,7 @@ import React from 'react';
 import { StyleSheet, FlatList, View } from 'react-native';
 import { Text } from '../../components/Themed';
 import { useState, useEffect } from 'react';
-import WalkItem from '../../components/WalkItem'; // Import the new WalkItem component
+import WalkItem from '../../components/WalkItem';
 import { PlannedWalk } from '../../types/PlannedWalk';
 import { dataProxy } from '../../data/DataProxy';
 import { useUser } from '@/contexts/UserContext';

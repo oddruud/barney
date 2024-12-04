@@ -26,6 +26,7 @@ export default function NewWalkScreen() {
     title: '',
     description: ''
   });
+
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [isLoadingLocation, setIsLoadingLocation] = useState(true);
   const [groupSize, setGroupSize] = useState('2'); // Default group size
@@ -75,26 +76,26 @@ export default function NewWalkScreen() {
     }, [])
   );
 
-  useEffect(() => {
-    (async () => {
-      // Request location permissions
-      const { status } = await Location.requestForegroundPermissionsAsync();
-      
-      if (status === 'granted') {
-        // Get current location
-        const currentLocation = await Location.getCurrentPositionAsync({});
-        setLocation({
-          ...location,
-          latitude: currentLocation.coords.latitude,
-          longitude: currentLocation.coords.longitude,
-        });
+  useFocusEffect(
+    React.useCallback(() => {
+      (async () => {
+        // Request location permissions
+        const { status } = await Location.requestForegroundPermissionsAsync();
         
-        // TODO: fetch address only if location changed
-        //
-      }
-      setIsLoadingLocation(false);
-    })();
-  }, [isLoading, location]);
+        if (status === 'granted') {
+          // Get current location
+          const currentLocation = await Location.getCurrentPositionAsync({});
+          setLocation({
+            ...location,
+            latitude: currentLocation.coords.latitude,
+            longitude: currentLocation.coords.longitude,
+          });
+        }
+        console.log("isLoadingLocation: ", new Date().toISOString());
+        setIsLoadingLocation(false);
+      })();
+    }, [])
+  );
 
 
 
@@ -218,7 +219,7 @@ export default function NewWalkScreen() {
         />
 
         {/* Location Map */}
-        <ThemedText style={styles.label}>Location</ThemedText>
+        <ThemedText style={styles.label}>Location (tap map to set)</ThemedText>
         {Platform.OS !== 'web' && (
           isLoadingLocation ? (
             <ThemedText>Loading location...</ThemedText>
