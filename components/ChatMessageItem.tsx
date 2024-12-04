@@ -47,9 +47,8 @@ export default ChatMessageItem;
 
 const styles = StyleSheet.create({
     message: {
-      padding: 12,
+      padding: 2,
       marginVertical: 4,
-      borderRadius: 20,
       maxWidth: '80%',
     },
     localUserMessage: {
@@ -57,18 +56,26 @@ const styles = StyleSheet.create({
       alignSelf: 'flex-end',
       padding: 10,
       marginTop: 10,
-      borderWidth: 1,
-      borderColor: '#00796b',
       borderRadius: 20,
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.3,
+      shadowRadius: 3.84,
+      elevation: 5,
+      marginBottom: 10,
     },
     otherUserMessage: {
       backgroundColor: '#e3ffed',
       alignSelf: 'flex-start',
       padding: 10,
       marginTop: 10,
-      borderWidth: 1,
-      borderColor: '#388e3c',
       borderRadius: 20,
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.3,
+      shadowRadius: 3.84,
+      elevation: 5,
+      marginBottom: 10,
     },
     username: {
       fontWeight: 'bold',

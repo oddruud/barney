@@ -1,5 +1,5 @@
-import React from 'react';
-import { View, Text } from 'react-native';
+import React, { useEffect, useRef } from 'react';
+import { View, Text, Animated } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 
 interface StarRatingProps {
@@ -10,15 +10,25 @@ interface StarRatingProps {
 }
 
 const StarRating: React.FC<StarRatingProps> = ({ count, size = 20, color = "#FFD700", userCount }) => {
+  const fadeAnim = useRef(new Animated.Value(0)).current; // Initial value for opacity: 0
+
+  useEffect(() => {
+    Animated.timing(fadeAnim, {
+      toValue: 1,
+      duration: 500, // 1 second
+      useNativeDriver: true,
+    }).start();
+  }, [fadeAnim]);
+
   return (
-    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+    <Animated.View style={{ flexDirection: 'row', alignItems: 'center', opacity: fadeAnim }}>
       {[...Array(count)].map((_, index) => (
         <Icon key={index} name="star" size={size} color={color} />
       ))}
       {userCount !== undefined && (
         <Text style={{ marginLeft: 8 }}>{`(${userCount})`}</Text>
       )}
-    </View>
+    </Animated.View>
   );
 };
 

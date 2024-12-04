@@ -1,6 +1,6 @@
-import { StyleSheet, Image, Platform, Switch, TouchableOpacity, TextInput, Dimensions, Modal, View, ActivityIndicator } from 'react-native';
+import { StyleSheet, Image, Platform, Switch, TouchableOpacity, TextInput, Dimensions, Modal, View, ActivityIndicator, Animated } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
@@ -21,6 +21,7 @@ export default function ProfileScreen() {
   const [bio, setBio] = useState('');
   const [name, setName] = useState('');
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const scaleValue = useRef(new Animated.Value(1)).current;
 
   useEffect(() => {
     
@@ -30,6 +31,22 @@ export default function ProfileScreen() {
       setProfileImage(user.profileImage);
     }
   }, [user]);
+
+  useEffect(() => {
+    if (profileImage) {
+      Animated.spring(scaleValue, {
+        toValue: 1.1, // Scale up slightly
+        friction: 2,  // Adjust the spring effect
+        useNativeDriver: true,
+      }).start(() => {
+        Animated.spring(scaleValue, {
+          toValue: 1, // Scale back to original
+          friction: 2,
+          useNativeDriver: true,
+        }).start();
+      });
+    }
+  }, [profileImage]);
 
   const pickImage = async () => {
     const result = await ImagePicker.launchImageLibraryAsync({
@@ -85,7 +102,10 @@ export default function ProfileScreen() {
     <ThemedView style={styles.container}>
       <TouchableOpacity onPress={pickImage} style={styles.profileImageContainer}>
         {profileImage ? (
-          <Image source={{ uri: profileImage }} style={styles.profileImage} />
+          <Animated.Image 
+            source={{ uri: profileImage }} 
+            style={[styles.profileImage, { transform: [{ scale: scaleValue }] }]} 
+          />
         ) : (
           <ThemedView style={styles.profileImagePlaceholder}>
             <ThemedText>Tap to add photo</ThemedText>
@@ -157,7 +177,8 @@ const styles = StyleSheet.create({
   container: {
     height: windowHeight,
     padding: 20,
-    marginTop: 70,
+    marginTop: 70,  
+    backgroundColor: '#e9eae4',
   },
   slider: {
     width: '100%',
@@ -195,10 +216,9 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
     marginBottom: 4,
+    backgroundColor: '#e9eae4',
   },
   descriptionInput: {
-    borderWidth: 1,
-    borderColor: '#808080',
     borderRadius: 8,
     padding: 12,
     minHeight: 100,
@@ -211,8 +231,6 @@ const styles = StyleSheet.create({
     marginVertical: 20,
   },
   nameInput: {
-    borderWidth: 1,
-    borderColor: '#808080',
     borderRadius: 8,
     padding: 12,
     minHeight: 40,
@@ -220,6 +238,7 @@ const styles = StyleSheet.create({
   ratingContainer: {
     marginVertical: 20,
     alignItems: 'center',
+    backgroundColor: '#e9eae4',
   },
   logoutButton: {
     marginTop: 10,

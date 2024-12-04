@@ -12,17 +12,25 @@ import { Map } from '../components/Map';
 function WalkItem({ item, showDate }: { item: PlannedWalk, showDate: boolean }) {
   const navigation = useNavigation();
   const fadeAnim = useRef(new Animated.Value(0)).current;
+  const scaleAnim = useRef(new Animated.Value(0.8)).current;
 
   useEffect(() => {
-    Animated.timing(fadeAnim, {
-      toValue: 1,
-      duration: 500,
-      useNativeDriver: true,
-    }).start();
-  }, [fadeAnim]);
+    Animated.parallel([
+      Animated.timing(fadeAnim, {
+        toValue: 1,
+        duration: 500,
+        useNativeDriver: true,
+      }),
+      Animated.spring(scaleAnim, {
+        toValue: 1,
+        friction: 5,
+        useNativeDriver: true,
+      }),
+    ]).start();
+  }, [fadeAnim, scaleAnim]);
 
   return (
-    <Animated.View style={{ ...styles.walkItem, opacity: fadeAnim }}>
+    <Animated.View style={{ ...styles.walkItem, opacity: 1, transform: [{ scale: scaleAnim }] }}>
       <Link href={{ pathname: '/details/[id]', params: { id: item.id } }}>
         <View style={styles.walkHeader}>
           <Image
@@ -31,7 +39,7 @@ function WalkItem({ item, showDate }: { item: PlannedWalk, showDate: boolean }) 
           />
           <View style={styles.walkInfo}>
             <Text style={styles.date}>
-              {showDate ? `${new Date(item.dateTime).toLocaleDateString(undefined, { month: 'long', day: 'numeric' })} at ${item.dateTime.split('T')[1].slice(0, 5)}` : item.dateTime.split('T')[1].slice(0, 5)}
+              {showDate ? `${new Date(item.dateTime).toLocaleDateString(undefined, { day: 'numeric', month: 'short' })} at ${item.dateTime.split('T')[1].slice(0, 5)}` : item.dateTime.split('T')[1].slice(0, 5)}
             </Text>
             <Text style={styles.location}>{item.location}</Text>
             <Text style={styles.username}>with {item.username}</Text>
@@ -81,7 +89,7 @@ const styles = StyleSheet.create({
     profileImage: {
       width: 75,
       height: 75,
-      borderRadius: 25,
+      borderRadius: 37.5,
       marginRight: 12,
       borderColor: '#00796b',
       borderWidth: 2,

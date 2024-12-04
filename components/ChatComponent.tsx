@@ -131,9 +131,10 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     marginTop: 20,
     elevation: 5,
+    marginBottom: 20,
   },
   messagesContainer: {
-    marginBottom: 8,
+    marginBottom: 20,
     marginTop: 50,
   },
   input: {

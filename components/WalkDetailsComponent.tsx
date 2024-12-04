@@ -56,9 +56,10 @@ const WalkDetailsComponent: React.FC<WalkDetailsComponentProps> = ({
   }, [walkDetails, user, fadeAnim, isLocalUserJoined, updateState, isInvited]);
 
   useEffect(() => {
-    Animated.timing(scaleFadeAnim, {
+    Animated.spring(scaleFadeAnim, {
       toValue: 1,
-      duration: 500, // Duration of the scale and fade effect
+      friction: 5, // Adjust the friction to control the spring effect
+      tension: 40, // Adjust the tension to control the spring effect
       useNativeDriver: true,
     }).start();
   }, [scaleFadeAnim, updateState]);
@@ -292,6 +293,7 @@ const styles = StyleSheet.create({
   },
   walkDetailsContainer: {
     marginTop: 32,
+
   },
   durationContainer: {
     flexDirection: 'row',
@@ -352,10 +354,12 @@ const styles = StyleSheet.create({
   },
   modalButton: {
     marginHorizontal: 10,
+    width: '45%',
   },
   modalButtonYes: {
     marginHorizontal: 10,
     backgroundColor: '#ff0000',
+    width: '45%',
   },
   cancelButton: {
     marginTop: 16,

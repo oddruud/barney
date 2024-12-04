@@ -2,7 +2,7 @@ import { PlannedWalk } from '../types/PlannedWalk';
 import { UserDetails } from '../types/UserDetails';
 import { ChatMessage } from '../types/ChatMessage';
 import { plannedWalks as dummyPlannedWalks, userDetails as dummyUserDetails, walkingQuotes, chatMessages } from './DummyData';
-import { DataProxy } from './DataProxyInterface'; // Adjust the path as necessary
+import { DataProxy } from './DataProxyInterface';
 
 // Implement the DummyDataProxy class
 class DummyDataProxy implements DataProxy {
@@ -187,9 +187,9 @@ class DummyDataProxy implements DataProxy {
       location: locationName,
       longitude: location.longitude,
       latitude: location.latitude,
-      username: 'Robo',
-      fullName: 'Robo',
-      profileImage: 'https://t4.ftcdn.net/jpg/02/24/86/95/240_F_224869519_aRaeLneqALfPNBzg0xxMZXghtvBXkfIA.jpg',
+      username: dummyUserDetails.find(user => user.id === userId)?.userName || '',
+      fullName: dummyUserDetails.find(user => user.id === userId)?.fullName || '',
+      profileImage: dummyUserDetails.find(user => user.id === userId)?.profileImage || '',
       lastMessageDate: '',
       lastDateMessagesChecked: '',
       maxParticipants: maxParticipants,

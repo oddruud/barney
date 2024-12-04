@@ -1,6 +1,6 @@
-import React from 'react';
-import { useState, useEffect } from 'react';
-import { StyleSheet, Platform, ScrollView, View, Image, Modal, TextInput, FlatList, TouchableOpacity, Text } from 'react-native';
+import React, { useRef, useEffect } from 'react';
+import { useState } from 'react';
+import { StyleSheet, Platform, ScrollView, View, Image, Modal, TextInput, FlatList, TouchableOpacity, Text, Animated } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
@@ -13,6 +13,7 @@ import { dataProxy } from '@/data/DataProxy';
 import { useUser } from '@/contexts/UserContext';
 import { UserDetails } from '@/types/UserDetails';
 import { useFocusEffect } from '@react-navigation/native';
+import { Easing } from 'react-native';
 
 export default function NewWalkScreen() {
   const { user } = useUser();
@@ -33,6 +34,17 @@ export default function NewWalkScreen() {
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<UserDetails[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+
+  const buttonRowAnimation = useRef(new Animated.Value(100)).current; // Initial position off-screen
+
+  useEffect(() => {
+    Animated.timing(buttonRowAnimation, {
+      toValue: 0, // Final position on-screen
+      duration: 500, // Animation duration in milliseconds
+      easing: Easing.sin,
+      useNativeDriver: true, // Use native driver for better performance
+    }).start();
+  }, []);
 
   // Reset state variables to their initial values
   useFocusEffect(
@@ -262,6 +274,7 @@ export default function NewWalkScreen() {
    
 
       {/* Invite User and Submit Buttons at the bottom */}
+      <Animated.View style={{ transform: [{ translateY: buttonRowAnimation }] }}>
       <View style={styles.buttonRow}>
         <Button
           onPress={inviteUser}
@@ -277,6 +290,7 @@ export default function NewWalkScreen() {
           style={styles.submitButton}
         />
       </View>
+      </Animated.View>
 
    {/* Invite User Modal */}
    <Modal
@@ -297,7 +311,13 @@ export default function NewWalkScreen() {
             keyExtractor={(item) => item.id.toString()}
             renderItem={({ item }) => (
               <TouchableOpacity onPress={() => selectUser(item)}>
-                <Text style={styles.userItem}>{item.fullName}</Text>
+                <View style={styles.userItemContainer}>
+                  <Image
+                    source={{ uri: item.profileImage }}
+                    style={styles.userProfileImage}
+                  />
+                  <Text style={styles.userItem}>{item.fullName}</Text>
+                </View>
               </TouchableOpacity>
             )}
           />
@@ -421,5 +441,18 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     borderRadius: 8,
     marginBottom: 70,
+  },
+  userItemContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 10,
+    marginVertical: 5,
+    width: '50%',
+  },
+  userProfileImage: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    marginRight: 10,
   },
 });

@@ -35,6 +35,7 @@ export default function SelectWalkInArea({
     latitudeDelta: 0.0922,
     longitudeDelta: 0.0421,
   });
+  const [scaleAnim] = useState(new Animated.Value(0));
 
   useEffect(() => {
     (async () => {
@@ -68,13 +69,21 @@ export default function SelectWalkInArea({
 
   useEffect(() => {
     if (selectedWalk) {
-      Animated.timing(fadeAnim, {
-        toValue: 1,
-        duration: 500,
-        useNativeDriver: true,
-      }).start();
+      Animated.parallel([
+        Animated.timing(fadeAnim, {
+          toValue: 1,
+          duration: 500,
+          useNativeDriver: true,
+        }),
+        Animated.spring(scaleAnim, {
+          toValue: 1,
+          friction: 5,
+          useNativeDriver: true,
+        }),
+      ]).start();
     } else {
       fadeAnim.setValue(0);
+      scaleAnim.setValue(0);
     }
   }, [selectedWalk]);
 
@@ -126,7 +135,7 @@ export default function SelectWalkInArea({
     <ThemedView style={styles.container}>
 
       <ThemedView style={styles.dateContainer}>
-        <ThemedText>From:</ThemedText>
+        <Text style={styles.label}>From:</Text>
         <DateTimePicker
           value={startDate || new Date()}
           mode="date"
@@ -134,7 +143,7 @@ export default function SelectWalkInArea({
           onChange={handleStartDateChange}
         />
 
-        <ThemedText>To:</ThemedText>
+        <Text style={styles.label}>To:</Text>
         <DateTimePicker
           value={endDate || new Date(new Date().setDate(new Date().getDate() + 7))}
           mode="date"
@@ -177,9 +186,14 @@ export default function SelectWalkInArea({
       )}
 
       {selectedWalk && (
-        <Animated.View style={[styles.walkDetails, { opacity: fadeAnim }]}>
+        <Animated.View
+          style={[
+            styles.walkDetails,
+            { opacity: fadeAnim, transform: [{ scale: scaleAnim }] },
+          ]}
+        >
           <ThemedView style={styles.walkHeader}>
-            <Text style={styles.textBold}>{selectedWalk.location}, {new Date(selectedWalk.dateTime).toLocaleDateString(undefined, { month: 'long', day: 'numeric' })} at {selectedWalk.dateTime.split('T')[1].slice(0, 5)}</Text>
+            <Text style={styles.textBold}>{selectedWalk.location}, {new Date(selectedWalk.dateTime).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })} at {selectedWalk.dateTime.split('T')[1].slice(0, 5)}</Text>
           </ThemedView>
           <ThemedText>{selectedWalk.description}</ThemedText>
           <ThemedText>with {selectedWalk.username}</ThemedText>
@@ -205,6 +219,14 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
+    backgroundColor: '#e9eae4',
+  },
+  label: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#333',
+    marginBottom: 8,
+    backgroundColor: '#e9eae4',
   },
   title: {
     fontSize: 28,
@@ -220,6 +242,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     borderWidth: 1,
     borderColor: '#ccc',
+    backgroundColor: '#ffffff',
   },
   walkHeader: {
     flexDirection: 'row',
@@ -248,6 +271,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: 20,
+    backgroundColor: '#e9eae4',
   },
   durationContainer: {
     flexDirection: 'row',
@@ -265,6 +289,7 @@ const styles = StyleSheet.create({
   },
   sliderContainer: {
     marginBottom: 20,
+    backgroundColor: '#e9eae4',
   },
   slider: {
     width: '100%',

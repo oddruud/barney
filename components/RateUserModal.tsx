@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Modal, View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { Modal, View, Text, TouchableOpacity, StyleSheet, Animated } from 'react-native';
 import { UserDetails } from '../types/UserDetails';
 import InteractiveStarRating from './InteractiveStarRating';
 
@@ -11,6 +11,18 @@ interface RateUserModalProps {
 
 const RateUserModal: React.FC<RateUserModalProps> = ({ user, visible, onRate }) => {
   const [rating, setRating] = useState<number>(0);
+  const scaleValue = useState(new Animated.Value(0))[0];
+
+  useEffect(() => {
+    if (visible) {
+      Animated.spring(scaleValue, {
+        toValue: 1,
+        useNativeDriver: true,
+      }).start();
+    } else {
+      scaleValue.setValue(0);
+    }
+  }, [visible]);
 
   const handleRatingChange = (newRating: number) => {
     setRating(newRating);
@@ -28,7 +40,7 @@ const RateUserModal: React.FC<RateUserModalProps> = ({ user, visible, onRate }) 
       onRequestClose={() => onRate(rating)}
     >
       <View style={styles.modalContainer}>
-        <View style={styles.modalContent}>
+        <Animated.View style={[styles.modalContent, { transform: [{ scale: scaleValue }] }]}>
           <Text style={styles.modalText}>Rate {user.fullName}</Text>
           
           <InteractiveStarRating count={5} onRatingChange={handleRatingChange} />
@@ -39,7 +51,7 @@ const RateUserModal: React.FC<RateUserModalProps> = ({ user, visible, onRate }) 
           >
             <Text style={styles.closeButtonText}>Rate</Text>
           </TouchableOpacity>
-        </View>
+        </Animated.View>
       </View>
     </Modal>
   );

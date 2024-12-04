@@ -55,7 +55,7 @@ export default function PlannedWalks() {
                 data={futureWalks}
                 renderItem={({ item }) => <WalkItem item={item} showDate={true} />}
                 keyExtractor={(item) => item.id}
-                style={styles.list}
+                style={styles.listUpcoming}
               />
             </>
           )}
@@ -86,7 +86,10 @@ const styles = StyleSheet.create({
   },
   list: {
     flex: 1,
-    height: 400,
+    marginBottom: 10,
+  },
+  listUpcoming: {
+    flex: 1,
     marginBottom: 60,
   },
   noWalksContainer: {
