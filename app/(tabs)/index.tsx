@@ -11,7 +11,7 @@ import { Text } from '@/components/Themed';
 
 // Add a new component to display countdown to the next walk
 function NextWalkCountdown({ nextWalkTime }: { nextWalkTime: Date | null }) {
-  const [timeRemaining, setTimeRemaining] = React.useState('');
+  const [countDownText, setCountDownText] = React.useState('');
 
   React.useEffect(() => {
     if (!nextWalkTime) return;
@@ -21,13 +21,13 @@ function NextWalkCountdown({ nextWalkTime }: { nextWalkTime: Date | null }) {
       const difference = nextWalkTime.getTime() - now.getTime();
 
       if (difference <= 0) {
-        setTimeRemaining('The next walk is starting now!');
+        setCountDownText('Enjoy your walk!');
         clearInterval(interval);
       } else {
         const hours = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
         const minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
         const seconds = Math.floor((difference % (1000 * 60)) / 1000);
-        setTimeRemaining(`${hours}h ${minutes}m ${seconds}s`);
+        setCountDownText(`Next Walk In: ${hours}h ${minutes}m ${seconds}s`);
       }
     }, 1000);
 
@@ -36,7 +36,7 @@ function NextWalkCountdown({ nextWalkTime }: { nextWalkTime: Date | null }) {
 
   return (
     <ThemedView style={styles.countdownContainer}>
-      <Text style={styles.nextWalkText}>Next Walk In: {timeRemaining}</Text>
+      <Text style={styles.nextWalkText}>{countDownText}</Text>
     </ThemedView>
   );
 }
