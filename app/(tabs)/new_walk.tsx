@@ -15,6 +15,7 @@ import { UserDetails } from '@/types/UserDetails';
 import { useFocusEffect } from '@react-navigation/native';
 import { Easing } from 'react-native';
 import SelectOnMapModal from '@/components/modals/SelectOnMapModal';
+import InviteUsersModal from '@/components/modals/InviteUsersModal';
 
 export default function NewWalkScreen() {
   const { user } = useUser();
@@ -37,6 +38,7 @@ export default function NewWalkScreen() {
   const [searchResults, setSearchResults] = useState<UserDetails[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isSelectOnMapModalVisible, setIsSelectOnMapModalVisible] = useState(false); // New state for modal visibility
+  const [allUsers, setAllUsers] = useState<UserDetails[]>([]);
 
   const buttonRowAnimation = useRef(new Animated.Value(100)).current; // Initial position off-screen
   const scaleAnimation = useRef(new Animated.Value(0)).current; // Initial scale value
@@ -54,6 +56,14 @@ export default function NewWalkScreen() {
       friction: 5, // Adjust the spring effect
       useNativeDriver: true, // Use native driver for better performance
     }).start();
+  }, []);
+
+  useEffect(() => {
+    const fetchUsers = async () => {
+      const users = await dataProxy.getAllUsers();
+      setAllUsers(users);
+    };
+    fetchUsers();
   }, []);
 
   // Reset state variables to their initial values
@@ -149,22 +159,8 @@ export default function NewWalkScreen() {
   }
 
   const handleMapPress = async (event: any) => {
-    /*
-    const { latitude, longitude } = event.nativeEvent.coordinate;
-    setLocation({
-      ...location,
-      latitude,
-      longitude,
-    });*/
+
     setIsSelectOnMapModalVisible(true); // Show the modal
-  };
-
-  const handleSearch = async (query: string) => {
-    setSearchQuery(query);
-    const allUsers = await dataProxy.getAllUsers();
-
-    const results = allUsers.filter(user => user.fullName.toLowerCase().includes(query.toLowerCase()));
-    setSearchResults(results);
   };
 
   const inviteUser = () => {
@@ -178,7 +174,6 @@ export default function NewWalkScreen() {
       setInvitedUsers([...invitedUsers, user]);
     }
     setSearchQuery('');
-    setIsInviteUserModalVisible(false);
   };
 
   return (
@@ -301,37 +296,13 @@ export default function NewWalkScreen() {
       </Animated.View>
 
    {/* Invite User Modal */}
-   <Modal
-        visible={isInviteUserModalVisible}
-        transparent={true}
-        animationType="fade"
-        onRequestClose={() => setIsInviteUserModalVisible(false)}
-      >
-        <View style={styles.modalContainer}>
-          <TextInput
-            style={styles.searchInput}
-            placeholder="Search for a user"
-            value={searchQuery}
-            onChangeText={handleSearch}
-          />
-          <FlatList
-            data={searchResults}
-            keyExtractor={(item) => item.id.toString()}
-            renderItem={({ item }) => (
-              <TouchableOpacity onPress={() => selectUser(item)}>
-                <View style={styles.userItemContainer}>
-                  <Image
-                    source={{ uri: item.profileImage }}
-                    style={styles.userProfileImage}
-                  />
-                  <Text style={styles.userItem}>{item.fullName}</Text>
-                </View>
-              </TouchableOpacity>
-            )}
-          />
-          <Button style={styles.modalCloseButton} title="Close" onPress={() => setIsInviteUserModalVisible(false)} />
-        </View>
-      </Modal>
+   <InviteUsersModal
+     visible={isInviteUserModalVisible}
+     searchQuery={searchQuery}
+     allUsers={allUsers}
+     onSelectUser={selectUser}
+     onClose={() => setIsInviteUserModalVisible(false)}
+   />
 
       {!isLoadingLocation && (
         <SelectOnMapModal
@@ -428,54 +399,9 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
   profileImage: {
-    width: 30,
-    height: 30,
-    borderRadius: 25,
-    marginRight: 10,
-  },
-  modalContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-  },
-  searchInput: {
-    height: 40,
-    borderColor: '#ddd',
-    borderWidth: 1,
-    padding: 8,
-    borderRadius: 8,
-    backgroundColor: '#fff',
-    width: '80%',
-    marginBottom: 20,
-    marginTop: 70,
-  },
-  userItem: {
-    padding: 10,
-    backgroundColor: '#f5f5f5',
-    marginVertical: 5,
-    width: '100%',
-    textAlign: 'center',
-    borderRadius: 8,
-  },
-  modalCloseButton: {
-    marginTop: 20,
-    backgroundColor: '#007BFF',
-    paddingVertical: 12,
-    borderRadius: 8,
-    marginBottom: 70,
-  },
-  userItemContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: 10,
-    marginVertical: 5,
-    width: '50%',
-  },
-  userProfileImage: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+    width: 60,
+    height: 60,
+    borderRadius: 30,
     marginRight: 10,
   },
   locationText: {

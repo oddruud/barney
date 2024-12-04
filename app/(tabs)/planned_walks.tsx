@@ -78,7 +78,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#e9eae4',
   },
   title: {
-    fontSize: 28,
+    fontSize: 18,
     fontWeight: 'bold',
     color: '#00796b', // Teal color
     marginBottom: 16,
