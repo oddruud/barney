@@ -39,12 +39,19 @@ export default function NewWalkScreen() {
   const [isSelectOnMapModalVisible, setIsSelectOnMapModalVisible] = useState(false); // New state for modal visibility
 
   const buttonRowAnimation = useRef(new Animated.Value(100)).current; // Initial position off-screen
+  const scaleAnimation = useRef(new Animated.Value(0)).current; // Initial scale value
 
   useEffect(() => {
     Animated.timing(buttonRowAnimation, {
       toValue: 0, // Final position on-screen
       duration: 500, // Animation duration in milliseconds
       easing: Easing.sin,
+      useNativeDriver: true, // Use native driver for better performance
+    }).start();
+
+    Animated.spring(scaleAnimation, {
+      toValue: 1, // Final scale value
+      friction: 5, // Adjust the spring effect
       useNativeDriver: true, // Use native driver for better performance
     }).start();
   }, []);
@@ -259,9 +266,12 @@ export default function NewWalkScreen() {
               key={user.id}
               onPress={() => setInvitedUsers(invitedUsers.filter(invitedUser => invitedUser.id !== user.id))}
             >
-              <Image
+              <Animated.Image
                 source={{ uri: user.profileImage }}
-                style={styles.profileImage}
+                style={[
+                  styles.profileImage,
+                  { transform: [{ scale: scaleAnimation }] } // Apply scale animation
+                ]}
               />
             </TouchableOpacity>
           ))}

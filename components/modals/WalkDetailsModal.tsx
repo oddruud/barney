@@ -128,10 +128,10 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
   checkOutButton: {
-    marginTop: 15,
+    width: '40%',
   },
   closeButton: {
-    marginTop: 10,
+    width: '40%',
   },
   userInfoContainer: {
     flexDirection: 'row',
