@@ -6,7 +6,6 @@ import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { useState } from 'react';
 import { Button } from '@/components/Button';
-import { Text } from '@/components/Themed';
 import StarRating from '@/components/StarRating';
 import { dataProxy } from '@/data/DataProxy';
 import LocalUserData from '@/data/LocalData';

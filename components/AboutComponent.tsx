@@ -4,7 +4,7 @@ import { Text } from '../components/Themed';
 import { UserDetails } from '../types/UserDetails';
 import { Button } from './Button';
 import StarRating from './StarRating';  // Import the new StarRating component
-import RateUserModal from './RateUserModal';  // Import the new modal component
+import RateUserModal from './modals/RateUserModal';  // Import the new modal component
 
 interface AboutComponentProps {
   user: UserDetails;

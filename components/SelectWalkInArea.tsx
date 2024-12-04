@@ -1,19 +1,18 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, Platform, Animated, View } from 'react-native';
+import { StyleSheet, Platform, Animated, View, Modal } from 'react-native';
 import { ThemedView } from '@/components/ThemedView';
 import { ThemedText } from '@/components/ThemedText';
 import { Map } from '@/components/Map';
-import { Button } from '@/components/Button';
 import { router } from 'expo-router';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import * as Location from 'expo-location';
 import { dataProxy } from '@/data/DataProxy';
 import { PlannedWalk } from '@/types/PlannedWalk';
 import { Text } from '@/components/Themed';
-import { IconSymbol } from '@/components/ui/IconSymbol';
 import Slider from '@react-native-community/slider';
 import { useUser } from '@/contexts/UserContext';
 import { haversineDistance } from '@/utils/geoUtils';
+import WalkDetailsModal from '@/components/modals/WalkDetailsModal';
 
 export default function SelectWalkInArea({
   minSearchRadius = 1,
@@ -46,7 +45,6 @@ export default function SelectWalkInArea({
       }
 
       let location = await Location.getCurrentPositionAsync({});
-      console.log('Location:', location);
       setUserLocation(location);
 
       setMapRegion({
@@ -86,11 +84,6 @@ export default function SelectWalkInArea({
       scaleAnim.setValue(0);
     }
   }, [selectedWalk]);
-
-  useEffect(() => {
-    setStartDate(new Date());
-    setEndDate(new Date());
-  }, []);
 
   const handleMarkerPress = (marker: any) => {
     const walk = walks.find(w => w.id === marker.id);
@@ -178,39 +171,22 @@ export default function SelectWalkInArea({
             description: walk.description
           }))}
           showUserLocation={true}
-          height={240}
+          height="100%"
           width="100%"
           initialRegion={mapRegion}
           onMarkerPress={handleMarkerPress}
         />
       )}
 
-      {selectedWalk && (
-        <Animated.View
-          style={[
-            styles.walkDetails,
-            { opacity: fadeAnim, transform: [{ scale: scaleAnim }] },
-          ]}
-        >
-          <ThemedView style={styles.walkHeader}>
-            <Text style={styles.textBold}>{selectedWalk.location}, {new Date(selectedWalk.dateTime).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })} at {selectedWalk.dateTime.split('T')[1].slice(0, 5)}</Text>
-          </ThemedView>
-          <ThemedText>{selectedWalk.description}</ThemedText>
-          <ThemedText>with {selectedWalk.username}</ThemedText>
-          <View style={styles.durationContainer}>
-            <IconSymbol name="timer" size={16} color="#333" style={styles.icon} />
-            <ThemedText>{selectedWalk.duration * 60} minutes   </ThemedText>
-            <IconSymbol name="person" size={16} color="#333" style={styles.icon} />
-            <ThemedText>{selectedWalk.joinedUserIds.length} / {selectedWalk.maxParticipants}
-            </ThemedText>
-          </View>
-          <Button
-            title="Check out"
-            onPress={handleCheckOutWalk}
-            style={styles.checkOutButton}
-          />
-        </Animated.View>
-      )}
+      <WalkDetailsModal
+        visible={!!selectedWalk}
+        walk={selectedWalk}
+        onClose={() => setSelectedWalk(null)}
+        onCheckOut={() => {
+          handleCheckOutWalk();
+          setSelectedWalk(null);
+        }}
+      />
     </ThemedView>
   );
 }
@@ -294,5 +270,27 @@ const styles = StyleSheet.create({
   slider: {
     width: '100%',
     height: 40,
+  },
+  modalBackground: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  modalContent: {
+    width: '80%',
+    padding: 20,
+    backgroundColor: '#ffffff',
+    borderRadius: 10,
+    alignItems: 'center',
+  },
+  closeButton: {
+    marginTop: 10,
+  },
+  buttonRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    width: '100%',
+    marginTop: 10,
   },
 });

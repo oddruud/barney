@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Modal, View, Text, TouchableOpacity, StyleSheet, Animated } from 'react-native';
-import { UserDetails } from '../types/UserDetails';
-import InteractiveStarRating from './InteractiveStarRating';
+import { UserDetails } from '../../types/UserDetails';
+import InteractiveStarRating from '../InteractiveStarRating';
 
 interface RateUserModalProps {
   user: UserDetails;

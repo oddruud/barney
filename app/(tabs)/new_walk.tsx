@@ -14,6 +14,7 @@ import { useUser } from '@/contexts/UserContext';
 import { UserDetails } from '@/types/UserDetails';
 import { useFocusEffect } from '@react-navigation/native';
 import { Easing } from 'react-native';
+import SelectOnMapModal from '@/components/modals/SelectOnMapModal';
 
 export default function NewWalkScreen() {
   const { user } = useUser();
@@ -21,8 +22,8 @@ export default function NewWalkScreen() {
   const [duration, setDuration] = useState('30'); // in minutes
   const [description, setDescription] = useState('');
   const [location, setLocation] = useState({
-    latitude: 41.1579,
-    longitude: -8.6291,
+    latitude: 40.7128,
+    longitude: -74.0060,
     title: '',
     description: ''
   });
@@ -31,10 +32,11 @@ export default function NewWalkScreen() {
   const [isLoadingLocation, setIsLoadingLocation] = useState(true);
   const [groupSize, setGroupSize] = useState('2'); // Default group size
   const [invitedUsers, setInvitedUsers] = useState<UserDetails[]>([]); // New state for invited users
-  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [isInviteUserModalVisible, setIsInviteUserModalVisible] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<UserDetails[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [isSelectOnMapModalVisible, setIsSelectOnMapModalVisible] = useState(false); // New state for modal visibility
 
   const buttonRowAnimation = useRef(new Animated.Value(100)).current; // Initial position off-screen
 
@@ -55,8 +57,8 @@ export default function NewWalkScreen() {
       setDuration('30');
       setDescription('');
       setLocation({
-        latitude: 41.1579,
-        longitude: -8.6291,
+        latitude: 40.7128,
+        longitude: -74.0060,
         title: '',
         description: ''
       });
@@ -64,14 +66,13 @@ export default function NewWalkScreen() {
       setIsLoadingLocation(true);
       setGroupSize('2');
       setInvitedUsers([]);
-      setIsModalVisible(false);
+      setIsInviteUserModalVisible(false);
       setSearchQuery('');
       setSearchResults([]);
       setIsLoading(true);
       
-      // Return a cleanup function if necessary
       return () => {
-        // Any cleanup logic if needed
+      
       };
     }, [])
   );
@@ -82,6 +83,8 @@ export default function NewWalkScreen() {
         // Request location permissions
         const { status } = await Location.requestForegroundPermissionsAsync();
         
+        console.log("location: ", location);
+
         if (status === 'granted') {
           // Get current location
           const currentLocation = await Location.getCurrentPositionAsync({});
@@ -91,7 +94,6 @@ export default function NewWalkScreen() {
             longitude: currentLocation.coords.longitude,
           });
         }
-        console.log("isLoadingLocation: ", new Date().toISOString());
         setIsLoadingLocation(false);
       })();
     }, [])
@@ -102,7 +104,6 @@ export default function NewWalkScreen() {
   const fetchAddress = async (latitude: number, longitude: number) => {
     try {
       const [address] = await Location.reverseGeocodeAsync({ latitude, longitude });
-      console.log("address: ", address);
       setLocation((prevLocation) => ({
         ...prevLocation,
         title: address.name || '',
@@ -141,12 +142,14 @@ export default function NewWalkScreen() {
   }
 
   const handleMapPress = async (event: any) => {
+    /*
     const { latitude, longitude } = event.nativeEvent.coordinate;
     setLocation({
       ...location,
       latitude,
       longitude,
-    });
+    });*/
+    setIsSelectOnMapModalVisible(true); // Show the modal
   };
 
   const handleSearch = async (query: string) => {
@@ -158,7 +161,7 @@ export default function NewWalkScreen() {
   };
 
   const inviteUser = () => {
-    setIsModalVisible(true);
+    setIsInviteUserModalVisible(true);
     setSearchQuery('');
     setSearchResults([]);
   };
@@ -168,7 +171,7 @@ export default function NewWalkScreen() {
       setInvitedUsers([...invitedUsers, user]);
     }
     setSearchQuery('');
-    setIsModalVisible(false);
+    setIsInviteUserModalVisible(false);
   };
 
   return (
@@ -235,7 +238,7 @@ export default function NewWalkScreen() {
                 title: location.title || 'Selected Location',
                 description: location.description || 'Tap to set details'
               }]}
-              height={200}
+              height={150}
               initialRegion={{
                 latitude: location.latitude,
                 longitude: location.longitude,
@@ -243,13 +246,6 @@ export default function NewWalkScreen() {
                 longitudeDelta: 0.010,
               }}
               onPress={handleMapPress}
-              onMarkerPress={(marker) => {
-                setLocation({
-                  ...location,
-                  latitude: marker.coordinate.latitude,
-                  longitude: marker.coordinate.longitude,
-                });
-              }}
             />
           )
         )}
@@ -295,10 +291,10 @@ export default function NewWalkScreen() {
 
    {/* Invite User Modal */}
    <Modal
-        visible={isModalVisible}
+        visible={isInviteUserModalVisible}
         transparent={true}
         animationType="fade"
-        onRequestClose={() => setIsModalVisible(false)}
+        onRequestClose={() => setIsInviteUserModalVisible(false)}
       >
         <View style={styles.modalContainer}>
           <TextInput
@@ -322,10 +318,25 @@ export default function NewWalkScreen() {
               </TouchableOpacity>
             )}
           />
-          <Button style={styles.modalCloseButton} title="Close" onPress={() => setIsModalVisible(false)} />
+          <Button style={styles.modalCloseButton} title="Close" onPress={() => setIsInviteUserModalVisible(false)} />
         </View>
       </Modal>
 
+      {!isLoadingLocation && (
+        <SelectOnMapModal
+          visible={isSelectOnMapModalVisible}
+          initialLocation={location}
+          onLocationSelect={async (location) => {
+            setLocation({
+              ...location,
+              title: '',
+              description: ''
+            });
+            await fetchAddress(location.latitude, location.longitude);
+          }}
+          onRequestClose={() => setIsSelectOnMapModalVisible(false)} // Allow closing the modal
+        />
+      )}
 
     </ThemedView>
   );

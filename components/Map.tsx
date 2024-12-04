@@ -1,6 +1,7 @@
 import { StyleSheet, Dimensions, Linking, Platform, Image } from 'react-native';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import * as Location from 'expo-location';
+import MapView from 'react-native-maps';
 
 type Marker = {
   id: string;
@@ -53,6 +54,7 @@ export function Map({
   onPress
 }: Props) {
   const [userLocation, setUserLocation] = useState<Marker['coordinate'] | null>(null);
+  const mapRef = useRef<MapView | null>(null);
 
   useEffect(() => {
     (
@@ -75,6 +77,30 @@ export function Map({
     )();
   }, [userLocation]);
 
+  useEffect(() => {
+    if (mapRef.current) {
+      const zoomFactor = initialRegion.zoomLevel || 1;
+      const adjustedRegion = {
+        ...initialRegion,
+        latitudeDelta: initialRegion.latitudeDelta / zoomFactor,
+        longitudeDelta: initialRegion.longitudeDelta / zoomFactor,
+      };
+
+      animateToRegion(adjustedRegion);
+    }
+  }, [initialRegion]);
+
+  const animateToRegion = (region: {
+    latitude: number;
+    longitude: number;
+    latitudeDelta: number;
+    longitudeDelta: number;
+  }) => {
+    if (mapRef.current) {
+      mapRef.current.animateToRegion(region, 1000); // 1000 ms for animation duration
+    }
+  };
+
   if (Platform.OS === 'web') {
     return null;
   }
@@ -93,6 +119,7 @@ export function Map({
 
   return (
     <MapView 
+      ref={mapRef}
       style={{
         width,
         height
@@ -132,4 +159,4 @@ export function Map({
   );
 }
 
-export { Marker };
+export { Marker};
