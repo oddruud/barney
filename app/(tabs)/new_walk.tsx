@@ -249,6 +249,7 @@ export default function NewWalkScreen() {
             />
           )
         )}
+        <Text style={styles.locationText}>Location: {location.title}</Text>
 
         {/* Invited Users List */}
         <ThemedText style={styles.label}>Invited Users</ThemedText>
@@ -466,5 +467,10 @@ const styles = StyleSheet.create({
     height: 40,
     borderRadius: 20,
     marginRight: 10,
+  },
+  locationText: {
+    marginTop: 10,
+    fontSize: 16,
+    color: '#555',
   },
 });
