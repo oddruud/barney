@@ -86,9 +86,9 @@ export default function PlannedWalks() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    marginTop: 40,
     padding: 20,
     backgroundColor: '#e9eae4',
+    marginTop: 32,
   },
   tabContainer: {
     flexDirection: 'row',

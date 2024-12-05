@@ -25,10 +25,11 @@ function NextWalkCountdown({ nextWalkTime }: { nextWalkTime: Date | null }) {
         setCountDownText('Enjoy your walk!');
         clearInterval(interval);
       } else {
+        const days = Math.floor(difference / (1000 * 60 * 60 * 24));
         const hours = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
         const minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
         const seconds = Math.floor((difference % (1000 * 60)) / 1000);
-        setCountDownText(`Next Walk In: ${hours}h ${minutes}m ${seconds}s`);
+        setCountDownText(`Next Walk In: ${days}d ${hours}h ${minutes}m ${seconds}s`);
       }
     }, 1000);
 

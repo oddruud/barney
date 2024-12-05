@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { View, StyleSheet, Animated, Dimensions, Image, TextInput, Text, TouchableOpacity } from 'react-native';
+import { View, StyleSheet, Animated, Dimensions, Image, TextInput, Text, TouchableOpacity} from 'react-native';
 import { Video, ResizeMode } from 'expo-av';
 import { Button } from '@/components/Button';
 import { router } from 'expo-router';
@@ -11,6 +11,7 @@ import { getAuth, onAuthStateChanged, User, GoogleAuthProvider, signInWithPopup 
 import { FirebaseError } from 'firebase/app';
 import { useEnvironment } from '@/contexts/EnvironmentContext';
 import { useData } from '@/contexts/DataContext';
+import * as Linking from 'expo-linking';
 
 
 function sleep(ms: number) {
@@ -145,6 +146,41 @@ export default function LoginScreen() {
             // ...
           });
     };
+
+    const url = Linking.useURL();
+    if (url) {
+        const { hostname, path, queryParams } = Linking.parse(url);
+    
+        console.log(
+          `Linked to app with hostname: ${hostname}, path: ${path} and data: ${JSON.stringify(
+            queryParams
+          )}`
+        );
+      }
+
+    useEffect(() => {
+        const handleDeepLink = (event: { url: string }) => {
+            const url = event.url;
+            console.log("Received deep link:", url);
+
+            if (url) {
+                const { hostname, path, queryParams } = Linking.parse(url);
+                console.log(
+                  `Linked to app with hostname: ${hostname}, path: ${path} and data: ${JSON.stringify(
+                    queryParams
+                  )}`
+                );
+            }
+        };
+
+        // Add event listener
+        const subscription = Linking.addEventListener('url', handleDeepLink);
+
+        // Clean up the event listener
+        return () => {
+            subscription.remove();
+        };
+    }, []);
 
     return (
         <>

@@ -71,7 +71,9 @@ export default function NewWalkScreen() {
   useFocusEffect(
     React.useCallback(() => {
       // Reset state variables to their initial values
-      setDate(new Date());
+      const now = new Date();
+      now.setMinutes(now.getMinutes() + 30);
+      setDate(now);
       setDuration('30');
       setDescription('');
       setLocation({
@@ -172,10 +174,10 @@ export default function NewWalkScreen() {
     <ThemedView style={styles.container}>
       <ScrollView style={styles.scrollView}>
         {/* Time Picker */}
-        <ThemedText style={styles.label}>Start Time</ThemedText>
+        <ThemedText style={styles.label}>When</ThemedText>
         <Button 
           onPress={() => setShowDatePicker(true)}
-          title={date.toLocaleString()}
+          title={`${date.toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: 'numeric' })} at ${date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`}
         />
         {showDatePicker && (
           <DateTimePicker
@@ -186,7 +188,7 @@ export default function NewWalkScreen() {
         )}
 
         {/* Duration Input */}
-        <ThemedText style={styles.label}>Duration (minutes)</ThemedText>
+        <ThemedText style={styles.label}>How long (minutes)</ThemedText>
         <ThemedTextInput
           style={styles.input}
           value={duration}
@@ -196,12 +198,12 @@ export default function NewWalkScreen() {
         />
 
         {/* Walk Description */}
-        <ThemedText style={styles.label}>Description</ThemedText>
+        <ThemedText style={styles.label}>Intention</ThemedText>
         <ThemedTextInput
           style={[styles.input, styles.descriptionInput]}
           value={description}
           onChangeText={setDescription}
-          placeholder="Enter walk description"
+          placeholder="Enter an intention for the walk"
           multiline
         />
 

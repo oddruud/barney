@@ -37,8 +37,10 @@ const WalkDetailsComponent: React.FC<WalkDetailsComponentProps> = ({
   const buttonAnim = useRef(new Animated.Value(100)).current; // Initial value for vertical position: 100
   const zoomAnim = useRef(new Animated.Value(6)).current; // Initial zoom level
   const { dataProxy } = useData();
+  const [isCalendarButtonPressed, setIsCalendarButtonPressed] = useState(false);
+
   const isOrganizer = user?.id === walkDetails.userId;
-  const isCancelled = walkDetails.cancelled; // Assuming `isCancelled` is a boolean property in `walkDetails`
+  const isCancelled = walkDetails.cancelled;
   const [isAddedToCalendarModalVisible, setIsAddedToCalendarModalVisible] = useState(false);
 
   useEffect(() => {
@@ -153,11 +155,11 @@ const WalkDetailsComponent: React.FC<WalkDetailsComponentProps> = ({
       notes: walkDetails.description,
     });
 
-    console.log('Event added to calendar');
     setIsAddedToCalendarModalVisible(true);
     setTimeout(() => {
       setIsAddedToCalendarModalVisible(false);
     }, 1000);
+    setIsCalendarButtonPressed(true);
   };
 
   return (
@@ -165,7 +167,7 @@ const WalkDetailsComponent: React.FC<WalkDetailsComponentProps> = ({
       <ScrollView>
         <View style={{ flex: 1 }}>
           <Text style={styles.textBold}>
-            {walkDetails.location}, {formattedDate} at {walkDetails.dateTime.split('T')[1].slice(0, 5)}
+            {walkDetails.location}, {formattedDate} at {new Date(walkDetails.dateTime).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })}
           </Text>
           <Animated.View
             style={[
@@ -251,13 +253,15 @@ const WalkDetailsComponent: React.FC<WalkDetailsComponentProps> = ({
           <Button
             title="Open in Maps"
             onPress={openInMaps}
-            style={styles.buttonStyle}
+            style={isCalendarButtonPressed ? styles.fullWidthButton : styles.buttonStyle}
           />
-          <Button
-            title="Add to Calendar"
-            onPress={addToCalendar}
-            style={styles.buttonStyle}
+          {!isCalendarButtonPressed && (
+            <Button
+              title="Add to Calendar"
+              onPress={addToCalendar}
+              style={styles.buttonStyle}
             />
+          )}
           </View>
           {!isLocalUserJoined && (
             <View style={styles.buttonRow}>
@@ -421,6 +425,7 @@ const styles = StyleSheet.create({
   },
   modalText: {
     fontSize: 18,
+    marginBottom: 16,
   },
   modalButtons: {
     flexDirection: 'row',

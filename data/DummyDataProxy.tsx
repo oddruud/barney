@@ -6,6 +6,21 @@ import { DataProxy } from './DataProxyInterface';
 
 // Implement the DummyDataProxy class
 class DummyDataProxy implements DataProxy {
+
+  async initialize(): Promise<void> {
+    return new Promise((resolve) => {
+      //set the date of each walk to a random date in the future between 0 and 7 days from today
+      const today = new Date();
+      dummyPlannedWalks.forEach((walk) => {
+        const futureDate = new Date(today);
+        const index = Math.floor(Math.random() * 7);
+        futureDate.setDate(today.getDate() + index); // Set each walk's date to today + index days
+        walk.dateTime = futureDate.toISOString();
+      });
+      resolve();
+    });
+  }
+
   async getPlannedWalks(): Promise<PlannedWalk[]> {
     return new Promise((resolve) => {
       setTimeout(() => {

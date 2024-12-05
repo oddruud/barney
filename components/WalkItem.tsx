@@ -48,7 +48,7 @@ function WalkItem({ item, showDate }: { item: PlannedWalk, showDate: boolean }) 
           />
           <View style={styles.walkInfo}>
             <Text style={styles.date}>
-              {showDate ? `${new Date(item.dateTime).toLocaleDateString(undefined, { day: 'numeric', month: 'short' })} at ${item.dateTime.split('T')[1].slice(0, 5)}` : item.dateTime.split('T')[1].slice(0, 5)}
+              {showDate ? `${new Date(item.dateTime).toLocaleDateString(undefined, { day: 'numeric', month: 'short' })} at ${new Date(item.dateTime).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })}` : new Date(item.dateTime).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })}
             </Text>
             <Text style={styles.location}>{item.location}</Text>
             <Text style={styles.username}>with {item.username}</Text>

@@ -9,9 +9,8 @@ class DataProxySingleton {
     private constructor() {}
 
     public static getInstance(useDummyData?: boolean): DataProxy {
-        if (!DataProxySingleton.instance) {
-            DataProxySingleton.instance = useDummyData ? new DummyDataProxy() : new RealDataProxy();
-        }
+        DataProxySingleton.instance = useDummyData ? new DummyDataProxy() : new RealDataProxy();
+        DataProxySingleton.instance.initialize();
         return DataProxySingleton.instance;
     }
 }

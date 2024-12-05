@@ -4,6 +4,7 @@ import { ChatMessage } from '../types/ChatMessage';
 
 // Define the DataProxy interface
 interface DataProxy {
+    initialize(): Promise<void>;
     getPlannedWalks(): Promise<PlannedWalk[]>;
     getPlannedWalksByUserId(userId: number): Promise<PlannedWalk[]>;
     getInvitedPlannedWalksByUserId(userId: number): Promise<PlannedWalk[]>;

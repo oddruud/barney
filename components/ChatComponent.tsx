@@ -15,11 +15,13 @@ type ChatComponentProps = {
 
 export default function ChatComponent({walkId, user }: ChatComponentProps) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [messageCount, setMessageCount] = useState(0);
   const [inputText, setInputText] = useState('');
   const { environment } = useEnvironment();
   const { dataProxy } = useData();
   const flatListRef = useRef<FlatList>(null);
   const fadeAnim = useRef(new Animated.Value(0)).current; // Initial opacity value of 0
+  const [isUserScrolling, setIsUserScrolling] = useState(false);
 
   useEffect(() => {
     // Load initial messages from dataProxy
@@ -29,6 +31,10 @@ export default function ChatComponent({walkId, user }: ChatComponentProps) {
         newMessage: false,
       }));
       setMessages(updatedMessages);
+      
+      if (flatListRef.current) {
+        flatListRef.current.scrollToEnd({ animated: false });
+      }
     });
 
     // Poll for new messages every second
@@ -38,6 +44,8 @@ export default function ChatComponent({walkId, user }: ChatComponentProps) {
           const newUniqueMessages = newMessages.filter(
             newMsg => !prevMessages.some(prevMsg => prevMsg.id === newMsg.id)
           );
+          setMessageCount(prevMessages.length + newUniqueMessages.length);
+          
           return [...prevMessages, ...newUniqueMessages];
         });
       });
@@ -94,11 +102,16 @@ export default function ChatComponent({walkId, user }: ChatComponentProps) {
     const previousMessageDate = index > 0 ? new Date(messages[index - 1].timestamp) : null;
     const isNewDay = !previousMessageDate || currentMessageDate.toDateString() !== previousMessageDate.toDateString();
 
+    const today = new Date();
+    const isToday = currentMessageDate.toDateString() === today.toDateString();
+
     return (
       <>
         {isNewDay && (
           <Animated.View style={[styles.dateSeparator, { opacity: fadeAnim }]}>
-            <Text style={styles.dateText}>{currentMessageDate.toDateString()}</Text>
+            <Text style={styles.dateText}>
+              {isToday ? "Today" : currentMessageDate.toDateString()}
+            </Text>
           </Animated.View>
         )}
         <ChatMessageItem message={item} isLocalUser={item.userId === user?.id} />
@@ -134,13 +147,19 @@ export default function ChatComponent({walkId, user }: ChatComponentProps) {
     }
   };
 
-  
+  const handleScrollBegin = () => {
+    setIsUserScrolling(true);
+  };
+
+  const handleScrollEnd = () => {
+    setIsUserScrolling(false);
+  };
 
   useEffect(() => {
-    if (flatListRef.current) {
-      flatListRef.current.scrollToEnd({ animated: true });
+    if (flatListRef.current && !isUserScrolling) {
+      flatListRef.current.scrollToEnd({ animated: false });
     }
-  }, [messages]);
+  }, [messages, messageCount]);
 
   return (
     <View style={styles.chatContainer}>
@@ -150,6 +169,9 @@ export default function ChatComponent({walkId, user }: ChatComponentProps) {
           data={messages}
           keyExtractor={(item) => item.id}
           renderItem={renderItem}
+          onScrollBeginDrag={handleScrollBegin}
+          onScrollEndDrag={handleScrollEnd}
+          onMomentumScrollEnd={handleScrollEnd}
         />
       </View>
       <TextInput

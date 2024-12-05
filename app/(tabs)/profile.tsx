@@ -146,7 +146,7 @@ onAuthStateChanged(auth, (user) => {
         />
       </ThemedView>
       <ThemedView style={styles.descriptionContainer}>
-        <ThemedText style={styles.label}>About Me</ThemedText>
+        <ThemedText style={styles.label}>Bio</ThemedText>
         <TextInput
           style={styles.descriptionInput}
           multiline

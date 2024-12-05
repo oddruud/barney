@@ -4,6 +4,13 @@ import { ChatMessage } from '../types/ChatMessage';
 import { DataProxy } from './DataProxyInterface'; // Adjust the path as necessary
 
 class RealDataProxy implements DataProxy {
+
+  async initialize(): Promise<void> {
+    return new Promise((resolve) => {
+      resolve();
+    });
+  }
+
   async getPlannedWalks(): Promise<PlannedWalk[]> {
     const response = await fetch('/api/plannedWalks');
     return response.json();
