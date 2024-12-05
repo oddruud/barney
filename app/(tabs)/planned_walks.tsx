@@ -1,17 +1,19 @@
-import React from 'react';
-import { StyleSheet, FlatList, View } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { StyleSheet, FlatList, View, TouchableOpacity } from 'react-native';
 import { Text } from '../../components/Themed';
-import { useState, useEffect } from 'react';
 import WalkItem from '../../components/WalkItem';
 import { PlannedWalk } from '../../types/PlannedWalk';
-import { dataProxy } from '../../data/DataProxy';
+
 import { useUser } from '@/contexts/UserContext';
+import { useData } from '@/contexts/DataContext';
 import { useFocusEffect } from '@react-navigation/native';
 
 export default function PlannedWalks() {
   const { user } = useUser();
+  const { dataProxy } = useData();
   const [plannedWalks, setPlannedWalks] = useState<PlannedWalk[]>([]);
   const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState('today');
 
   useFocusEffect(
     React.useCallback(() => {
@@ -27,19 +29,26 @@ export default function PlannedWalks() {
   );
 
   const today = new Date().toISOString().split('T')[0];
-
   const todaysWalks = plannedWalks.filter(walk => walk.dateTime.split('T')[0] === today);
   const futureWalks = plannedWalks.filter(walk => new Date(walk.dateTime.split('T')[0]) > new Date(today));
 
   return (
     <View style={styles.container}>
+      <View style={styles.tabContainer}>
+        <TouchableOpacity onPress={() => setActiveTab('today')} style={activeTab === 'today' ? styles.activeTab : styles.tab}>
+          <Text style={styles.tabText}>Today</Text>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={() => setActiveTab('upcoming')} style={activeTab === 'upcoming' ? styles.activeTab : styles.tab}>
+          <Text style={styles.tabText}>Upcoming</Text>
+        </TouchableOpacity>
+      </View>
+
       {loading ? (
         <Text style={styles.loadingText}>Loading...</Text>
       ) : (
         <>
-          {todaysWalks.length > 0 && (
+          {activeTab === 'today' && todaysWalks.length > 0 && (
             <>
-              <Text style={styles.title}>Today</Text>
               <FlatList
                 data={todaysWalks}
                 renderItem={({ item }) => <WalkItem item={item} showDate={false} />}
@@ -48,9 +57,8 @@ export default function PlannedWalks() {
               />
             </>
           )}
-          {futureWalks.length > 0 && (
+          {activeTab === 'upcoming' && futureWalks.length > 0 && (
             <>
-              <Text style={styles.title}>Upcoming</Text>
               <FlatList
                 data={futureWalks}
                 renderItem={({ item }) => <WalkItem item={item} showDate={true} />}
@@ -59,9 +67,14 @@ export default function PlannedWalks() {
               />
             </>
           )}
-          {todaysWalks.length === 0 && futureWalks.length === 0 && (
+          {activeTab === 'today' && todaysWalks.length === 0 && (
             <View style={styles.noWalksContainer}>
-              <Text style={styles.noWalksText}>No walks planned</Text>
+              <Text style={styles.noWalksText}>No walks planned for today</Text>
+            </View>
+          )}
+          {activeTab === 'upcoming' && futureWalks.length === 0 && (
+            <View style={styles.noWalksContainer}>
+              <Text style={styles.noWalksText}>No upcoming walks</Text>
             </View>
           )}
         </>
@@ -77,12 +90,27 @@ const styles = StyleSheet.create({
     padding: 20,
     backgroundColor: '#e9eae4',
   },
-  title: {
-    fontSize: 18,
+  tabContainer: {
+    flexDirection: 'row',
+    justifyContent: 'flex-start',
+    marginTop: 16,
+    padding: 16,
+  },
+  tab: {
+    padding: 10,
+    backgroundColor: '#0E1111',
+    borderRadius: 10,
+    marginRight: 10,
+  },
+  activeTab: {
+    padding: 10,
+    backgroundColor: '#00796b',
+    borderRadius: 10,
+    marginRight: 10,
+  },
+  tabText: {
+    color: '#fff',
     fontWeight: 'bold',
-    color: '#00796b', // Teal color
-    marginBottom: 16,
-    textAlign: 'center', // Center the title
   },
   list: {
     flex: 1,

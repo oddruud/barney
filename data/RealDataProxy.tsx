@@ -152,6 +152,11 @@ class RealDataProxy implements DataProxy {
     // TODO: Implement getNextWalkForUser
     return null;
   }
+
+  async getEnticingImage(): Promise<string> {
+    // TODO: Implement getEnticingImage
+    return '';
+  }
 }
 
 export { RealDataProxy };

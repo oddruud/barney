@@ -219,6 +219,13 @@ export const walkingQuotes: string[] = [
   "Walking is the ultimate form of transportation. \n\n- Unknown",
 ];
 
+export const enticingImages: string[] = [
+  "https://i.natgeofe.com/n/7afda449-1780-4938-8342-2abe32326c86/Montblanchike.jpg",
+  "https://media.cntraveller.com/photos/6409efdb130ad250c1b00512/16:9/w_2240,c_limit/holly-mandarich-UVyOfX3v0Ls-unsplash.jpg",
+  "https://i.natgeofe.com/n/3027c6f8-a38e-49cd-bce2-f4e5abd19161/Pemrokeshiresceneryhike.jpg",
+  "https://www.thespruce.com/thmb/560x0/filters:no_upscale():max_bytes(150000):strip_icc()/GettyImages-1271888819-56a3b1f73df78cafdaa90036.jpg",
+];
+
 export const chatMessages: ChatMessage[] = [
   {
     id: '1',

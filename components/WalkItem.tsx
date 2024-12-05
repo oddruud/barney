@@ -14,6 +14,8 @@ function WalkItem({ item, showDate }: { item: PlannedWalk, showDate: boolean }) 
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const scaleAnim = useRef(new Animated.Value(0.8)).current;
 
+  const isPastWalk = new Date(item.dateTime) < new Date();
+
   useEffect(() => {
     Animated.parallel([
       Animated.timing(fadeAnim, {
@@ -30,7 +32,14 @@ function WalkItem({ item, showDate }: { item: PlannedWalk, showDate: boolean }) 
   }, [fadeAnim, scaleAnim]);
 
   return (
-    <Animated.View style={{ ...styles.walkItem, opacity: 1, transform: [{ scale: scaleAnim }] }}>
+    <Animated.View 
+      style={{ 
+        ...styles.walkItem, 
+        backgroundColor: isPastWalk ? 'rgba(211, 211, 211, 0.8)' : 'rgba(255, 255, 255, 0.8)',
+        opacity: 1, 
+        transform: [{ scale: scaleAnim }] 
+      }}
+    >
       <Link href={{ pathname: '/details/[id]', params: { id: item.id } }}>
         <View style={styles.walkHeader}>
           <Image

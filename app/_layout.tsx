@@ -9,6 +9,8 @@ import { router } from 'expo-router';
 import { UserDetails } from '@/types/UserDetails';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { UserProvider } from '@/contexts/UserContext';
+import { EnvironmentProvider } from '@/contexts/EnvironmentContext';
+import { DataProvider } from '@/contexts/DataContext';
 
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
@@ -35,9 +37,11 @@ export default function RootLayout() {
 
   return (
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <UserProvider>
-        <Stack initialRouteName="login">
-          <Stack.Screen 
+      <EnvironmentProvider>
+        <DataProvider>
+          <UserProvider>
+            <Stack initialRouteName="login">
+              <Stack.Screen 
           name="login" 
           options={{ 
             headerShown: false,
@@ -66,8 +70,10 @@ export default function RootLayout() {
         />
         
       </Stack>
-        <StatusBar style="auto" />
-      </UserProvider>
+          <StatusBar style="auto" />
+          </UserProvider>
+        </DataProvider>
+      </EnvironmentProvider>
     </ThemeProvider>
   );
 }

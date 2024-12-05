@@ -7,7 +7,7 @@ import { ThemedView } from '@/components/ThemedView';
 import { useState } from 'react';
 import { Button } from '@/components/Button';
 import StarRating from '@/components/StarRating';
-import { dataProxy } from '@/data/DataProxy';
+import { useData } from '@/contexts/DataContext';
 import LocalUserData from '@/data/LocalData';
 import { useUser } from '@/contexts/UserContext';
 import { router } from 'expo-router';
@@ -19,6 +19,7 @@ const windowHeight = Dimensions.get('window').height;
 
 export default function ProfileScreen() {
   const { user, setUser } = useUser();
+  const { dataProxy } = useData();
   const [profileImage, setProfileImage] = useState<string | null>(null);
   const [bio, setBio] = useState('');
   const [name, setName] = useState('');

@@ -6,14 +6,13 @@ import { Map } from '@/components/Map';
 import { router } from 'expo-router';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import * as Location from 'expo-location';
-import { dataProxy } from '@/data/DataProxy';
 import { PlannedWalk } from '@/types/PlannedWalk';
 import { Text } from '@/components/Themed';
 import Slider from '@react-native-community/slider';
 import { useUser } from '@/contexts/UserContext';
 import { haversineDistance } from '@/utils/geoUtils';
 import WalkDetailsModal from '@/components/modals/WalkDetailsModal';
-
+import { useData } from '@/contexts/DataContext';
 export default function SelectWalkInArea({
   minSearchRadius = 1,
   maxSearchRadius = 50,
@@ -21,6 +20,7 @@ export default function SelectWalkInArea({
   initialEndDate = new Date(new Date().setDate(new Date().getDate() + 7)),
 }) {
   const { user } = useUser();
+  const { dataProxy } = useData();
   const [selectedWalk, setSelectedWalk] = useState<PlannedWalk | null>(null);
   const [userLocation, setUserLocation] = useState<Location.LocationObject | null>(null);
   const [startDate, setStartDate] = useState<Date | null>(initialStartDate);

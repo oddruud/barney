@@ -9,8 +9,8 @@ import { Button } from '@/components/Button';
 import { Map } from '@/components/Map';
 import { router } from 'expo-router';
 import * as Location from 'expo-location';
-import { dataProxy } from '@/data/DataProxy';
 import { useUser } from '@/contexts/UserContext';
+import { useData } from '@/contexts/DataContext';
 import { UserDetails } from '@/types/UserDetails';
 import { useFocusEffect } from '@react-navigation/native';
 import { Easing } from 'react-native';
@@ -20,6 +20,7 @@ import { fetchAddress } from '@/utils/geoUtils';
 
 export default function NewWalkScreen() {
   const { user } = useUser();
+  const { dataProxy } = useData();
   const [date, setDate] = useState(new Date());
   const [duration, setDuration] = useState('30'); // in minutes
   const [description, setDescription] = useState('');

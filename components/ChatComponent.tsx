@@ -4,6 +4,8 @@ import { ChatMessage } from '../types/ChatMessage';
 import { dataProxy } from '@/data/DataProxy';
 import ChatMessageItem from './ChatMessageItem';
 import { UserDetails } from '../types/UserDetails';
+import { Text } from './Themed';
+import { useEnvironment, Environment } from '@/contexts/EnvironmentContext';
 
 type ChatComponentProps = {
   walkId: string;
@@ -13,7 +15,9 @@ type ChatComponentProps = {
 export default function ChatComponent({walkId, user }: ChatComponentProps) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [inputText, setInputText] = useState('');
+  const { environment } = useEnvironment();
   const flatListRef = useRef<FlatList>(null);
+  const fadeAnim = useRef(new Animated.Value(0)).current; // Initial opacity value of 0
 
   useEffect(() => {
     // Load initial messages from dataProxy
@@ -41,12 +45,71 @@ export default function ChatComponent({walkId, user }: ChatComponentProps) {
     return () => clearInterval(intervalId);
   }, [walkId]);
 
+  useEffect(() => {
+    Animated.timing(fadeAnim, {
+      toValue: 1, // Fade to opacity 1
+      duration: 500, // Duration of the fade animation
+      useNativeDriver: true, // Use native driver for better performance
+    }).start();
+  }, [messages]); // Re-run the animation when messages change
+
+  function simulateBotResponse(walkId: string) {
+    // Array of possible bot responses
+    const botResponses = [
+      "Thanks for your message!",
+      "I'll get back to you soon.",
+      "How can I assist you further?",
+      "Your message has been received.",
+      "Thank you for reaching out!"
+    ];
+
+    // Select a random message from the array
+    const randomResponse = botResponses[Math.floor(Math.random() * botResponses.length)];
+
+    // Simulate a bot response
+    setTimeout(() => {
+      const botResponse: ChatMessage = {
+        id: (Date.now() + 1).toString(),
+        timestamp: new Date().toISOString(),
+        userName: 'John Doe',
+        message: randomResponse, // Use the random message
+        walkId: walkId,
+        userId: 10,
+        newMessage: true,
+      };
+
+      dataProxy.addChatMessage(botResponse).then(() => {
+        console.log('bot response sent successfully');
+      }).catch(error => {
+        console.error('Error sending message:', error);
+      });
+
+    }, 1000); // Respond after 1 second
+  }
+
+  const renderItem = ({ item, index }: { item: ChatMessage, index: number }) => {
+    const currentMessageDate = new Date(item.timestamp);
+    const previousMessageDate = index > 0 ? new Date(messages[index - 1].timestamp) : null;
+    const isNewDay = !previousMessageDate || currentMessageDate.toDateString() !== previousMessageDate.toDateString();
+
+    return (
+      <>
+        {isNewDay && (
+          <Animated.View style={[styles.dateSeparator, { opacity: fadeAnim }]}>
+            <Text style={styles.dateText}>{currentMessageDate.toDateString()}</Text>
+          </Animated.View>
+        )}
+        <ChatMessageItem message={item} isLocalUser={item.userId === user?.id} />
+      </>
+    );
+  };
+
   const handleSend = () => {
     if (inputText.trim()) {
       const newMessage: ChatMessage = {
         id: Date.now().toString(),
         timestamp: new Date().toISOString(),
-        userName: 'You',
+        userName: user?.fullName ?? 'You',
         message: inputText,
         walkId: walkId,
         userId: user?.id ?? 0,
@@ -62,39 +125,14 @@ export default function ChatComponent({walkId, user }: ChatComponentProps) {
         console.error('Error sending message:', error);
       });
 
-      // Array of possible bot responses
-      const botResponses = [
-        "Thanks for your message!",
-        "I'll get back to you soon.",
-        "How can I assist you further?",
-        "Your message has been received.",
-        "Thank you for reaching out!"
-      ];
-
-      // Select a random message from the array
-      const randomResponse = botResponses[Math.floor(Math.random() * botResponses.length)];
-
-      // Simulate a bot response
-      setTimeout(() => {
-        const botResponse: ChatMessage = {
-          id: (Date.now() + 1).toString(),
-          timestamp: new Date().toISOString(),
-          userName: 'John Doe',
-          message: randomResponse, // Use the random message
-          walkId: walkId,
-          userId: 10,
-          newMessage: true,
-        };
-
-        dataProxy.addChatMessage(botResponse).then(() => {
-            console.log('bot response sent successfully');
-          }).catch(error => {
-            console.error('Error sending message:', error);
-          });
-
-      }, 1000); // Respond after 1 second
+      // Call the function to simulate a bot response
+      if (environment === Environment.Development) {
+        simulateBotResponse(walkId);
+      }
     }
   };
+
+  
 
   useEffect(() => {
     if (flatListRef.current) {
@@ -109,7 +147,7 @@ export default function ChatComponent({walkId, user }: ChatComponentProps) {
           ref={flatListRef}
           data={messages}
           keyExtractor={(item) => item.id}
-          renderItem={({ item }) => <ChatMessageItem message={item} isLocalUser={item.userId === user?.id} />}
+          renderItem={renderItem}
         />
       </View>
       <TextInput
@@ -156,5 +194,14 @@ const styles = StyleSheet.create({
     alignSelf: 'flex-start',
     padding: 10,
     marginTop: 10,
+  },
+  dateSeparator: {
+    padding: 10,
+    alignSelf: 'center',
+  },
+  dateText: {
+    color: '#00796b',
+    fontSize: 16,
+    fontWeight: 'bold',
   },
 });

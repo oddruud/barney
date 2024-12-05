@@ -4,15 +4,15 @@ import { Text } from './Themed';
 import { useState, useEffect } from 'react';
 import WalkItem from './WalkItem';
 import { PlannedWalk } from '../types/PlannedWalk';
-import { dataProxy } from '../data/DataProxy';
 import { useUser } from '@/contexts/UserContext';
+import { useData } from '@/contexts/DataContext';
 import { useFocusEffect } from '@react-navigation/native';
 
 export default function InviteView() {
   const { user } = useUser();
   const [invitedWalks, setInvitedWalks] = useState<PlannedWalk[]>([]);
   const [loading, setLoading] = useState(true);
-
+  const { dataProxy } = useData();
   const fetchInvitedWalks = async () => {
     setLoading(true);
     const walks = await dataProxy.getInvitedPlannedWalksByUserId(user?.id ?? 0);

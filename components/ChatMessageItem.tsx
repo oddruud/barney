@@ -3,6 +3,9 @@ import { View, Animated, Easing, StyleSheet } from 'react-native';
 import { Text } from '../components/Themed';
 import { ChatMessage } from '../types/ChatMessage';
 import { getColorFromUsername } from '../utils/colorUtils';// Assuming styles are in a separate file
+
+
+
 function ChatMessageItem({ message, isLocalUser }: { message: ChatMessage, isLocalUser: boolean }) {
   const fadeAnim = useRef(new Animated.Value(0)).current; // Initial opacity value
   const slideAnim = useRef(new Animated.Value(isLocalUser ? 300 : -300)).current; // Initial position value
@@ -63,6 +66,7 @@ const styles = StyleSheet.create({
       shadowRadius: 3.84,
       elevation: 5,
       marginBottom: 10,
+      minWidth: '50%',
     },
     otherUserMessage: {
       backgroundColor: '#e3ffed',
@@ -76,6 +80,7 @@ const styles = StyleSheet.create({
       shadowRadius: 3.84,
       elevation: 5,
       marginBottom: 10,
+      minWidth: '50%',
     },
     username: {
       fontWeight: 'bold',

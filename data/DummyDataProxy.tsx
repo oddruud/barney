@@ -1,7 +1,7 @@
 import { PlannedWalk } from '../types/PlannedWalk';
 import { UserDetails } from '../types/UserDetails';
 import { ChatMessage } from '../types/ChatMessage';
-import { plannedWalks as dummyPlannedWalks, userDetails as dummyUserDetails, walkingQuotes, chatMessages } from './DummyData';
+import { plannedWalks as dummyPlannedWalks, userDetails as dummyUserDetails, walkingQuotes, chatMessages, enticingImages } from './DummyData';
 import { DataProxy } from './DataProxyInterface';
 
 // Implement the DummyDataProxy class
@@ -134,7 +134,9 @@ class DummyDataProxy implements DataProxy {
     const walks = await this.getPlannedWalks();
     const currentDate = new Date();
     const futureWalks = walks.filter(walk => 
-        new Date(walk.dateTime) > currentDate && walk.joinedUserIds.includes(userId)
+        new Date(walk.dateTime) > currentDate && 
+        walk.joinedUserIds.includes(userId) &&
+        !walk.cancelled
     );
     if (futureWalks.length === 0) return null;
     futureWalks.sort((a, b) => new Date(a.dateTime).getTime() - new Date(b.dateTime).getTime());
@@ -259,6 +261,13 @@ class DummyDataProxy implements DataProxy {
   async checkSessionValidity(userId: number): Promise<boolean> {
     return new Promise((resolve) => {
       resolve(true);
+    });
+  }
+
+  async getEnticingImage(): Promise<string> {
+    return new Promise((resolve) => {
+      const randomIndex = Math.floor(Math.random() * enticingImages.length);
+      resolve(enticingImages[randomIndex]);
     });
   }
 }

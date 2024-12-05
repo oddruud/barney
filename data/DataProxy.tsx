@@ -1,7 +1,19 @@
+import Constants from 'expo-constants';
 import { RealDataProxy } from './RealDataProxy';
 import { DummyDataProxy } from './DummyDataProxy';
 import { DataProxy } from './DataProxyInterface';
 
-const useDummyData = true; // Set this to false to use real API endpoints
-const dataProxy: DataProxy = useDummyData ? new DummyDataProxy() : new RealDataProxy();
-export { dataProxy };
+class DataProxySingleton {
+    private static instance: DataProxy;
+
+    private constructor() {}
+
+    public static getInstance(useDummyData?: boolean): DataProxy {
+        if (!DataProxySingleton.instance) {
+            DataProxySingleton.instance = useDummyData ? new DummyDataProxy() : new RealDataProxy();
+        }
+        return DataProxySingleton.instance;
+    }
+}
+
+export {DataProxySingleton};

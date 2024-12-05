@@ -7,7 +7,7 @@ import { IconSymbol } from '../components/ui/IconSymbol';
 import { ThemedText } from '../components/ThemedText';
 import { PlannedWalk } from '../types/PlannedWalk';
 import { UserDetails } from '../types/UserDetails';
-import { dataProxy } from '../data/DataProxy';
+import { useData } from '@/contexts/DataContext';
 
 interface WalkDetailsComponentProps {
   walkDetails: PlannedWalk;
@@ -35,8 +35,9 @@ const WalkDetailsComponent: React.FC<WalkDetailsComponentProps> = ({
   const [isAreYouSureModalVisible, setIsAreYouSureModalVisible] = useState(false);
   const buttonAnim = useRef(new Animated.Value(100)).current; // Initial value for vertical position: 100
   const zoomAnim = useRef(new Animated.Value(6)).current; // Initial zoom level
-
+  const { dataProxy } = useData();
   const isOrganizer = user?.id === walkDetails.userId;
+  const isCancelled = walkDetails.cancelled; // Assuming `isCancelled` is a boolean property in `walkDetails`
 
   useEffect(() => {
     const fetchUsersFromJoinedUserIds = async () => {
@@ -195,50 +196,56 @@ const WalkDetailsComponent: React.FC<WalkDetailsComponentProps> = ({
         </View>
       </ScrollView>
       
-      <Animated.View style={{ transform: [{ translateY: buttonAnim }] }}>
-        <Button
-          title="Open in Maps"
-          onPress={openInMaps}
-          style={styles.buttonStyle}
-        />
-
-        {!isLocalUserJoined && (
-          <View style={styles.buttonRow}>
-            <Button
-              title="Join"
-              onPress={async () => {
-                setIsLocalUserJoined(true);
-                await onJoinPress();
-                setUpdateState(updateState + 1);
-              }}
-              style={isInvited ? styles.joinButton : styles.fullWidthButton}
-            />
-            {isInvited && (
-              <Button
-                title="Decline"
-                onPress={async () => {
-                  await onDeclineInvite();
-                }}
-                style={styles.declineButton}
-              />
-            )}
-          </View>
-        )}
-
-        {isLocalUserJoined && (
+      {!isCancelled ? (
+        <Animated.View style={{ transform: [{ translateY: buttonAnim }] }}>
           <Button
-            title={isOrganizer ? "Cancel Walk" : "Leave Walk"}
-            onPress={() => {
-              if (isOrganizer) {
-                setIsAreYouSureModalVisible(true);
-              } else {
-                handleCancelPress();
-              }
-            }}
-            style={styles.cancelButton}
+            title="Open in Maps"
+            onPress={openInMaps}
+            style={styles.buttonStyle}
           />
-        )}
-      </Animated.View>
+
+          {!isLocalUserJoined && (
+            <View style={styles.buttonRow}>
+              <Button
+                title="Join"
+                onPress={async () => {
+                  setIsLocalUserJoined(true);
+                  await onJoinPress();
+                  setUpdateState(updateState + 1);
+                }}
+                style={isInvited ? styles.joinButton : styles.fullWidthButton}
+              />
+              {isInvited && (
+                <Button
+                  title="Decline"
+                  onPress={async () => {
+                    await onDeclineInvite();
+                  }}
+                  style={styles.declineButton}
+                />
+              )}
+            </View>
+          )}
+
+          {isLocalUserJoined && (
+            <Button
+              title={isOrganizer ? "Cancel Walk" : "Leave Walk"}
+              onPress={() => {
+                if (isOrganizer) {
+                  setIsAreYouSureModalVisible(true);
+                } else {
+                  handleCancelPress();
+                }
+              }}
+              style={styles.cancelButton}
+            />
+          )}
+        </Animated.View>
+      ) : (
+        <View style={styles.cancelledMessageContainer}>
+          <Text style={styles.cancelledMessageText}>This walk has been cancelled.</Text>
+        </View>
+      )}
 
       <Modal
         transparent={true}
@@ -385,6 +392,14 @@ const styles = StyleSheet.create({
   fullWidthButton: {
     width: '100%',
     backgroundColor: '#007aff',
+  },
+  cancelledMessageContainer: {
+    alignItems: 'center',
+    marginTop: 16,
+  },
+  cancelledMessageText: {
+    fontSize: 18,
+    color: '#ff0000',
   },
 });
 

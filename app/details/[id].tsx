@@ -6,11 +6,11 @@ import ChatComponent from '../../components/ChatComponent';
 import WalkDetailsComponent from '../../components/WalkDetailsComponent';
 import AboutComponent from '../../components/AboutComponent';
 import { Button } from '../../components/Button';
-import { dataProxy } from '../../data/DataProxy';
 import { PlannedWalk } from '../../types/PlannedWalk';
 import { UserDetails } from '../../types/UserDetails';
 import { useUser } from '@/contexts/UserContext';
 import { router } from 'expo-router';
+import { useData } from '@/contexts/DataContext';
 
 // Define a sleep function
 const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
@@ -20,6 +20,7 @@ export default function WalkDetails() {
   const navigation = useNavigation();
   const { id } = route.params as { id: string };
   const { user } = useUser();
+  const { dataProxy } = useData();
   const [walkDetails, setWalkDetails] = useState<PlannedWalk | null>(null);
   const [organizerDetails, setOrganizerDetails] = useState<UserDetails | null>(null);
 
@@ -42,7 +43,7 @@ export default function WalkDetails() {
     const [activeTab, setActiveTab] = useState('details');
 
   if (!walkDetails) {
-    return <Text>Loading...</Text>;
+    return <Text> TEST Loading...</Text>;
   }
 
   return (

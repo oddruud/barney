@@ -27,6 +27,7 @@ interface DataProxy {
     getLocalUserData(uid: string): Promise<UserDetails | null>;
     getAllUsers(): Promise<UserDetails[]>;
     checkSessionValidity(userId: number): Promise<boolean>;
+    getEnticingImage(): Promise<string>;
 }
 
 export { DataProxy };
