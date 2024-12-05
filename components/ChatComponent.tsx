@@ -1,12 +1,11 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { View, FlatList, TextInput, Button, StyleSheet, Animated, Image, Easing } from 'react-native';
 import { ChatMessage } from '../types/ChatMessage';
-import { dataProxy } from '@/data/DataProxy';
 import ChatMessageItem from './ChatMessageItem';
 import { UserDetails } from '../types/UserDetails';
 import { Text } from './Themed';
 import { useEnvironment, Environment } from '@/contexts/EnvironmentContext';
-
+import { useData } from '@/contexts/DataContext';
 type ChatComponentProps = {
   walkId: string;
   user: UserDetails | null;
@@ -16,6 +15,7 @@ export default function ChatComponent({walkId, user }: ChatComponentProps) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [inputText, setInputText] = useState('');
   const { environment } = useEnvironment();
+  const { dataProxy } = useData();
   const flatListRef = useRef<FlatList>(null);
   const fadeAnim = useRef(new Animated.Value(0)).current; // Initial opacity value of 0
 
