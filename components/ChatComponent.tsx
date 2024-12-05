@@ -6,6 +6,8 @@ import { UserDetails } from '../types/UserDetails';
 import { Text } from './Themed';
 import { useEnvironment, Environment } from '@/contexts/EnvironmentContext';
 import { useData } from '@/contexts/DataContext';
+
+
 type ChatComponentProps = {
   walkId: string;
   user: UserDetails | null;

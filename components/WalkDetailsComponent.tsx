@@ -8,6 +8,7 @@ import { ThemedText } from '../components/ThemedText';
 import { PlannedWalk } from '../types/PlannedWalk';
 import { UserDetails } from '../types/UserDetails';
 import { useData } from '@/contexts/DataContext';
+import * as Calendar from 'expo-calendar';
 
 interface WalkDetailsComponentProps {
   walkDetails: PlannedWalk;
@@ -38,6 +39,7 @@ const WalkDetailsComponent: React.FC<WalkDetailsComponentProps> = ({
   const { dataProxy } = useData();
   const isOrganizer = user?.id === walkDetails.userId;
   const isCancelled = walkDetails.cancelled; // Assuming `isCancelled` is a boolean property in `walkDetails`
+  const [isAddedToCalendarModalVisible, setIsAddedToCalendarModalVisible] = useState(false);
 
   useEffect(() => {
     const fetchUsersFromJoinedUserIds = async () => {
@@ -109,6 +111,53 @@ const WalkDetailsComponent: React.FC<WalkDetailsComponentProps> = ({
     // Logic to handle declining the invite
     console.log('Invite declined');
     // You might want to update the state or call a function here
+  };
+
+  const requestCalendarPermissions = async () => {
+    const { status } = await Calendar.requestCalendarPermissionsAsync();
+    return status === 'granted';
+  };
+
+  const addToCalendar = async () => {
+    const hasPermission = await requestCalendarPermissions();
+    if (!hasPermission) {
+      console.error('Calendar permissions not granted');
+      return;
+    }
+
+    let defaultCalendarSource;
+    if (Platform.OS === 'ios') {
+      const calendars = await Calendar.getCalendarsAsync(Calendar.EntityTypes.EVENT);
+      defaultCalendarSource = calendars.find(cal => cal.source && cal.source.type === 'local')?.source;
+    } else {
+      defaultCalendarSource = { isLocalAccount: true, name: 'Expo Calendar', type: 'local' };
+    }
+
+    const calendarId = await Calendar.createCalendarAsync({
+      title: 'Walk Events',
+      color: 'blue',
+      entityType: Calendar.EntityTypes.EVENT,
+      sourceId: Platform.OS === 'ios' ? defaultCalendarSource?.id : undefined,
+      source: defaultCalendarSource,
+      name: 'Walk Events',
+      ownerAccount: 'personal',
+      accessLevel: Calendar.CalendarAccessLevel.OWNER,
+    });
+
+    await Calendar.createEventAsync(calendarId, {
+      title: "walk with " + walkDetails.fullName + " at " + walkDetails.location,
+      startDate: new Date(walkDetails.dateTime),
+      endDate: new Date(new Date(walkDetails.dateTime).getTime() + walkDetails.duration * 60 * 1000),
+      timeZone: 'GMT',
+      location: walkDetails.location,
+      notes: walkDetails.description,
+    });
+
+    console.log('Event added to calendar');
+    setIsAddedToCalendarModalVisible(true);
+    setTimeout(() => {
+      setIsAddedToCalendarModalVisible(false);
+    }, 1000);
   };
 
   return (
@@ -198,12 +247,18 @@ const WalkDetailsComponent: React.FC<WalkDetailsComponentProps> = ({
       
       {!isCancelled ? (
         <Animated.View style={{ transform: [{ translateY: buttonAnim }] }}>
+           <View style={styles.buttonRow}>
           <Button
             title="Open in Maps"
             onPress={openInMaps}
             style={styles.buttonStyle}
           />
-
+          <Button
+            title="Add to Calendar"
+            onPress={addToCalendar}
+            style={styles.buttonStyle}
+            />
+          </View>
           {!isLocalUserJoined && (
             <View style={styles.buttonRow}>
               <Button
@@ -260,6 +315,19 @@ const WalkDetailsComponent: React.FC<WalkDetailsComponentProps> = ({
               <Button title="Yes" onPress={handleCancelPress} style={styles.modalButtonYes} />
               <Button title="No" onPress={() => setIsAreYouSureModalVisible(false)} style={styles.modalButton} />
             </View>
+          </View>
+        </View>
+      </Modal>
+
+      <Modal
+        transparent={true}
+        visible={isAddedToCalendarModalVisible}
+        animationType="fade"
+        onRequestClose={() => setIsAddedToCalendarModalVisible(false)}
+      >
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalText}>Added to Calendar</Text>
           </View>
         </View>
       </Modal>
@@ -353,7 +421,6 @@ const styles = StyleSheet.create({
   },
   modalText: {
     fontSize: 18,
-    marginBottom: 20,
   },
   modalButtons: {
     flexDirection: 'row',
@@ -375,6 +442,7 @@ const styles = StyleSheet.create({
   buttonStyle: {
     marginTop: 16,
     backgroundColor: '#007aff',
+    width: '45%',
   },
   joinButton: {
     width: '45%',
