@@ -87,7 +87,7 @@ const WalkDetailsComponent: React.FC<WalkDetailsComponentProps> = ({
   }, [zoomAnim]);
 
   // Format the date to display month and day
-  const formattedDate = new Date(walkDetails.dateTime).toLocaleDateString('en-US', { month: 'long', day: 'numeric' });
+  const formattedDate = new Date(walkDetails.dateTime).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
 
   const openInMaps = () => {
     const { latitude, longitude, location } = walkDetails;
@@ -169,6 +169,7 @@ const WalkDetailsComponent: React.FC<WalkDetailsComponentProps> = ({
           <Text style={styles.textBold}>
             {walkDetails.location}, {formattedDate} at {new Date(walkDetails.dateTime).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })}
           </Text>
+          
           <Animated.View
             style={[
               styles.profileContainer,

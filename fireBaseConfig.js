@@ -7,7 +7,7 @@ import ReactNativeAsyncStorage from '@react-native-async-storage/async-storage';
 // Optionally import the services that you want to use
 // import {...} from "firebase/auth";
 // import {...} from "firebase/database";
-// import {...} from "firebase/firestore";
+
 // import {...} from "firebase/functions";
 // import {...} from "firebase/storage";
 
@@ -15,7 +15,7 @@ import ReactNativeAsyncStorage from '@react-native-async-storage/async-storage';
 const firebaseConfig = {
     apiKey: "AIzaSyBhIEJFaTGis4EypP2ocFMjTTpM2eYE65Y",
     authDomain: "barney-2acbe.firebaseapp.com",
-    databaseURL: 'https://project-id.firebaseio.com',
+    databaseURL: 'https://barney-2acbe.firebaseio.com',
     projectId: "barney-2acbe",
     storageBucket: "barney-2acbe.firebasestorage.app",
     messagingSenderId: "808462843283",

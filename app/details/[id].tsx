@@ -30,6 +30,7 @@ export default function WalkDetails() {
       setWalkDetails(walk || null);
 
       if (walk) {
+        console.log("Walk found, getting organizer details");
         const user = await dataProxy.getUserDetailsById(walk.userId);
         setOrganizerDetails(user || null);
       }
@@ -37,7 +38,7 @@ export default function WalkDetails() {
     };
 
     fetchWalkDetails();
-  }, [id, walkDetails]);
+  }, []);
 
     // State for managing active tab
     const [activeTab, setActiveTab] = useState('details');

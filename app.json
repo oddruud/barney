@@ -4,7 +4,7 @@
     "slug": "barney",
     "version": "0.0.2",
     "environment": "development",
-    "useDummyData": true,
+    "useDummyData": false,
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "letswalk",

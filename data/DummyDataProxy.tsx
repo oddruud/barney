@@ -37,7 +37,7 @@ class DummyDataProxy implements DataProxy {
     });
   }
 
-  async getPlannedWalksByUserId(userId: number): Promise<PlannedWalk[]> {
+  async getJoinedWalksByUserId(userId: string): Promise<PlannedWalk[]> {
     return new Promise((resolve) => {
       setTimeout(() => {
         resolve(dummyPlannedWalks.filter(walk => walk.joinedUserIds.includes(userId) && !walk.cancelled));
@@ -45,7 +45,7 @@ class DummyDataProxy implements DataProxy {
     });
   }
 
-  async getInvitedPlannedWalksByUserId(userId: number): Promise<PlannedWalk[]> {
+  async getInvitedPlannedWalksByUserId(userId: string): Promise<PlannedWalk[]> {
     return new Promise((resolve) => {
       setTimeout(() => {
         const currentDate = new Date();
@@ -58,7 +58,7 @@ class DummyDataProxy implements DataProxy {
     });
   }
 
-  async declineInvite(walkId: string, userId: number): Promise<PlannedWalk | null> {
+  async declineInvite(walkId: string, userId: string): Promise<PlannedWalk | null> {
     return new Promise((resolve) => {
       setTimeout(() => {
         const walk = dummyPlannedWalks.find(walk => walk.id === walkId);
@@ -71,15 +71,6 @@ class DummyDataProxy implements DataProxy {
 
         resolve(walk);
       }, 10);
-    });
-  }
-
-  async addPlannedWalk(walk: PlannedWalk): Promise<void> {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        dummyPlannedWalks.push(walk);
-        resolve();
-      }, 500);
     });
   }
 
@@ -113,7 +104,7 @@ class DummyDataProxy implements DataProxy {
     return walks[0];
   }
 
-  async getUserDetailsById(id: number): Promise<UserDetails | null> {
+  async getUserDetailsById(id: string): Promise<UserDetails | null> {
     return new Promise((resolve) => {
       setTimeout(() => {
         const user = dummyUserDetails.find(user => user.id === id);
@@ -145,7 +136,7 @@ class DummyDataProxy implements DataProxy {
     });
   }
 
-  async getNextWalkForUser(userId: number): Promise<PlannedWalk | null> {
+  async getNextWalkForUser(userId: string): Promise<PlannedWalk | null> {
     const walks = await this.getPlannedWalks();
     const currentDate = new Date();
     const futureWalks = walks.filter(walk => 
@@ -176,51 +167,38 @@ class DummyDataProxy implements DataProxy {
     });
   }
 
-  async updateUserProfile(id: number, name: string, bio: string, profileImage: string): Promise<UserDetails | null> {
+  async updateUserProfile(userDetails: UserDetails): Promise<void> {
     return new Promise((resolve) => {
       setTimeout(() => {
         //get dummy user details
-        const user = dummyUserDetails.find(user => user.id === id);
+        const user = dummyUserDetails.find(user => user.id === userDetails.id);
         if (!user) {
-          resolve(null);
+          console.warn("user not found", userDetails.id);
+          resolve();
           return;
         }
         //update user details
-        user.fullName = name;
-        user.bio = bio;
-        user.profileImage = profileImage;
-        resolve(user);
+        user.fullName = userDetails.fullName;
+        user.bio = userDetails.bio;
+        user.profileImage = userDetails.profileImage;
+        resolve();
       }, 500); // Simulate async delay
     });
   }
 
-  async createWalk(userId: number, date: Date, duration: number, maxParticipants: number, description: string, locationName: string, location: { latitude: number, longitude: number }, invitedUserIds: number[]): Promise<PlannedWalk | null> {
-    const newWalk: PlannedWalk = {
-      id: Date.now().toString(),
-      userId: userId,
-      dateTime: date.toISOString(),
-      duration: duration,
-      description: description,
-      location: locationName,
-      longitude: location.longitude,
-      latitude: location.latitude,
-      username: dummyUserDetails.find(user => user.id === userId)?.userName || '',
-      fullName: dummyUserDetails.find(user => user.id === userId)?.fullName || '',
-      profileImage: dummyUserDetails.find(user => user.id === userId)?.profileImage || '',
-      lastMessageDate: '',
-      lastDateMessagesChecked: '',
-      maxParticipants: maxParticipants,
-      joinedUserIds: [userId],
-      invitedUserIds: invitedUserIds,
-      cancelled: false,
-    };
+  async createPlannedWalk(walk: PlannedWalk): Promise<string> {
+    const id = Date.now().toString();
+    walk.id = id;
 
-    dummyPlannedWalks.push(newWalk);
-
-    return newWalk;
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        dummyPlannedWalks.push(walk);
+        resolve(id);
+      }, 500);
+    });
   }
 
-  async unsubscribeFromWalk(walkId: string, userId: number): Promise<PlannedWalk | null> {
+  async unsubscribeFromWalk(walkId: string, userId: string): Promise<PlannedWalk | null> {
     return new Promise((resolve) => {
       setTimeout(() => {
         const walk = dummyPlannedWalks.find(walk => walk.id === walkId);
@@ -237,7 +215,7 @@ class DummyDataProxy implements DataProxy {
     });
   }
 
-  async joinWalk(walkId: string, userId: number): Promise<PlannedWalk | null> {
+  async joinWalk(walkId: string, userId: string): Promise<PlannedWalk | null> {
     return new Promise((resolve) => {
       setTimeout(() => {
         const walk = dummyPlannedWalks.find(walk => walk.id === walkId);
@@ -273,7 +251,7 @@ class DummyDataProxy implements DataProxy {
     return dummyUserDetails;
   }
 
-  async checkSessionValidity(userId: number): Promise<boolean> {
+  async checkSessionValidity(userId: string): Promise<boolean> {
     return new Promise((resolve) => {
       resolve(true);
     });

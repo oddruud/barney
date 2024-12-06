@@ -21,11 +21,14 @@ const EnvironmentContext = createContext<EnvironmentContextType | undefined>(und
 // Extend the ExpoConfig type to include the environment property
 interface CustomExpoConfig {
     environment?: string;
+    useDummyData?: boolean;
 }
 
 export const EnvironmentProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     const appEnvironment = (Constants.expoConfig as CustomExpoConfig)?.environment as Environment || Environment.Production;
     const appVersion = Constants.expoConfig?.version || '1.0.0';
+    const useDummyData = (Constants.expoConfig as CustomExpoConfig)?.useDummyData || false;
+    
     const [environment, setEnvironment] = useState<Environment>(appEnvironment);
 
     return (
@@ -43,7 +46,7 @@ export const EnvironmentProvider: React.FC<{ children: ReactNode }> = ({ childre
                     zIndex: 1000,
                     textAlign: 'center'
                 }}>
-                    Development Build - Version {appVersion}
+                    Development - Version {appVersion} - Using Dummy Data: {useDummyData ? 'Yes' : 'No'}
                 </Text>
             )}
         </EnvironmentContext.Provider>

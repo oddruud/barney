@@ -2,7 +2,7 @@ export interface ChatMessage {
   id: string;
   walkId: string;
   timestamp: string;
-  userId: number;
+  userId: string;
   userName: string;
   message: string;
   newMessage: boolean;

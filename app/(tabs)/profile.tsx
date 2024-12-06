@@ -12,7 +12,7 @@ import LocalUserData from '@/data/LocalData';
 import { useUser } from '@/contexts/UserContext';
 import { router } from 'expo-router';
 import { authentication } from '@/data/authentication/Authentication';
-import { getAuth, onAuthStateChanged } from "firebase/auth";
+import { UserDetails } from '@/types/UserDetails';
 
 const windowHeight = Dimensions.get('window').height;
 
@@ -61,17 +61,6 @@ export default function ProfileScreen() {
   }, []);
 
 
-const auth = getAuth();
-
-onAuthStateChanged(auth, (user) => {
-  if (user) {
- 
-  } else {
-    LocalUserData.getInstance().clearUserData();
-    router.replace("/login");
-  }
-});
-
   const pickImage = async () => {
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
@@ -88,25 +77,32 @@ onAuthStateChanged(auth, (user) => {
   const handleSave = async () => {
 
     setIsModalVisible(true);
-    const updatedUser = await dataProxy.updateUserProfile(
-      user?.id ?? 0,
-      name ?? '',
-      bio ?? '',
-      profileImage ?? ''
-    );
-    
-    if (updatedUser) {
-      LocalUserData.getInstance().saveUserData(updatedUser);
-      setUser(updatedUser);
-    }
 
+    console.log("updating user!", user?.id, name, bio, profileImage);
+
+    let updatedDetails : UserDetails = user;
+    updatedDetails.fullName = name;
+    updatedDetails.bio = bio ?? '';
+    updatedDetails.profileImage = profileImage ?? '';
+    
+    dataProxy.updateUserProfile(user).then(() => {
+      console.log("updated user in firestore", user);
+    });
+
+    setUser(updatedDetails);
+    
     setTimeout(() => {
       setIsModalVisible(false);
     }, 1000);
   };
 
   const handleLogout = async () => {
-    await authentication.logout();
+    await authentication.logout().then(() => {
+      LocalUserData.getInstance().clearUserData();
+      router.replace("/login");
+    }).catch((error) => {
+      console.error("Error logging out", error);
+    });
   };
 
   return (

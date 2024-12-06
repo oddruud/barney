@@ -1,5 +1,6 @@
 export type UserDetails = {
-  id: number;
+  id: string;
+  email: string;
   userName: string;
   activeSince: string;
   fullName: string;

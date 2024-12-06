@@ -17,6 +17,7 @@ import { Easing } from 'react-native';
 import SelectOnMapModal from '@/components/modals/SelectOnMapModal';
 import InviteUsersModal from '@/components/modals/InviteUsersModal';
 import { fetchAddress } from '@/utils/geoUtils';
+import { PlannedWalk } from '@/types/PlannedWalk';
 
 export default function NewWalkScreen() {
   const { user } = useUser();
@@ -133,24 +134,33 @@ export default function NewWalkScreen() {
   };
 
   async function createWalk() {
-    const locationName = location.title;
     const invitedUserIds = invitedUsers.map(user => user.id); // Extract user IDs
 
-    const walk = await dataProxy.createWalk(
-      user?.id ?? 0,
-      date,
-      parseInt(duration) / 60,
-      parseInt(groupSize),
-      description,
-      locationName,
-      location,
-      invitedUserIds // Pass the invited user IDs
-    );
+    const walk: PlannedWalk = {
+      id: '', // Provide a default or generated ID
+      username: user?.userName ?? '',
+      fullName: user?.fullName ?? '',
+      profileImage: user?.profileImage ?? '',
+      userId: user?.id ?? '',
+      dateTime: date.toISOString(),
+      duration: parseInt(duration) / 60,
+      maxParticipants: parseInt(groupSize),
+      description: description,
+      location: location.title,
+      longitude: location.longitude,
+      latitude: location.latitude,
+      lastMessageDate: '',
+      lastDateMessagesChecked: '',
+      joinedUserIds: [user?.id ?? ''],
+      invitedUserIds: invitedUserIds,
+      cancelled: false,
+    };
 
-    // Navigate to the new walk details page
-    if (walk) {
-      router.push(`/details/${walk.id}`);
-    }
+    await dataProxy.createPlannedWalk(walk).then((id) => {
+      console.log("Walk created, opening detail page", id);
+      router.push(`/details/${id}`);
+    });
+
   }
 
   const handleMapPress = async (event: any) => {

@@ -19,7 +19,7 @@ export default function PlannedWalks() {
     React.useCallback(() => {
       const fetchPlannedWalks = async () => {
         setLoading(true);
-        const walks = await dataProxy.getPlannedWalksByUserId(user?.id ?? 0);
+        const walks = await dataProxy.getJoinedWalksByUserId(user?.id ?? 0);
         setPlannedWalks(walks);
         setLoading(false);
       };
@@ -86,7 +86,6 @@ export default function PlannedWalks() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 20,
     backgroundColor: '#e9eae4',
     marginTop: 32,
   },

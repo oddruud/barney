@@ -3,8 +3,6 @@ import { View, StyleSheet, Animated, Dimensions, Image, TextInput, Text, Touchab
 import { Video, ResizeMode } from 'expo-av';
 import { Button } from '@/components/Button';
 import { router } from 'expo-router';
-import LocalUserData from '@/data/LocalData';
-import { UserDetails } from '@/types/UserDetails';
 import { useUser } from '@/contexts/UserContext';
 import { authentication } from '@/data/authentication/Authentication';
 import { getAuth, onAuthStateChanged, User, GoogleAuthProvider, signInWithPopup } from "firebase/auth";
@@ -27,6 +25,7 @@ export default function LoginScreen() {
     const [password, setPassword] = useState('yelpyelp');
     const [errorMessage, setErrorMessage] = useState('');
     const [showLoginForm, setShowLoginForm] = useState(false);
+    const [counter, setCounter] = useState(0);
 
     const videoSource = 'https://roboruud.nl/walk.mp4';    
     const fadeAnim = useRef(new Animated.Value(0)).current; // Initial opacity value of 0
@@ -54,70 +53,75 @@ export default function LoginScreen() {
         console.log("errorMessage", errorMessage);
     }, [errorMessage]);
 
-    const auth = getAuth();
+    useEffect(() => {
+        const auth = getAuth();
+/*
+        onAuthStateChanged(auth, (user) => {
+          if (user) {
+            // User is signed in, see docs for a list of available properties
+            // https://firebase.google.com/docs/reference/js/auth.user
+            setCounter(counter + 1);
+            console.log("LOGIN SCREEN: user signed in", counter);
+            loadUserDetails(user.uid).then(() => {
+                router.replace("/(tabs)");
+            });
+          }
+          else {
+            console.log("LOGIN SCREEN: user not signed in");
+          }
 
-    onAuthStateChanged(auth, (user) => {
-      if (user) {
-        // User is signed in, see docs for a list of available properties
-        // https://firebase.google.com/docs/reference/js/auth.user
-        const uid = user.uid;
-        console.log("user signed in", user);
-        setIsLoggingIn(false);
-        loadUserData(uid);
+        });
+*/
 
-        // ...
-      }else {
-        setIsLoggingIn(false);
-      }
-    });
+    }, []);
 
     const handleSignUpPress = async () => {
-        const result: User | null | FirebaseError = await authentication.signUpWithEmailAndPassword(email, password);
-        console.log("sign up result", result);
-        
-        if (result instanceof FirebaseError) {
-            setErrorMessage(result.message);
+
+       await authentication.signUpWithEmailAndPassword(email, password).then((user) => {
+        if (user) {
+            const email = user.email ?? '';
+            console.log("registering user", user.uid, email);
+            dataProxy.registerUser(user.uid, email).then(() => {
+                console.log("user registered");
+            }).catch((error) => {
+                console.error("Error registering user", error);
+            });
         }else{
-            console.log("sign up success", result);
-            const user = result as User;
-            await dataProxy.registerUser(user.uid ?? '', user.email ?? '');
+            console.log("user is null");
         }
+    }).catch((error) => {
+        setErrorMessage(error.message);
+        console.error("Sign up error:", error);
+    });
     }
 
     const handleLoginPress = async () => {
-        setIsLoggingIn(true);
         setErrorMessage('');
-        console.log("test login press");
-        try {
-            const result: User | null | FirebaseError = await authentication.loginWithEmailAndPassword(email, password);
-            console.log("login result", result);
-            
-            if (result instanceof FirebaseError) {
-                setErrorMessage(result.message);
+        authentication.loginWithEmailAndPassword(email, password).then((user) => {
+            console.log("login success");
+            if (user) {
+                loadUserDetails(user.uid).then(() => {
+                    router.replace("/(tabs)");
+                });
+            } else {
+                setErrorMessage("User is null");
             }
-        } catch (error: any) {
+        }).catch((error) => {
             setErrorMessage(error.message);
             console.error("Login error:", error);
-        } finally {
-            setIsLoggingIn(false);
-        }
+        });
     }
 
 
-    const loadUserData = async (uid: string) => {
-        const localUserData = LocalUserData.getInstance();
-        try {
-            //TODO will be removed soon
-            const userData: UserDetails | null = await dataProxy.getLocalUserData(uid);
-            
+    const loadUserDetails = async (uid: string) => {
+       await dataProxy.getUserDetailsById(uid).then((userData) => {
+            console.log("user data loaded", userData);
             if (userData) {
-                localUserData.saveUserData(userData);
-                setUser(userData);
-                router.replace("/(tabs)");
+                setUser(userData); //todo autio save userdata
             }
-        } catch (error) {
-            console.error("Error fetching user data:", error);
-        }
+            }).catch((error) => {
+                console.error("Error fetching user data:", error);
+            });
     }
 
     const screenWidth = Dimensions.get('window').width;
@@ -125,26 +129,6 @@ export default function LoginScreen() {
 
     const handleGoogleSignInPress = async () => {
         console.log("google sign in press");
-        const provider = new GoogleAuthProvider();
-        signInWithPopup(auth, provider)
-          .then((result) => {
-            // This gives you a Google Access Token. You can use it to access the Google API.
-            const credential = GoogleAuthProvider.credentialFromResult(result);
-            const token = credential?.accessToken;
-            // The signed-in user info.
-            const user = result.user;
-            // IdP data available using getAdditionalUserInfo(result)
-            // ...
-          }).catch((error) => {
-            // Handle Errors here.
-            const errorCode = error.code;
-            const errorMessage = error.message;
-            // The email of the user's account used.
-            const email = error.customData.email;
-            // The AuthCredential type that was used.
-            const credential = GoogleAuthProvider.credentialFromError(error);
-            // ...
-          });
     };
 
     const url = Linking.useURL();
@@ -338,6 +322,9 @@ const styles = StyleSheet.create({
         color: 'red',
         marginBottom: 10,
         textAlign: 'center',
+        backgroundColor: 'black',
+        padding: 10,
+        borderRadius: 5,
     },
     googleSignInImage: {
         width: 175, // Set your desired width

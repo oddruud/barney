@@ -42,7 +42,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'flex-start',
     marginTop: 16,
-    padding: 16,
+    padding: 10,
   },
   tab: {
     padding: 10,

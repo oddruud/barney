@@ -1,5 +1,7 @@
-import React, { createContext, useState, useContext, ReactNode } from 'react';
+import React, { createContext, useState, useContext, ReactNode, useEffect } from 'react';
 import { UserDetails } from '@/types/UserDetails';
+import LocalUserData from '@/data/LocalData';
+import {useData} from '@/contexts/DataContext';
 
 interface UserContextType {
     user: UserDetails;
@@ -10,8 +12,11 @@ const UserContext = createContext<UserContextType | undefined>(undefined);
 
 export const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     const [user, setUser] = useState<UserDetails>();
+    const {dataProxy} = useData();
+
     const defaultUser: UserDetails = { 
-        id: 0,
+        id: "0",
+        email: "dummy@user.com",
         userName: "Dummy User",
         activeSince: "2024-01-01",
         fullName: "Dummy User",
@@ -21,6 +26,15 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         profileImage: "",
         walksCompleted: 0
      };
+
+    // Logic to perform when user changes
+    useEffect(() => {
+        if (user) {
+            const localUserData = LocalUserData.getInstance();
+            localUserData.saveUserData(user);
+            console.log('updated user locally', user);
+        }
+    }, [user]);
 
     return (
         <UserContext.Provider value={{ user: user ?? defaultUser, setUser }}>

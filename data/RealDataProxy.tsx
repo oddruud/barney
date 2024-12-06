@@ -1,7 +1,8 @@
 import { PlannedWalk } from '../types/PlannedWalk';
 import { UserDetails } from '../types/UserDetails';
 import { ChatMessage } from '../types/ChatMessage';
-import { DataProxy } from './DataProxyInterface'; // Adjust the path as necessary
+import { DataProxy } from './DataProxyInterface';
+import {getDocs,collection, doc, getDoc, getFirestore, setDoc, query, where} from "firebase/firestore";
 
 class RealDataProxy implements DataProxy {
 
@@ -16,34 +17,31 @@ class RealDataProxy implements DataProxy {
     return response.json();
   }
 
-  async getPlannedWalk(walkId: string): Promise<PlannedWalk | null> {
-    const response = await fetch(`/api/plannedWalks/${walkId}`);
-    return response.json();
+
+
+  async getJoinedWalksByUserId(userId: string): Promise<PlannedWalk[]> {
+    console.log("Getting joined walks by user id", userId);
+    const db = getFirestore();
+    const collectionRef = collection(db, "walks");
+    const q = query(collectionRef, where("joinedUserIds", "array-contains", userId));
+
+    console.log("Query", q);
+
+    const querySnapshot = await getDocs(q);
+
+    console.log("Query snapshot", querySnapshot);
+
+    return querySnapshot.docs.map((doc) => doc.data() as PlannedWalk);
   }
 
-  async getPlannedWalksByUserId(userId: number): Promise<PlannedWalk[]> {
-    const response = await fetch(`/api/plannedWalksByUserId/${userId}`);
-    return response.json();
-  }
-
-  async getInvitedPlannedWalksByUserId(userId: number): Promise<PlannedWalk[]> {
+  async getInvitedPlannedWalksByUserId(userId: string): Promise<PlannedWalk[]> {
     const response = await fetch(`/api/invitedPlannedWalksByUserId/${userId}`);
     return response.json();
   }
 
-  async declineInvite(walkId: string, userId: number): Promise<PlannedWalk | null> {
+  async declineInvite(walkId: string, userId: string): Promise<PlannedWalk | null> {
     // TODO: Implement declineInvite
     return null;
-  }
-
-  async addPlannedWalk(walk: PlannedWalk): Promise<void> {
-    await fetch('/api/plannedWalks', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(walk),
-    });
   }
 
   async updatePlannedWalk(id: string, updatedWalk: Partial<PlannedWalk>): Promise<void> {
@@ -69,12 +67,98 @@ class RealDataProxy implements DataProxy {
     return walks[0];
   }
 
-  async getUserDetailsById(id: number): Promise<UserDetails | null> {
-    const response = await fetch(`/api/userDetails/${id}`);
-    if (!response.ok) {
-      return null;
-    }
-    return response.json();
+  async getUserDetailsById(id: string): Promise<UserDetails | null> {
+    const db = getFirestore();
+    const docRef = doc(db, "users", id);
+    
+    let userData = await getDoc(docRef).then((docSnap) => {
+      console.log("user details data", docSnap.data());
+      const userDetails = docSnap.data() as UserDetails | null;
+      console.log("user details", userDetails);
+      return userDetails;
+    }).catch((error) => {
+      console.error("Error getting user details", error);
+      throw error;
+    });
+
+    return userData as UserDetails | null;
+  }
+
+  async getPlannedWalk(walkId: string): Promise<PlannedWalk | null> {
+    console.log("Getting planned walk", walkId);
+
+    const db = getFirestore();
+    const docRef = doc(db, "walks", walkId);
+    
+    let walkData = await getDoc(docRef).then((docSnap) => {
+      console.log("walk data", docSnap.data());
+      const plannedWalk = docSnap.data() as PlannedWalk | null;
+      return plannedWalk;
+    }).catch((error) => {
+      console.error("Error getting user details", error);
+      throw error;
+    });
+
+    return walkData as PlannedWalk | null;
+  }
+
+  async registerUser(uid: string, email: string): Promise<UserDetails | null> {
+    const db = getFirestore();
+    await setDoc(doc(db, "users", uid), {
+      id: uid,
+      email: email,
+      userName: email.split("@")[0],
+      activeSince: new Date().toISOString(),
+      fullName: "",
+      bio: "",
+      rating: 0,
+      numberOfRatings: 0,
+      profileImage: "",
+      walksCompleted: 0
+    }).then(async () => {
+      return await this.getUserDetailsById(uid);
+    }).catch((error) => {
+      console.error("Error registering user", error);
+      throw error;
+    });
+
+    return null;
+  }
+
+  async createPlannedWalk(walk: PlannedWalk): Promise<string> {
+    console.log("Creating planned walk", walk);
+    const db = getFirestore();
+    walk.id = Date.now().toString();
+    await setDoc(doc(db, "walks", walk.id), walk).then(() => {
+      console.log("walk created", walk.id);
+      return walk.id;
+    }).catch((error) => {
+      console.error("Error creating walk", error);
+      throw error;
+    });
+ 
+    return walk.id;
+  }
+
+  async updateUserProfile(userDetails: UserDetails): Promise<void> {
+    const db = getFirestore();
+    await setDoc(doc(db, "users", userDetails.id), {
+      id: userDetails.id,
+      email: userDetails.email,
+      userName: userDetails.userName,
+      activeSince: userDetails.activeSince,
+      fullName: userDetails.fullName,
+      bio: userDetails.bio,
+      profileImage: userDetails.profileImage,
+      walksCompleted: userDetails.walksCompleted,
+      rating: userDetails.rating,
+      numberOfRatings: userDetails.numberOfRatings
+    }).then(async () => {
+      console.log("User profile updated");
+    }).catch((error) => {
+      console.error("Error updating user profile", error);
+      throw error;
+    });
   }
 
   async getRandomWalkingQuote(): Promise<string> {
@@ -115,33 +199,13 @@ class RealDataProxy implements DataProxy {
     });
   }
 
-  async updateUserProfile(id:number, name: string, bio: string, profileImage: string): Promise<UserDetails | null> {
-    // TODO: Implement updateUserProfile
-    return null;
-  }
-
-  async createWalk(userId: number, date: Date, duration: number, maxParticipants: number, description: string, locationName: string, location: { latitude: number, longitude: number }, invitedUserIds: number[]): Promise<PlannedWalk | null> {
-    // TODO: Implement createWalk
-    return null;
-  }
-
-  async unsubscribeFromWalk(walkId: string, userId: number): Promise<PlannedWalk | null> {
+  async unsubscribeFromWalk(walkId: string, userId: string): Promise<PlannedWalk | null> {
     // TODO: Implement unsubscribeFromWalk
     return null;
   }
 
-  async joinWalk(walkId: string, userId: number): Promise<PlannedWalk | null> {
+  async joinWalk(walkId: string, userId: string): Promise<PlannedWalk | null> {
     // TODO: Implement joinWalk
-    return null;
-  }
-
-  async registerUser(uid: string, email: string): Promise<UserDetails | null> {
-    // TODO: Implement registerUser
-    return null;
-  }
-
-  async getLocalUserData(uid: string): Promise<UserDetails | null> {
-    // TODO: Implement getUserData
     return null;
   }
 
@@ -150,12 +214,12 @@ class RealDataProxy implements DataProxy {
     return [];
   }
 
-  async checkSessionValidity(userId: number): Promise<boolean> {
+  async checkSessionValidity(userId: string): Promise<boolean> {
     // TODO: Implement checkSessionValidity
     return false;
   }
 
-  async getNextWalkForUser(userId: number): Promise<PlannedWalk | null> {
+  async getNextWalkForUser(userId: string): Promise<PlannedWalk | null> {
     // TODO: Implement getNextWalkForUser
     return null;
   }
