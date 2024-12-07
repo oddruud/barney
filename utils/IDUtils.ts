@@ -1,4 +1,4 @@
-export const firestoreAutoId = (): string => {
+export const getRandomId = (): string => {
     const CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
   
     let autoId = ''

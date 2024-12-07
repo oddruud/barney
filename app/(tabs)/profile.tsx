@@ -9,12 +9,12 @@ import { useState } from 'react';
 import { Button } from '@/components/Button';
 import StarRating from '@/components/StarRating';
 import { useData } from '@/contexts/DataContext';
-import LocalUserData from '@/data/LocalData';
+import LocalUserData from '@/data/LocalUserData';
 import { useUser } from '@/contexts/UserContext';
 import { router } from 'expo-router';
 import { authentication } from '@/data/authentication/Authentication';
 import { UserDetails } from '@/types/UserDetails';
-
+import ProfileImage from '@/components/ProfileImage';
 const windowHeight = Dimensions.get('window').height;
 
 
@@ -88,13 +88,12 @@ export default function ProfileScreen() {
     );
     
     const resizedUri = manipResult.uri;
-    console.log("resizedUri", resizedUri);
 
     if (!result.canceled) {
       setNewProfileImage(resizedUri);
-      console.log("setting profile image", newProfileImage);
       setProfileImage(resizedUri);
       await updateUserProfile(resizedUri);
+      setNewProfileImage(null);
     } else {
       console.log("image picker canceled");
     }
@@ -102,33 +101,27 @@ export default function ProfileScreen() {
 
 
   const updateUserProfile = async (newProfileImage: string | null) => {
-    console.log("updating user profile", name, bio, newProfileImage);
-
     let updatedDetails : UserDetails = user;
     updatedDetails.fullName = name;
     updatedDetails.bio = bio ?? '';
+    updatedDetails.profileImage = newProfileImage ?? '';
+    setUser(updatedDetails);
 
     if (newProfileImage) {
-      console.log("uploading image", newProfileImage);
       updatedDetails.profileImage = await dataProxy.uploadImage(newProfileImage);
     } else {
       console.warn("no new profile image to upload");
     }
     
-    dataProxy.updateUserProfile(updatedDetails).then(() => {
+    await dataProxy.updateUserProfile(updatedDetails).then(() => {
       console.log("updated user in firestore", user);
     });
-
-    setUser(updatedDetails);
   }
 
   const handleSave = async () => {
-
     setIsModalVisible(true);
 
-    console.log("updating user!", user?.id, name, bio, profileImage);
-
-    await updateUserProfile();
+    updateUserProfile(profileImage);
     
     setTimeout(() => {
       setIsModalVisible(false);
@@ -160,10 +153,7 @@ export default function ProfileScreen() {
     <ThemedView style={styles.container}>
       <TouchableOpacity onPress={pickImage} style={styles.profileImageContainer}>
         {profileImage ? (
-          <Animated.Image 
-            source={{ uri: profileImage }} 
-            style={[styles.profileImage, { transform: [{ scale: scaleValue }] }]} 
-          />
+          <ProfileImage uri={profileImage} style={styles.profileImage} />
         ) : (
           <ThemedView style={styles.profileImagePlaceholder}>
             <ThemedText>Tap to add photo</ThemedText>

@@ -18,6 +18,7 @@ import SelectOnMapModal from '@/components/modals/SelectOnMapModal';
 import InviteUsersModal from '@/components/modals/InviteUsersModal';
 import { fetchAddress } from '@/utils/geoUtils';
 import { PlannedWalk } from '@/types/PlannedWalk';
+import ProfileImage from '@/components/ProfileImage';
 
 export default function NewWalkScreen() {
   const { user } = useUser();
@@ -268,13 +269,7 @@ export default function NewWalkScreen() {
                   key={user.id}
                   onPress={() => setInvitedUsers(invitedUsers.filter(invitedUser => invitedUser.id !== user.id))}
                 >
-                  <Animated.Image
-                    source={{ uri: user.profileImage }}
-                    style={[
-                      styles.profileImage,
-                      { transform: [{ scale: scaleAnimation }] } // Apply scale animation
-                    ]}
-                  />
+                <ProfileImage uri={user.profileImage} style={styles.profileImage} />
                 </TouchableOpacity>
               ))}
             </View>

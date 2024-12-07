@@ -7,13 +7,15 @@ import { PlannedWalk } from '../types/PlannedWalk';
 import { StyleSheet } from 'react-native';
 import { IconSymbol } from '../components/ui/IconSymbol';
 import { Map } from '../components/Map';
-
+import { localCache } from '../data/LocalCache';
+import ProfileImage from './ProfileImage';
 
 function WalkItem({ item, showDate }: { item: PlannedWalk, showDate: boolean }) {
   const navigation = useNavigation();
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const scaleAnim = useRef(new Animated.Value(0.8)).current;
   const [imageLoaded, setImageLoaded] = useState(false);
+  const imageOpacity = useRef(new Animated.Value(0)).current;
 
   const isPastWalk = new Date(item.dateTime) < new Date();
 
@@ -32,6 +34,17 @@ function WalkItem({ item, showDate }: { item: PlannedWalk, showDate: boolean }) 
     ]).start();
   }, [fadeAnim, scaleAnim]);
 
+
+  useEffect(() => {
+    if (imageLoaded) {
+      Animated.timing(imageOpacity, {
+        toValue: 1,
+        duration: 500,
+        useNativeDriver: true,
+      }).start();
+    }
+  }, [imageLoaded]);
+
   return (
     <Animated.View 
       style={{ 
@@ -43,11 +56,7 @@ function WalkItem({ item, showDate }: { item: PlannedWalk, showDate: boolean }) 
     >
       <Link href={{ pathname: '/details/[id]', params: { id: item.id } }}>
         <View style={styles.walkHeader}>
-          <Image
-            source={{ uri: item.profileImage }}
-            style={[styles.profileImage, { opacity: imageLoaded ? 1 : 0 }]}
-            onLoad={() => setImageLoaded(true)}
-          />
+          <ProfileImage uri={item.profileImage} style={styles.profileImage} />
           <View style={styles.walkInfo}>
             <Text style={styles.date}>
               {showDate ? `${new Date(item.dateTime).toLocaleDateString(undefined, { day: 'numeric', month: 'short' })} at ${new Date(item.dateTime).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })}` : new Date(item.dateTime).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })}

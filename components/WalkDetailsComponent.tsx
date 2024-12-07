@@ -9,6 +9,7 @@ import { PlannedWalk } from '../types/PlannedWalk';
 import { UserDetails } from '../types/UserDetails';
 import { useData } from '@/contexts/DataContext';
 import * as Calendar from 'expo-calendar';
+import ProfileImage from './ProfileImage';
 
 interface WalkDetailsComponentProps {
   walkDetails: PlannedWalk;
@@ -38,7 +39,6 @@ const WalkDetailsComponent: React.FC<WalkDetailsComponentProps> = ({
   const zoomAnim = useRef(new Animated.Value(6)).current; // Initial zoom level
   const { dataProxy } = useData();
   const [isCalendarButtonPressed, setIsCalendarButtonPressed] = useState(false);
-
   const isOrganizer = user?.id === walkDetails.userId;
   const isCancelled = walkDetails.cancelled;
   const [isAddedToCalendarModalVisible, setIsAddedToCalendarModalVisible] = useState(false);
@@ -174,10 +174,7 @@ const WalkDetailsComponent: React.FC<WalkDetailsComponentProps> = ({
             ]}
           >
             <TouchableOpacity onPress={onProfileImagePress}>
-              <Image 
-                source={{ uri: walkDetails.profileImage }}
-                style={styles.profileImageSmall}
-              />
+              <ProfileImage uri={walkDetails.profileImage} style={styles.profileImageSmall} />
             </TouchableOpacity>
             <Text style={styles.hostText}>With {walkDetails.fullName}</Text>
             {isOrganizer && <Text style={styles.organizerText}>(You)</Text>}
@@ -234,7 +231,7 @@ const WalkDetailsComponent: React.FC<WalkDetailsComponentProps> = ({
                     },
                   ]}
                 >
-                  <Image source={{ uri: user.profileImage }} style={styles.userImage} />
+                  <ProfileImage uri={user.profileImage} style={styles.userImage} />
                   <Text style={styles.userName}>{user.fullName}</Text>
                 </Animated.View>
               ))}

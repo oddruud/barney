@@ -1,6 +1,6 @@
 import React, { createContext, useState, useContext, ReactNode, useEffect } from 'react';
 import { UserDetails } from '@/types/UserDetails';
-import LocalUserData from '@/data/LocalData';
+import LocalUserData from '@/data/LocalUserData';
 import {useData} from '@/contexts/DataContext';
 
 interface UserContextType {

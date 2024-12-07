@@ -5,6 +5,7 @@ import { UserDetails } from '../types/UserDetails';
 import { Button } from './Button';
 import StarRating from './StarRating';  // Import the new StarRating component
 import RateUserModal from './modals/RateUserModal';  // Import the new modal component
+import ProfileImage from './ProfileImage';
 
 interface AboutComponentProps {
   user: UserDetails;
@@ -15,7 +16,8 @@ const AboutComponent: React.FC<AboutComponentProps> = ({ user }) => {
   const scaleAnim = useRef(new Animated.Value(0)).current; // Initial value for scale: 0
   const buttonAnim = useRef(new Animated.Value(100)).current; // Initial value for button position: 100 (off-screen)
   const [modalVisible, setModalVisible] = useState(false); // State for modal visibility
-
+  const [profileImageUrl, setProfileImageUrl] = useState(user.profileImage);
+  const [imageLoaded, setImageLoaded] = useState(false);
   useEffect(() => {
     Animated.parallel([
       Animated.timing(fadeAnim, {
@@ -39,10 +41,7 @@ const AboutComponent: React.FC<AboutComponentProps> = ({ user }) => {
   return (
     <View style={styles.container}>
       <Animated.View style={[styles.aboutContainer, { opacity: fadeAnim }]}>
-        <Animated.Image 
-          source={{ uri: user.profileImage }}
-          style={[styles.profileImage, { transform: [{ scale: scaleAnim }] }]}
-        />
+        <ProfileImage uri={user.profileImage} style={styles.profileImage} />
         <Text style={styles.textBold}>{user.fullName}</Text>
         <Text style={styles.text}>Active Since: {new Date(user.activeSince).toLocaleDateString()}</Text>
         <Text style={styles.text}>Walks Completed: {user.walksCompleted}</Text>

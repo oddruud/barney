@@ -46,7 +46,7 @@ export const EnvironmentProvider: React.FC<{ children: ReactNode }> = ({ childre
                     zIndex: 1000,
                     textAlign: 'center'
                 }}>
-                    Development - Version {appVersion} - Using Dummy Data: {useDummyData ? 'Yes' : 'No'}
+                    Development - Version {appVersion} - Mock Data: {useDummyData ? 'Yes' : 'No'}
                 </Text>
             )}
         </EnvironmentContext.Provider>

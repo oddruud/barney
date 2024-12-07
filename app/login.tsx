@@ -32,9 +32,6 @@ export default function LoginScreen() {
     const buttonFadeAnim = useRef(new Animated.Value(0)).current; // Initial opacity value for button
 
     useEffect(() => {
-
-        console.log("environment", environment);
-
         Animated.timing(fadeAnim, {
             toValue: 1, // Fade to opacity value of 1
             duration: 10000, // Duration of the fade-in effect
@@ -70,8 +67,6 @@ export default function LoginScreen() {
           }
 
         });
-
-
     }, []);
 
     const handleSignUpPress = async () => {

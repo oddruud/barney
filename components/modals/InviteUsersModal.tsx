@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Modal, View, TextInput, FlatList, TouchableOpacity, Image, Text, StyleSheet, Animated } from 'react-native';
 import { UserDetails } from '@/types/UserDetails';
 import { Button } from '@/components/Button';
+import UserItem from './UserItem';
 
 interface InviteUsersModalProps {
   visible: boolean;
@@ -43,12 +44,19 @@ const InviteUsersModal: React.FC<InviteUsersModalProps> = ({
       setSearchResults([]);
       return;
     }
+    console.log("searching for users", users.length);
 
-    const results = users.filter(user =>
-      user.fullName.toLowerCase().includes(query.toLowerCase())
-    );
+    const results = users.filter(user => {
+      if (user.fullName) {
+        return user.fullName.toLowerCase().includes(query.toLowerCase());
+      }
+      return false;
+    });
 
-    setSearchResults(results);
+    //remove all users that dont have an id
+    const resultsWithId = results.filter(user => user.id !== undefined);
+
+    setSearchResults(resultsWithId);
   };
 
   return (
@@ -69,19 +77,7 @@ const InviteUsersModal: React.FC<InviteUsersModalProps> = ({
           data={searchResults}
           keyExtractor={(item) => item.id.toString()}
           renderItem={({ item }) => (
-            <TouchableOpacity onPress={() => onSelectUser(item)}>
-              <Animated.View
-                style={[
-                  styles.userItemContainer
-                ]}
-              >
-                <Image
-                  source={{ uri: item.profileImage }}
-                  style={styles.userProfileImage}
-                />
-                <Text style={styles.userItem}>{item.fullName}</Text>
-              </Animated.View>
-            </TouchableOpacity>
+            <UserItem user={item} onSelectUser={onSelectUser} />
           )}
         />
         <Button style={styles.modalCloseButton} title="Close" onPress={onClose} />

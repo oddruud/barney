@@ -3,7 +3,7 @@ import { UserDetails } from '../types/UserDetails';
 import { ChatMessage } from '../types/ChatMessage';
 import { DataProxy } from './DataProxyInterface';
 import {getDocs,collection, doc, getDoc, getFirestore, setDoc, query, where, addDoc} from "firebase/firestore";
-import { firestoreAutoId } from '../utils/IDUtils';
+import { getRandomId } from '../utils/IDUtils';
 import { Quote } from '@/types/Quote';
 import { getStorage, ref, uploadBytesResumable, getDownloadURL, UploadMetadata } from "firebase/storage";
 
@@ -192,7 +192,7 @@ class FireStoreDataProxy implements DataProxy {
 
   async createPlannedWalk(walk: PlannedWalk): Promise<string> {
     const db = getFirestore();
-    const walkId = firestoreAutoId();
+    const walkId = getRandomId();
     const walkWithId = {...walk, id: walkId};
     await setDoc(doc(db, "walks", walkWithId.id), walkWithId).then(() => {  
       console.log("walk created", walkWithId.id);
@@ -257,7 +257,7 @@ class FireStoreDataProxy implements DataProxy {
 
   async addChatMessage(message: ChatMessage): Promise<void> {
     const db = getFirestore();
-    const messageId = firestoreAutoId();
+    const messageId = getRandomId();
     const messageWithId = {...message, id: messageId};
     await setDoc(doc(db, "chatMessages", messageWithId.id), messageWithId).then(() => {  
     }).catch((error) => {
@@ -313,7 +313,7 @@ class FireStoreDataProxy implements DataProxy {
 
     console.log("uploading image", imageURI);
 
-    return await this.uploadToFirebase(imageURI, firestoreAutoId(), onProgress ?? null).then((result) => {
+    return await this.uploadToFirebase(imageURI, getRandomId(), onProgress ?? null).then((result) => {
       console.log("image uploaded", result.downloadUrl);
       return result.downloadUrl;
     });
@@ -358,6 +358,8 @@ async uploadToFirebase(uri:string, name:string, onProgress:((progress:number)=>v
     // TODO: Implement getEnticingImage
     return '';
   }
+
+
 }
 
 export { FireStoreDataProxy };
