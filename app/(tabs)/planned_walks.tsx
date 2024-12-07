@@ -89,6 +89,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#e9eae4',
     marginTop: 32,
+    padding:10
   },
   tabContainer: {
     flexDirection: 'row',

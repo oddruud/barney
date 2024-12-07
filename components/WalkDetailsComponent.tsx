@@ -179,7 +179,7 @@ const WalkDetailsComponent: React.FC<WalkDetailsComponentProps> = ({
                 style={styles.profileImageSmall}
               />
             </TouchableOpacity>
-            <Text style={styles.hostText}>With {walkDetails.username}</Text>
+            <Text style={styles.hostText}>With {walkDetails.fullName}</Text>
             {isOrganizer && <Text style={styles.organizerText}>(You)</Text>}
           </Animated.View>
           <Map

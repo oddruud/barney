@@ -53,7 +53,7 @@ function WalkItem({ item, showDate }: { item: PlannedWalk, showDate: boolean }) 
               {showDate ? `${new Date(item.dateTime).toLocaleDateString(undefined, { day: 'numeric', month: 'short' })} at ${new Date(item.dateTime).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })}` : new Date(item.dateTime).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })}
             </Text>
             <Text style={styles.location}>{item.location}</Text>
-            <Text style={styles.username}>with {item.username}</Text>
+            <Text style={styles.username}>with {item.fullName}</Text>
             <Text style={styles.participants}>{item.joinedUserIds.length} / {item.maxParticipants}</Text> 
             {new Date(item.lastMessageDate) > new Date(item.lastDateMessagesChecked) && (
               <View style={styles.newMessageContainer}>
