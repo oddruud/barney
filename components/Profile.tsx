@@ -5,25 +5,27 @@ import { ThemedView } from '@/components/ThemedView';
 import { Button } from '@/components/Button';
 import StarRating from '@/components/StarRating';
 import ProfileImage from '@/components/ProfileImage';
-import ImagePicker from 'expo-image-picker';
+import * as ImagePicker from 'expo-image-picker';
 import ImageManipulator from 'expo-image-manipulator';
 import { UserDetails } from '../types/UserDetails';
 import { authentication } from '@/data/authentication/Authentication';
 import LocalUserData from '@/data/LocalUserData';
 import { router } from 'expo-router';
 import { useData } from '@/contexts/DataContext';
+import { useUser } from '@/contexts/UserContext';
 
 interface ProfileProps {
-  user: UserDetails;
   firstLogin: boolean;
+  onPickImage: () => void;
 }
 
 const Profile: React.FC<ProfileProps> = ({
-  user,
   firstLogin,
+  onPickImage,
 }) => {
     const [bio, setBio] = useState('');
     const [name, setName] = useState('');
+    const { user, setUser } = useUser();
     const [profileImage, setProfileImage] = useState<string | null>(null);
     const [newProfileImage, setNewProfileImage] = useState<string | null>(null);
     const scaleValue = useRef(new Animated.Value(1)).current;
@@ -64,6 +66,8 @@ const Profile: React.FC<ProfileProps> = ({
       }, []);
     
   const pickImage = async () => {
+   // onPickImage();
+
     console.log("picking image");
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
