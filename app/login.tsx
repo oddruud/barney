@@ -10,6 +10,7 @@ import { useEnvironment } from '@/contexts/EnvironmentContext';
 import { useData } from '@/contexts/DataContext';
 import * as Linking from 'expo-linking';
 import { FirebaseError } from 'firebase/app';
+import { UserDetails } from '@/types/UserDetails';
 
 
 function sleep(ms: number) {
@@ -57,8 +58,12 @@ export default function LoginScreen() {
             console.log("user signed in", user.uid);
             // User is signed in, see docs for a list of available properties
             // https://firebase.google.com/docs/reference/js/auth.user
-            loadUserDetails(user.uid).then(() => {
-                router.replace("/(tabs)");
+            loadUserDetails(user.uid).then((userData) => {
+                if (userData?.bio === null || userData?.bio === '') {
+                    router.replace("/first-login-profile");
+                } else {
+                    router.replace("/(tabs)");
+                }
             });
           }
           else {
@@ -132,15 +137,18 @@ export default function LoginScreen() {
     }
 
 
-    const loadUserDetails = async (uid: string) => {
-       await dataProxy.getUserDetailsById(uid).then((userData) => {
+    const loadUserDetails = async (uid: string): Promise<UserDetails | null> => {
+       const userData = await dataProxy.getUserDetailsById(uid).then((userData) => {
             console.log("user data loaded for user", uid, userData?.fullName);
             if (userData) {
                 setUser(userData); //todo autio save userdata
+                return userData;
             }
             }).catch((error) => {
                 console.error("Error fetching user data:", error);
             });
+
+        return userData ?? null;
     }
 
     const screenWidth = Dimensions.get('window').width;

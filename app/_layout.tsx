@@ -68,6 +68,12 @@ export default function RootLayout() {
             title: 'Not Found'
           }} 
         />
+         <Stack.Screen 
+          name="first-login-profile" 
+          options={{ 
+            title: 'First Login Profile'
+          }} 
+        />
         
       </Stack>
           <StatusBar style="auto" />

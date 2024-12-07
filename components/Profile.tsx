@@ -15,10 +15,12 @@ import { useData } from '@/contexts/DataContext';
 
 interface ProfileProps {
   user: UserDetails;
+  firstLogin: boolean;
 }
 
 const Profile: React.FC<ProfileProps> = ({
   user,
+  firstLogin,
 }) => {
     const [bio, setBio] = useState('');
     const [name, setName] = useState('');
@@ -62,14 +64,13 @@ const Profile: React.FC<ProfileProps> = ({
       }, []);
     
   const pickImage = async () => {
+    console.log("picking image");
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
       aspect: [1, 1],
       quality: 1,
     });
-
-    console.log("picked image", result.assets?.[0]?.uri);
 
     setProfileImage(result.assets?.[0]?.uri ?? null);
 
@@ -118,7 +119,12 @@ const Profile: React.FC<ProfileProps> = ({
   const handleSave = async () => {
     setIsModalVisible(true);
 
-    updateUserProfile(profileImage);
+    if (!firstLogin) {
+      updateUserProfile(profileImage);
+    } else {
+      updateUserProfile(profileImage);
+      router.replace("/(tabs)");
+    }
 
     setTimeout(() => {
       setIsModalVisible(false);
@@ -189,17 +195,27 @@ const Profile: React.FC<ProfileProps> = ({
         <View style={{ flex: 1 }} />
 
         <Animated.View style={[styles.buttonContainer, { transform: [{ translateY: buttonPosition }] }]}>
-          <Button
-            title="Save Changes"
-            onPress={handleSave}
-            style={styles.saveButton}
-          />
+          {firstLogin ? (
+            <Button
+              title="Continue"
+              onPress={handleSave} // or another function if needed
+              style={styles.saveButton}
+            />
+          ) : (
+            <>
+              <Button
+                title="Save Changes"
+                onPress={handleSave}
+                style={styles.saveButton}
+              />
 
-          <Button
-            title="Logout"
-            onPress={handleLogout}
-            style={styles.logoutButton}
-          />
+              <Button
+                title="Logout"
+                onPress={handleLogout}
+                style={styles.logoutButton}
+              />
+            </>
+          )}
         </Animated.View>
       </ThemedView>
     </ThemedView>
