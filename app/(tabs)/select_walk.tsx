@@ -1,12 +1,24 @@
-import React, { useState } from 'react';
+import React, {useState, useEffect } from 'react';
 import { View, StyleSheet, TouchableOpacity } from 'react-native';
 import { Text } from '../../components/Themed';
 import SelectWalkInArea from '../../components/SelectWalkInArea';
 import InviteView from '../../components/InviteView';
+import { useRoute, useNavigation } from '@react-navigation/native';
 
 export default function SelectWalkScreen() {
   // State for managing active tab
   const [activeTab, setActiveTab] = useState('myArea');
+  const route = useRoute();
+  const navigation = useNavigation();
+  const { tab } = route.params as { tab: string };
+
+  useEffect(() => {
+    console.log("route params", route.params);
+
+    if (tab) {
+      setActiveTab(tab);
+    }
+  }, [tab]);
 
   return (
     <View style={styles.container}>

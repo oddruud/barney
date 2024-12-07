@@ -16,8 +16,7 @@ const AboutComponent: React.FC<AboutComponentProps> = ({ user }) => {
   const scaleAnim = useRef(new Animated.Value(0)).current; // Initial value for scale: 0
   const buttonAnim = useRef(new Animated.Value(100)).current; // Initial value for button position: 100 (off-screen)
   const [modalVisible, setModalVisible] = useState(false); // State for modal visibility
-  const [profileImageUrl, setProfileImageUrl] = useState(user.profileImage);
-  const [imageLoaded, setImageLoaded] = useState(false);
+  
   useEffect(() => {
     Animated.parallel([
       Animated.timing(fadeAnim, {
@@ -46,7 +45,9 @@ const AboutComponent: React.FC<AboutComponentProps> = ({ user }) => {
         <Text style={styles.text}>Active Since: {new Date(user.activeSince).toLocaleDateString()}</Text>
         <Text style={styles.text}>Walks Completed: {user.walksCompleted}</Text>
         <View style={styles.starContainer}>
-        <StarRating count={parseInt(user.rating.toFixed(1))} userCount={user.numberOfRatings} />
+        {user.numberOfRatings > 0 && (
+          <StarRating count={parseInt(user.rating.toFixed(1))} userCount={user.numberOfRatings} />
+        )}
         </View> 
         
         <Text style={styles.bioText}>{user.bio}</Text>

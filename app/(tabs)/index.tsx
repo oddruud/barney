@@ -10,6 +10,11 @@ import { useUser } from '@/contexts/UserContext';
 import { useData } from '@/contexts/DataContext';
 import { Text } from '@/components/Themed';
 import { useFocusEffect } from '@react-navigation/native';
+import { Button } from '@/components/Button';
+import { router } from 'expo-router';
+
+
+
 
 // Add a new component to display countdown to the next walk
 function NextWalkCountdown({ nextWalkTime }: { nextWalkTime: Date | null }) {
@@ -69,7 +74,7 @@ function RandomWalkingQuote() {
 export default function HomeScreen() {
   const { user } = useUser();
   const [nextWalk, setNextWalk] = useState<PlannedWalk | null>(null);
-  //const [enticingImage, setEnticingImage] = useState<string>('');
+  const [invitations, setInvitations] = useState<PlannedWalk[]>([]);
   const { dataProxy } = useData();
 
   useEffect(() => {
@@ -87,14 +92,13 @@ export default function HomeScreen() {
       };
 
       fetchNextWalk();
-  
-      //const fetchEnticingImage = async () => {
-      //  const enticingImage = await dataProxy.getEnticingImage();  
-      //  setEnticingImage(enticingImage);
-      //};
-  
 
-      //fetchEnticingImage();
+      const fetchInvitations = async () => {
+        const invitations = await dataProxy.getInvitedPlannedWalksByUserId(user?.id ?? 0);
+        setInvitations(invitations);
+      };
+
+      fetchInvitations();
 
       return () => {
       
@@ -111,15 +115,25 @@ export default function HomeScreen() {
         />
       </ThemedView>
       <RandomWalkingQuote />
-      {nextWalk ? (
-        <>
-          <NextWalkCountdown 
-            nextWalkTime={new Date(`${nextWalk.dateTime}`)} 
-          />
-          <WalkItem item={nextWalk} showDate={true} />
-        </>
-      ) : null}
-      
+
+      {invitations.length > 0 && (
+        <Button 
+          title={`${invitations.length} ${invitations.length === 1 ? 'invitation' : 'invitations'}`} 
+          onPress={() => router.push('/(tabs)/select_walk?tab=invites')}
+          style={styles.invitationButton}
+        />
+      )}
+
+      <View style={styles.bottomContainer}>
+        {nextWalk ? (
+          <>
+            <NextWalkCountdown 
+              nextWalkTime={new Date(`${nextWalk.dateTime}`)} 
+            />
+            <WalkItem item={nextWalk} showDate={true} />
+          </>
+        ) : null}
+      </View>
     </View>
   );
 }
@@ -160,7 +174,7 @@ const styles = StyleSheet.create({
     marginVertical: 16,
     zIndex: 1,
     backgroundColor: 'rgba(0, 0, 0, 0.0)', // Changed to semi-transparent
-    marginTop: 64,
+    marginTop: 32,
   },
   quoteContainer: {
     padding: 16,
@@ -192,13 +206,15 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     marginVertical: 16,
   },
-  button: {
-    flex: 1,
-    padding: 12,
+  invitationButton: {
     marginHorizontal: 8,
     backgroundColor: '#4CAF50',
     borderRadius: 8,
     alignItems: 'center',
+    width: '45%',
+    alignSelf: 'center',
+    height: 50,
+    marginTop: 32,
   },
   buttonText: {
     fontFamily: 'SpaceMono',
@@ -214,5 +230,10 @@ const styles = StyleSheet.create({
     width: '110%',
     height: '100%',
     zIndex:-1
+  },
+  bottomContainer: {
+    flex: 1,
+    justifyContent: 'flex-end',
+    marginBottom: 98,
   },
 });

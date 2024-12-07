@@ -305,8 +305,14 @@ class FireStoreDataProxy implements DataProxy {
   async getNextWalkForUser(userId: string): Promise<PlannedWalk | null> {
     const walks = await this.getJoinedWalksByUserId(userId);
     if (walks.length === 0) return null;
-    walks.sort((a, b) => new Date(a.dateTime).getTime() - new Date(b.dateTime).getTime());
-    return walks[0];
+    
+    const now = new Date();
+    const futureWalks = walks.filter(walk => new Date(walk.dateTime) > now);
+    if (futureWalks.length === 0) return null;
+
+    futureWalks.sort((a, b) => new Date(a.dateTime).getTime() - new Date(b.dateTime).getTime());
+
+    return futureWalks[0];
   }
 
   async uploadImage(imageURI: string, onProgress?:((progress:number)=>void)): Promise<string> {
