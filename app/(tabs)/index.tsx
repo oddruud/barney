@@ -116,7 +116,7 @@ export default function HomeScreen() {
       </ThemedView>
       <RandomWalkingQuote />
 
-      {invitations.length > 0 && (
+      {invitations.length === 0 && (
         <Button 
           title={`${invitations.length} ${invitations.length === 1 ? 'invitation' : 'invitations'}`} 
           onPress={() => router.push('/(tabs)/select_walk?tab=invites')}

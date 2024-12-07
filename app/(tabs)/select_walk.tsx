@@ -10,15 +10,16 @@ export default function SelectWalkScreen() {
   const [activeTab, setActiveTab] = useState('myArea');
   const route = useRoute();
   const navigation = useNavigation();
-  const { tab } = route.params as { tab: string };
 
   useEffect(() => {
-    console.log("route params", route.params);
+    if (route.params) {
+      const { tab } = route.params as { tab: string };
 
     if (tab) {
-      setActiveTab(tab);
+        setActiveTab(tab);
+      }
     }
-  }, [tab]);
+  }, [route]);
 
   return (
     <View style={styles.container}>
