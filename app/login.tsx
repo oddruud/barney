@@ -21,8 +21,8 @@ export default function LoginScreen() {
     const { environment } = useEnvironment();
     const { dataProxy } = useData();
     const [isLoggingIn, setIsLoggingIn] = useState(false);
-    const [email, setEmail] = useState('yelp@yelp.com');
-    const [password, setPassword] = useState('yelpyelp');
+    const [email, setEmail] = useState('yelp@yolo.com');
+    const [password, setPassword] = useState('testtest');
     const [errorMessage, setErrorMessage] = useState('');
     const [showLoginForm, setShowLoginForm] = useState(false);
     const [counter, setCounter] = useState(0);
@@ -55,13 +55,12 @@ export default function LoginScreen() {
 
     useEffect(() => {
         const auth = getAuth();
-/*
+
         onAuthStateChanged(auth, (user) => {
           if (user) {
+            console.log("user signed in", user.uid);
             // User is signed in, see docs for a list of available properties
             // https://firebase.google.com/docs/reference/js/auth.user
-            setCounter(counter + 1);
-            console.log("LOGIN SCREEN: user signed in", counter);
             loadUserDetails(user.uid).then(() => {
                 router.replace("/(tabs)");
             });
@@ -71,7 +70,7 @@ export default function LoginScreen() {
           }
 
         });
-*/
+
 
     }, []);
 
@@ -115,7 +114,7 @@ export default function LoginScreen() {
 
     const loadUserDetails = async (uid: string) => {
        await dataProxy.getUserDetailsById(uid).then((userData) => {
-            console.log("user data loaded", userData);
+            console.log("user data loaded for user", uid, userData?.fullName);
             if (userData) {
                 setUser(userData); //todo autio save userdata
             }

@@ -3,7 +3,7 @@ import { UserDetails } from '../types/UserDetails';
 import { ChatMessage } from '../types/ChatMessage';
 import { plannedWalks as dummyPlannedWalks, userDetails as dummyUserDetails, walkingQuotes, chatMessages, enticingImages } from './DummyData';
 import { DataProxy } from './DataProxyInterface';
-
+import { Quote } from '../types/Quote';
 // Implement the DummyDataProxy class
 class DummyDataProxy implements DataProxy {
 
@@ -74,7 +74,7 @@ class DummyDataProxy implements DataProxy {
     });
   }
 
-  async updatePlannedWalk(id: string, updatedWalk: Partial<PlannedWalk>): Promise<void> {
+  async updatePlannedWalk(id: string, updatedWalk: PlannedWalk): Promise<void> {
     return new Promise((resolve) => {
       setTimeout(() => {
         dummyPlannedWalks = dummyPlannedWalks.map(walk => 
@@ -130,7 +130,7 @@ class DummyDataProxy implements DataProxy {
   }
 
   // Updated method to return a promise
-  getRandomWalkingQuote(): Promise<string> {
+async getRandomWalkingQuote(): Promise<Quote> {
     return new Promise((resolve) => {
       resolve(walkingQuotes[Math.floor(Math.random() * walkingQuotes.length)]);
     });

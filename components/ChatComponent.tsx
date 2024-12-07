@@ -38,8 +38,9 @@ export default function ChatComponent({walkId, user }: ChatComponentProps) {
     });
 
     // Poll for new messages every second
-    const intervalId = setInterval(() => {
-      dataProxy.getChatMessagesForWalk(walkId).then(newMessages => {
+    const intervalId = setInterval(async () => {
+      await pollForNewMessages();
+      /*
         setMessages(prevMessages => {
           const newUniqueMessages = newMessages.filter(
             newMsg => !prevMessages.some(prevMsg => prevMsg.id === newMsg.id)
@@ -48,7 +49,7 @@ export default function ChatComponent({walkId, user }: ChatComponentProps) {
           
           return [...prevMessages, ...newUniqueMessages];
         });
-      });
+      */
     }, 1000);
 
     // Cleanup interval on component unmount
@@ -97,6 +98,19 @@ export default function ChatComponent({walkId, user }: ChatComponentProps) {
     }, 1000); // Respond after 1 second
   }
 
+  async function pollForNewMessages() {
+    await dataProxy.getChatMessagesForWalk(walkId).then(newMessages => {
+      setMessages(prevMessages => {
+        const newUniqueMessages = newMessages.filter(
+          newMsg => !prevMessages.some(prevMsg => prevMsg.id === newMsg.id)
+        );
+        setMessageCount(prevMessages.length + newUniqueMessages.length);
+        
+        return [...prevMessages, ...newUniqueMessages];
+      });
+    });
+  }
+
   const renderItem = ({ item, index }: { item: ChatMessage, index: number }) => {
     const currentMessageDate = new Date(item.timestamp);
     const previousMessageDate = index > 0 ? new Date(messages[index - 1].timestamp) : null;
@@ -119,31 +133,33 @@ export default function ChatComponent({walkId, user }: ChatComponentProps) {
     );
   };
 
-  const handleSend = () => {
+  const handleSend = async () => {
     if (inputText.trim()) {
       const newMessage: ChatMessage = {
-        id: Date.now().toString(),
+        id: '',
         timestamp: new Date().toISOString(),
         userName: user?.fullName ?? 'You',
         message: inputText,
         walkId: walkId,
-        userId: user?.id ?? 0,
+        userId: user?.id ?? '',
         newMessage: true,
       };
-      setMessages([...(messages || []), newMessage]);
+     
       setInputText('');
 
       // Send the message to the dataProxy
-      dataProxy.addChatMessage(newMessage).then(() => {
+      await dataProxy.addChatMessage(newMessage).then(() => {
         console.log('Message sent successfully');
       }).catch(error => {
         console.error('Error sending message:', error);
       });
 
+      await pollForNewMessages();
+
       // Call the function to simulate a bot response
-      if (environment === Environment.Development) {
-        simulateBotResponse(walkId);
-      }
+      //if (environment === Environment.Development) {
+      //  simulateBotResponse(walkId);
+      //}
     }
   };
 

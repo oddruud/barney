@@ -1,5 +1,4 @@
-import Constants from 'expo-constants';
-import { RealDataProxy } from './RealDataProxy';
+import { FireStoreDataProxy } from './FireStoreDataProxy';
 import { DummyDataProxy } from './DummyDataProxy';
 import { DataProxy } from './DataProxyInterface';
 
@@ -9,7 +8,7 @@ class DataProxySingleton {
     private constructor() {}
 
     public static getInstance(useDummyData?: boolean): DataProxy {
-        DataProxySingleton.instance = useDummyData ? new DummyDataProxy() : new RealDataProxy();
+        DataProxySingleton.instance = useDummyData ? new DummyDataProxy() : new FireStoreDataProxy();
         DataProxySingleton.instance.initialize();
         return DataProxySingleton.instance;
     }

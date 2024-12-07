@@ -1,6 +1,7 @@
 import { PlannedWalk } from '../types/PlannedWalk';
 import { UserDetails } from '../types/UserDetails';
 import { ChatMessage } from '../types/ChatMessage';
+import { Quote } from '@/types/Quote';
 
 export const plannedWalks: PlannedWalk[] = [
   {
@@ -143,6 +144,7 @@ export const userDetails: UserDetails[] = [
     id: "1",
     userName: 'john',
     fullName: 'John Doe',
+    email: 'john@example.com',
     activeSince: '2024-12-01T09:00',
     bio: 'A passionate walker and nature enthusiast, John has been exploring trails and parks for over a decade. With a keen interest in botany and wildlife, he often shares his knowledge with fellow walkers. John believes in the therapeutic power of nature and enjoys organizing community walks to promote wellness and environmental awareness.',
     profileImage: 'https://cdn.britannica.com/92/212692-050-D53981F5/labradoodle-dog-stick-running-grass.jpg',
@@ -154,6 +156,7 @@ export const userDetails: UserDetails[] = [
     id: "2",
     userName: 'jane',
     fullName: 'Jane Smith',
+    email: 'jane@example.com',
     walksCompleted: 10,
     activeSince: '2024-12-01T09:00',
     bio: 'Jane is a nature lover who enjoys hiking and exploring the great outdoors. She is passionate about sustainability and is always looking for ways to reduce her carbon footprint. Jane is also a keen photographer and loves capturing the beauty of nature through her lens.',
@@ -165,6 +168,7 @@ export const userDetails: UserDetails[] = [
     id: "3",
     userName: 'carlos',
     fullName: 'Carlos Silva',
+    email: 'carlos@example.com',
     activeSince: '2024-12-01T09:00',
     bio: 'Carlos is an avid hiker and enjoys discovering new trails. He is a fitness enthusiast and often combines his love for walking with his workout routines.',
     profileImage: 'https://upload.wikimedia.org/wikipedia/commons/6/69/Mn_roy2.jpg',
@@ -176,6 +180,7 @@ export const userDetails: UserDetails[] = [
     id: "4",
     userName: 'ana',
     fullName: 'Ana Costa',
+    email: 'ana@example.com',
     activeSince: '2024-12-01T09:00',
     bio: 'Ana loves the tranquility of nature and often goes for walks to clear her mind. She is also a yoga instructor and incorporates walking into her wellness practices.',
     profileImage: 'https://static01.nyt.com/images/2021/01/17/arts/wonderwoman1984-anatomy1/wonderwoman1984-anatomy1-videoSixteenByNine3000-v2.jpg',
@@ -187,6 +192,7 @@ export const userDetails: UserDetails[] = [
     id: "5",
     userName: 'miguel',
     fullName: 'Miguel Oliveira',
+    email: 'miguel@example.com',
     activeSince: '2024-12-01T09:00',
     bio: 'Miguel is a coastal walker who enjoys the sound of the waves and the fresh sea breeze. He is a marine biologist and often shares interesting facts about marine life during his walks.',
     profileImage: 'https://t4.ftcdn.net/jpg/02/24/86/95/240_F_224869519_aRaeLneqALfPNBzg0xxMZXghtvBXkfIA.jpg',
@@ -197,26 +203,67 @@ export const userDetails: UserDetails[] = [
 ];
 
 
-export const walkingQuotes: string[] = [
-  "Walking is the best possible exercise. Habituate yourself to walk very far. \n\n- Thomas Jefferson",
-  "An early-morning walk is a blessing for the whole day. \n\n- Henry David Thoreau",
-  "Walking is man's best medicine. \n\n- Hippocrates",
-  "All truly great thoughts are conceived while walking. \n\n- Friedrich Nietzsche",
-  "The journey of a thousand miles begins with one step. \n\n- Lao Tzu",
-  "I have two doctors, my left leg and my right. \n\n- G.M. Trevelyan",
-  "Everywhere is within walking distance if you have the time. \n\n- Steven Wright",
-  "Walking: the most ancient exercise and still the best modern exercise. \n\n- Carrie Latet",
-  "The best remedy for a short temper is a long walk. \n\n- Jacqueline Schiff",
-  "Walking is a man's best medicine. \n\n- Hippocrates",
-  "Walking is a man's best friend. \n\n- Unknown",
-  "The best way to lengthen out our days is to walk steadily and with a purpose. \n\n- Charles Dickens",
-  "Walking is the perfect way of moving if you want to see into the life of things. \n\n- Elizabeth von Arnim",
-  "A walk in nature walks the soul back home. \n\n- Mary Davis",
-  "Walking is a virtue, tourism is a deadly sin. \n\n- Bruce Chatwin",
-  "The best thoughts most often come while walking. \n\n- Friedrich Nietzsche",
-  "Walking is the exact balance between spirit and humility. \n\n- Gary Snyder",
-  "A walk in the woods is a return to the soul. \n\n- Unknown",
-  "Walking is the ultimate form of transportation. \n\n- Unknown",
+export const walkingQuotes: Quote[] = [
+  {
+    quote: "Walking is the best possible exercise. Habituate yourself to walk very far.",
+    author: "Thomas Jefferson",
+  },
+  {
+    quote: "An early-morning walk is a blessing for the whole day.",
+    author: "Henry David Thoreau",
+  },
+  {
+    quote: "Walking is man's best medicine.",
+    author: "Hippocrates",
+  },
+  {
+    quote: "All truly great thoughts are conceived while walking.",
+    author: "Friedrich Nietzsche",
+  },
+  {
+    quote: "The best remedy for a short temper is a long walk.",
+    author: "Jacqueline Schiff",
+  },
+  {
+    quote: "Walking is a man's best medicine.",
+    author: "Hippocrates",
+  },
+  {
+    quote: "Walking is a man's best friend.",
+    author: "Unknown",
+  },
+  {
+    quote: "The best way to lengthen out our days is to walk steadily and with a purpose.",
+    author: "Charles Dickens",
+  },
+  {
+    quote: "Walking is the perfect way of moving if you want to see into the life of things.",
+    author: "Elizabeth von Arnim",
+  },
+  {
+    quote: "A walk in nature walks the soul back home.",
+    author: "Mary Davis",
+  },
+  {
+    quote: "Walking is a virtue, tourism is a deadly sin.",
+    author: "Bruce Chatwin",
+  },
+  {
+    quote: "The best thoughts most often come while walking.",
+    author: "Friedrich Nietzsche",
+  },
+  {
+    quote: "Walking is the exact balance between spirit and humility.",
+    author: "Gary Snyder",
+  },
+  {
+    quote: "A walk in the woods is a return to the soul.",
+    author: "Unknown",
+  },
+  {
+    quote: "Walking is the ultimate form of transportation.",
+    author: "Unknown",
+  },
 ];
 
 export const enticingImages: string[] = [

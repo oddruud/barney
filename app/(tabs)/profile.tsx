@@ -153,12 +153,16 @@ export default function ProfileScreen() {
         />
       </ThemedView>
 
+      {user.numberOfRatings > 0 && (
       <ThemedView style={styles.ratingContainer}>
         <ThemedText style={styles.label}>Rating</ThemedText>
         <StarRating count={parseInt(user.rating.toFixed(1))} userCount={user.numberOfRatings} size={30} color="#FFD700"  />
       </ThemedView>
+      )}
 
-      <Animated.View style={{ transform: [{ translateY: buttonPosition }] }}>
+      <View style={{ flex: 1 }} />
+
+      <Animated.View style={[styles.buttonContainer, { transform: [{ translateY: buttonPosition }] }]}>
         <Button 
           title="Save Changes" 
           onPress={handleSave}
@@ -277,5 +281,8 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
     borderRadius: 10,
     alignItems: 'center',
+  },
+  buttonContainer: {
+    marginBottom: 180,
   },
 });

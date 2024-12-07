@@ -62,6 +62,7 @@ export default function NewWalkScreen() {
 
   useEffect(() => {
     const fetchUsers = async () => {
+      //naive implementation, todo: use only friends of the user
       const users = await dataProxy.getAllUsers();
       setAllUsers(users);
     };

@@ -32,7 +32,6 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         if (user) {
             const localUserData = LocalUserData.getInstance();
             localUserData.saveUserData(user);
-            console.log('updated user locally', user);
         }
     }, [user]);
 

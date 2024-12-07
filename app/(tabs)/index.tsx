@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { Image, StyleSheet, Platform, View, Animated, TouchableOpacity } from 'react-native';
+import { Image, StyleSheet, View, Animated } from 'react-native';
 
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { PlannedWalk } from '@/types/PlannedWalk';
+import { Quote } from '@/types/Quote';
 import WalkItem from '@/components/WalkItem';
 import { useUser } from '@/contexts/UserContext';
 import { useData } from '@/contexts/DataContext';
@@ -44,12 +45,12 @@ function NextWalkCountdown({ nextWalkTime }: { nextWalkTime: Date | null }) {
 }
 
 function RandomWalkingQuote() {
-  const [quote, setQuote] = useState<string>('');
+  const [quote, setQuote] = useState<Quote>({quote: '', author: ''});
   const { dataProxy } = useData();
   // Fetch the random quote and trigger the fade-in animation
   useEffect(() => {
     const fetchQuote = async () => {
-      const randomQuote = await dataProxy.getRandomWalkingQuote();
+      const randomQuote : Quote = await dataProxy.getRandomWalkingQuote();
       setQuote(randomQuote);
     };
 
@@ -58,7 +59,9 @@ function RandomWalkingQuote() {
 
   return (
     <Animated.View style={[styles.quoteContainer]}>
-      <ThemedText style={styles.quoteText}>{quote}</ThemedText>
+      <ThemedText style={styles.quoteText}>{quote.quote}</ThemedText>
+      <ThemedText></ThemedText>
+      <ThemedText style={styles.quoteText}>-{quote.author}</ThemedText>
     </Animated.View>
   );
 }
@@ -66,7 +69,7 @@ function RandomWalkingQuote() {
 export default function HomeScreen() {
   const { user } = useUser();
   const [nextWalk, setNextWalk] = useState<PlannedWalk | null>(null);
-  const [enticingImage, setEnticingImage] = useState<string>('');
+  //const [enticingImage, setEnticingImage] = useState<string>('');
   const { dataProxy } = useData();
 
   useEffect(() => {
@@ -82,19 +85,21 @@ export default function HomeScreen() {
         const walk = await dataProxy.getNextWalkForUser(user?.id ?? 0);
         setNextWalk(walk);
       };
-  
-      const fetchEnticingImage = async () => {
-        const enticingImage = await dataProxy.getEnticingImage();  
-        setEnticingImage(enticingImage);
-      };
-  
+
       fetchNextWalk();
-      fetchEnticingImage();
+  
+      //const fetchEnticingImage = async () => {
+      //  const enticingImage = await dataProxy.getEnticingImage();  
+      //  setEnticingImage(enticingImage);
+      //};
+  
+
+      //fetchEnticingImage();
 
       return () => {
       
       };
-    }, [nextWalk, enticingImage])
+    }, [])
   );
 
   return (

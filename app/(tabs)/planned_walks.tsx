@@ -28,9 +28,10 @@ export default function PlannedWalks() {
     }, [user?.id])
   );
 
-  const today = new Date().toISOString().split('T')[0];
-  const todaysWalks = plannedWalks.filter(walk => walk.dateTime.split('T')[0] === today);
-  const futureWalks = plannedWalks.filter(walk => new Date(walk.dateTime.split('T')[0]) > new Date(today));
+  const userLocale = navigator.language || 'en-US';
+  const today = new Date().toLocaleDateString(userLocale);
+  const todaysWalks = plannedWalks.filter(walk => new Date(walk.dateTime).toLocaleDateString(userLocale) === today);
+  const futureWalks = plannedWalks.filter(walk => new Date(walk.dateTime) > new Date(today));
 
   return (
     <View style={styles.container}>

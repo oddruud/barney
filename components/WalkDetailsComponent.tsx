@@ -109,12 +109,6 @@ const WalkDetailsComponent: React.FC<WalkDetailsComponentProps> = ({
     setIsAreYouSureModalVisible(false);
   };
 
-  const handleDeclineInvite = async () => {
-    // Logic to handle declining the invite
-    console.log('Invite declined');
-    // You might want to update the state or call a function here
-  };
-
   const requestCalendarPermissions = async () => {
     const { status } = await Calendar.requestCalendarPermissionsAsync();
     return status === 'granted';

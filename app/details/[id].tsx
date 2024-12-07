@@ -44,7 +44,7 @@ export default function WalkDetails() {
     const [activeTab, setActiveTab] = useState('details');
 
   if (!walkDetails) {
-    return <Text> TEST Loading...</Text>;
+    return <Text> Loading...</Text>;
   }
 
   return (

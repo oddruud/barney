@@ -59,6 +59,9 @@ export default function SelectWalkInArea({
   useEffect(() => {
     const fetchWalks = async () => {
       const fetchedWalks = await dataProxy.getPlannedWalks();
+
+      console.log("fetched walks", fetchedWalks.length);
+
       setWalks(fetchedWalks);
     };
 
@@ -112,17 +115,19 @@ export default function SelectWalkInArea({
     return haversineDistance(latitude, longitude, walkLatitude, walkLongitude);
   };
 
-  const filteredWalks = walks.filter(walk => {
+  const filteredWalks = walks;
+  /*walks.filter(walk => {
     const walkDate = new Date(walk.dateTime);
     const distance = calculateDistance(userLocation, walk);
     return (
       walkDate >= new Date() &&
       (!startDate || walkDate >= startDate) &&
       (!endDate || walkDate <= endDate) &&
-      distance <= selectedDistance &&
-      !walk.joinedUserIds.includes(user.id)
+      distance <= selectedDistance
     );
   });
+*/
+  console.log("filtered walks", filteredWalks.length);
 
   return (
     <ThemedView style={styles.container}>
