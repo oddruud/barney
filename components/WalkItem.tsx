@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import { View, Image, Animated } from 'react-native';
 import { Text } from '../components/Themed';
 import { useNavigation } from '@react-navigation/native';
@@ -13,6 +13,7 @@ function WalkItem({ item, showDate }: { item: PlannedWalk, showDate: boolean }) 
   const navigation = useNavigation();
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const scaleAnim = useRef(new Animated.Value(0.8)).current;
+  const [imageLoaded, setImageLoaded] = useState(false);
 
   const isPastWalk = new Date(item.dateTime) < new Date();
 
@@ -44,7 +45,8 @@ function WalkItem({ item, showDate }: { item: PlannedWalk, showDate: boolean }) 
         <View style={styles.walkHeader}>
           <Image
             source={{ uri: item.profileImage }}
-            style={styles.profileImage}
+            style={[styles.profileImage, { opacity: imageLoaded ? 1 : 0 }]}
+            onLoad={() => setImageLoaded(true)}
           />
           <View style={styles.walkInfo}>
             <Text style={styles.date}>

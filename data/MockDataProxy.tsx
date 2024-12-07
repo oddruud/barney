@@ -1,11 +1,11 @@
 import { PlannedWalk } from '../types/PlannedWalk';
 import { UserDetails } from '../types/UserDetails';
 import { ChatMessage } from '../types/ChatMessage';
-import { plannedWalks as dummyPlannedWalks, userDetails as dummyUserDetails, walkingQuotes, chatMessages, enticingImages } from './DummyData';
+import { plannedWalks as dummyPlannedWalks, userDetails as dummyUserDetails, walkingQuotes, chatMessages, enticingImages } from './MockData';
 import { DataProxy } from './DataProxyInterface';
 import { Quote } from '../types/Quote';
 // Implement the DummyDataProxy class
-class DummyDataProxy implements DataProxy {
+class MockDataProxy implements DataProxy {
 
   async initialize(): Promise<void> {
     return new Promise((resolve) => {
@@ -263,6 +263,11 @@ async getRandomWalkingQuote(): Promise<Quote> {
       resolve(enticingImages[randomIndex]);
     });
   }
+  async uploadImage(imageURI: string, onProgress?:((progress:number)=>void)): Promise<string> {
+    return new Promise((resolve) => {
+      resolve(imageURI);
+    });
+  }
 }
 
-export { DummyDataProxy };
+export { MockDataProxy };

@@ -1,5 +1,6 @@
 import { StyleSheet, Image, Platform, Switch, TouchableOpacity, TextInput, Dimensions, Modal, View, ActivityIndicator, Animated } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
+import * as ImageManipulator from 'expo-image-manipulator';
 import { useEffect, useRef } from 'react';
 
 import { ThemedText } from '@/components/ThemedText';
@@ -21,6 +22,7 @@ export default function ProfileScreen() {
   const { user, setUser } = useUser();
   const { dataProxy } = useData();
   const [profileImage, setProfileImage] = useState<string | null>(null);
+  const [newProfileImage, setNewProfileImage] = useState<string | null>(null);
   const [bio, setBio] = useState('');
   const [name, setName] = useState('');
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -69,10 +71,56 @@ export default function ProfileScreen() {
       quality: 1,
     });
 
+    console.log("picked image", result.assets?.[0]?.uri);
+
+    setProfileImage(result.assets?.[0]?.uri ?? null);
+
+    const uri = result.assets?.[0]?.uri;
+    const width = result.assets?.[0]?.width ?? 0;
+    const height = result.assets?.[0]?.height??0;
+
+    if (!uri) return;
+
+    const manipResult = await ImageManipulator.manipulateAsync(
+      uri,
+      [{ resize: { width: width / 4, height: height / 4 } }],
+      { compress: 0.5, format: ImageManipulator.SaveFormat.JPEG }
+    );
+    
+    const resizedUri = manipResult.uri;
+    console.log("resizedUri", resizedUri);
+
     if (!result.canceled) {
-      setProfileImage(result.assets[0].uri);
+      setNewProfileImage(resizedUri);
+      console.log("setting profile image", newProfileImage);
+      setProfileImage(resizedUri);
+      await updateUserProfile(resizedUri);
+    } else {
+      console.log("image picker canceled");
     }
   };
+
+
+  const updateUserProfile = async (newProfileImage: string | null) => {
+    console.log("updating user profile", name, bio, newProfileImage);
+
+    let updatedDetails : UserDetails = user;
+    updatedDetails.fullName = name;
+    updatedDetails.bio = bio ?? '';
+
+    if (newProfileImage) {
+      console.log("uploading image", newProfileImage);
+      updatedDetails.profileImage = await dataProxy.uploadImage(newProfileImage);
+    } else {
+      console.warn("no new profile image to upload");
+    }
+    
+    dataProxy.updateUserProfile(updatedDetails).then(() => {
+      console.log("updated user in firestore", user);
+    });
+
+    setUser(updatedDetails);
+  }
 
   const handleSave = async () => {
 
@@ -80,16 +128,7 @@ export default function ProfileScreen() {
 
     console.log("updating user!", user?.id, name, bio, profileImage);
 
-    let updatedDetails : UserDetails = user;
-    updatedDetails.fullName = name;
-    updatedDetails.bio = bio ?? '';
-    updatedDetails.profileImage = profileImage ?? '';
-    
-    dataProxy.updateUserProfile(user).then(() => {
-      console.log("updated user in firestore", user);
-    });
-
-    setUser(updatedDetails);
+    await updateUserProfile();
     
     setTimeout(() => {
       setIsModalVisible(false);

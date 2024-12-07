@@ -1,5 +1,5 @@
 import { FireStoreDataProxy } from './FireStoreDataProxy';
-import { DummyDataProxy } from './DummyDataProxy';
+import { MockDataProxy } from './MockDataProxy';
 import { DataProxy } from './DataProxyInterface';
 
 class DataProxySingleton {
@@ -7,8 +7,8 @@ class DataProxySingleton {
 
     private constructor() {}
 
-    public static getInstance(useDummyData?: boolean): DataProxy {
-        DataProxySingleton.instance = useDummyData ? new DummyDataProxy() : new FireStoreDataProxy();
+    public static getInstance(useMockData?: boolean): DataProxy {
+        DataProxySingleton.instance = useMockData ? new MockDataProxy() : new FireStoreDataProxy();
         DataProxySingleton.instance.initialize();
         return DataProxySingleton.instance;
     }

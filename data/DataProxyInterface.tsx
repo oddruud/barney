@@ -26,6 +26,8 @@ interface DataProxy {
     getAllUsers(): Promise<UserDetails[]>;
     checkSessionValidity(userId: string): Promise<boolean>;
     getEnticingImage(): Promise<string>;
+    uploadImage(imageURI: string, onProgress?:((progress:number)=>void)): Promise<string>;
+
 }
 
 export { DataProxy };

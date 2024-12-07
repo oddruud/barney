@@ -5,6 +5,8 @@ import { DataProxy } from './DataProxyInterface';
 import {getDocs,collection, doc, getDoc, getFirestore, setDoc, query, where, addDoc} from "firebase/firestore";
 import { firestoreAutoId } from '../utils/IDUtils';
 import { Quote } from '@/types/Quote';
+import { getStorage, ref, uploadBytesResumable, getDownloadURL, UploadMetadata } from "firebase/storage";
+
 class FireStoreDataProxy implements DataProxy {
 
   async initialize(): Promise<void> {
@@ -22,7 +24,18 @@ class FireStoreDataProxy implements DataProxy {
       where("cancelled", "==", false)
     );
     const querySnapshot = await getDocs(q);
-    return querySnapshot.docs.map((doc) => doc.data() as PlannedWalk);
+
+//for each walk, get the userDetails and add it to the walk
+    const walksWithUserDetails = await Promise.all(querySnapshot.docs.map(async (doc) => {
+      const walk = doc.data() as PlannedWalk;
+      const userDetails = await this.getUserDetailsById(walk.userId);
+      walk.fullName = userDetails?.fullName ?? '';
+      walk.username = userDetails?.userName ?? '';
+      walk.profileImage = userDetails?.profileImage ?? '';
+      return walk;
+    }));
+    
+    return walksWithUserDetails;
   }
 
   async getJoinedWalksByUserId(userId: string): Promise<PlannedWalk[]> {
@@ -35,8 +48,18 @@ class FireStoreDataProxy implements DataProxy {
     );
 
     const querySnapshot = await getDocs(q);
-    const plannedWalks = querySnapshot.docs.map((doc) => doc.data() as PlannedWalk);
-    const sorted = plannedWalks.sort((a, b) => new Date(a.dateTime).getTime() - new Date(b.dateTime).getTime());
+
+    const walksWithUserDetails = await Promise.all(querySnapshot.docs.map(async (doc) => {
+      const walk = doc.data() as PlannedWalk;
+      const userDetails = await this.getUserDetailsById(walk.userId);
+      walk.fullName = userDetails?.fullName ?? '';
+      walk.username = userDetails?.userName ?? '';
+      walk.profileImage = userDetails?.profileImage ?? '';
+      return walk;
+    }));
+
+    
+    const sorted = walksWithUserDetails.sort((a, b) => new Date(a.dateTime).getTime() - new Date(b.dateTime).getTime());
     return sorted;
   }
 
@@ -51,7 +74,16 @@ class FireStoreDataProxy implements DataProxy {
     );
 
     const querySnapshot = await getDocs(q);
-    return querySnapshot.docs.map((doc) => doc.data() as PlannedWalk);
+    const walksWithUserDetails = await Promise.all(querySnapshot.docs.map(async (doc) => {
+      const walk = doc.data() as PlannedWalk;
+      const userDetails = await this.getUserDetailsById(walk.userId);
+      walk.fullName = userDetails?.fullName ?? '';
+      walk.username = userDetails?.userName ?? '';
+      walk.profileImage = userDetails?.profileImage ?? '';
+      return walk;
+    }));
+
+    return walksWithUserDetails
   }
 
   async declineInvite(walkId: string, userId: string): Promise<PlannedWalk | null> {
@@ -123,6 +155,14 @@ class FireStoreDataProxy implements DataProxy {
       console.error("Error getting user details", error);
       throw error;
     });
+
+    if (walkData) {
+      const userDetails = await this.getUserDetailsById(walkData.userId);
+      walkData.fullName = userDetails?.fullName ?? '';
+      walkData.username = userDetails?.userName ?? '';
+      walkData.profileImage = userDetails?.profileImage ?? '';
+    }
+
 
     return walkData as PlannedWalk | null;
   }
@@ -268,6 +308,46 @@ class FireStoreDataProxy implements DataProxy {
     walks.sort((a, b) => new Date(a.dateTime).getTime() - new Date(b.dateTime).getTime());
     return walks[0];
   }
+
+  async uploadImage(imageURI: string, onProgress?:((progress:number)=>void)): Promise<string> {
+
+    console.log("uploading image", imageURI);
+
+    return await this.uploadToFirebase(imageURI, firestoreAutoId(), onProgress ?? null).then((result) => {
+      console.log("image uploaded", result.downloadUrl);
+      return result.downloadUrl;
+    });
+  }
+
+async uploadToFirebase(uri:string, name:string, onProgress:((progress:number)=>void)|null): Promise<{downloadUrl:string, metadata:UploadMetadata}> {
+  const fetchResponse = await fetch(uri);
+  const theBlob = await fetchResponse.blob();
+  const imageRef = ref(getStorage(), `images/${name}`);
+  const uploadTask = uploadBytesResumable(imageRef, theBlob);
+
+  return new Promise((resolve, reject) => {
+    uploadTask.on(
+      "state_changed",
+      (snapshot) => {
+        const progress =
+          (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+        onProgress && onProgress(progress);
+      },
+      (error) => {
+        // Handle unsuccessful uploads
+        console.log(error);
+        reject(error);
+      },
+      async () => {
+        const downloadUrl = await getDownloadURL(uploadTask.snapshot.ref);
+        resolve({
+          downloadUrl,
+          metadata: uploadTask.snapshot.metadata,
+        });
+      }
+    );
+  });
+};
 
   async checkSessionValidity(userId: string): Promise<boolean> {
     // TODO: Implement checkSessionValidity
