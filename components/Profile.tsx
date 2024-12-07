@@ -16,12 +16,10 @@ import { useUser } from '@/contexts/UserContext';
 
 interface ProfileProps {
   firstLogin: boolean;
-  onPickImage: () => void;
 }
 
 const Profile: React.FC<ProfileProps> = ({
   firstLogin,
-  onPickImage,
 }) => {
     const [bio, setBio] = useState('');
     const [name, setName] = useState('');
@@ -66,8 +64,6 @@ const Profile: React.FC<ProfileProps> = ({
       }, []);
     
   const pickImage = async () => {
-   // onPickImage();
-
     console.log("picking image");
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
@@ -118,6 +114,15 @@ const Profile: React.FC<ProfileProps> = ({
     await dataProxy.updateUserProfile(updatedDetails).then(() => {
       console.log("updated user in firestore", user);
     });
+  };
+
+
+  const handleContinue = async () => {
+    if (bio.length > 0 && name.length > 0) {
+      handleSave();
+    } else {
+      console.warn("bio or name is empty");
+    }
   };
 
   const handleSave = async () => {
@@ -202,7 +207,7 @@ const Profile: React.FC<ProfileProps> = ({
           {firstLogin ? (
             <Button
               title="Continue"
-              onPress={handleSave} // or another function if needed
+              onPress={handleContinue} // or another function if needed
               style={styles.saveButton}
             />
           ) : (
