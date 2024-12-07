@@ -24,9 +24,8 @@ interface DataProxy {
     joinWalk(walkId: string, userId: string): Promise<PlannedWalk | null>;
     registerUser(uid: string, email: string): Promise<UserDetails | null>;
     getAllUsers(): Promise<UserDetails[]>;
-    checkSessionValidity(userId: string): Promise<boolean>;
-    getEnticingImage(): Promise<string>;
     uploadImage(imageURI: string, onProgress?:((progress:number)=>void)): Promise<string>;
+    addRatingForUser(userId: string, rating: number): Promise<UserDetails | null>;
 
 }
 

@@ -1,6 +1,7 @@
 import { auth } from '@/fireBaseConfig';
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, User } from 'firebase/auth';
 import { Authentication } from './AuthenticationInterface';
+import { AuthenticationError } from './AuthenticationError';
 import { FirebaseError } from 'firebase/app';
 
 
@@ -39,7 +40,7 @@ class FireBaseAuthentication implements Authentication {
         const errorCode = error.code;
         const errorMessage = error.message;
          console.log(errorCode, errorMessage);
-         throw error;
+        throw error;
       });
       
       return userCredential;

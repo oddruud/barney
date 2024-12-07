@@ -251,21 +251,15 @@ async getRandomWalkingQuote(): Promise<Quote> {
     return dummyUserDetails;
   }
 
-  async checkSessionValidity(userId: string): Promise<boolean> {
-    return new Promise((resolve) => {
-      resolve(true);
-    });
-  }
-
-  async getEnticingImage(): Promise<string> {
-    return new Promise((resolve) => {
-      const randomIndex = Math.floor(Math.random() * enticingImages.length);
-      resolve(enticingImages[randomIndex]);
-    });
-  }
   async uploadImage(imageURI: string, onProgress?:((progress:number)=>void)): Promise<string> {
     return new Promise((resolve) => {
       resolve(imageURI);
+    });
+  }
+
+  async addRatingForUser(userId: string, rating: number): Promise<UserDetails | null> {
+    return new Promise((resolve) => {
+      resolve(null);
     });
   }
 }

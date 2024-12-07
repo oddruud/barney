@@ -6,6 +6,7 @@ import { Button } from './Button';
 import StarRating from './StarRating';  // Import the new StarRating component
 import RateUserModal from './modals/RateUserModal';  // Import the new modal component
 import ProfileImage from './ProfileImage';
+import { useData } from '@/contexts/DataContext';
 
 interface AboutComponentProps {
   user: UserDetails;
@@ -16,7 +17,21 @@ const AboutComponent: React.FC<AboutComponentProps> = ({ user }) => {
   const scaleAnim = useRef(new Animated.Value(0)).current; // Initial value for scale: 0
   const buttonAnim = useRef(new Animated.Value(100)).current; // Initial value for button position: 100 (off-screen)
   const [modalVisible, setModalVisible] = useState(false); // State for modal visibility
-  
+  const { dataProxy } = useData();
+  const [rating, setRating] = useState(user.rating);
+  const [numberOfRatings, setNumberOfRatings] = useState(user.numberOfRatings);
+
+  const handleRateUser = async (rating: number) => {
+    setModalVisible(false);
+    console.log("rating:", rating);
+   const updatedUser = await dataProxy.addRatingForUser(user.id, rating);
+   
+   if (updatedUser) {
+      setRating(updatedUser.rating);
+      setNumberOfRatings(updatedUser.numberOfRatings);
+   }
+  }
+
   useEffect(() => {
     Animated.parallel([
       Animated.timing(fadeAnim, {
@@ -45,8 +60,8 @@ const AboutComponent: React.FC<AboutComponentProps> = ({ user }) => {
         <Text style={styles.text}>Active Since: {new Date(user.activeSince).toLocaleDateString()}</Text>
         <Text style={styles.text}>Walks Completed: {user.walksCompleted}</Text>
         <View style={styles.starContainer}>
-        {user.numberOfRatings > 0 && (
-          <StarRating count={parseInt(user.rating.toFixed(1))} userCount={user.numberOfRatings} />
+        {numberOfRatings > 0 && (
+          <StarRating count={parseInt(rating.toFixed(1))} userCount={numberOfRatings} />
         )}
         </View> 
         
@@ -57,11 +72,7 @@ const AboutComponent: React.FC<AboutComponentProps> = ({ user }) => {
         <Button title={`Rate ${user.fullName}`} onPress={() => setModalVisible(true)} style={styles.rateButton} />
       </Animated.View>
 
-      <RateUserModal user={user} visible={modalVisible} onRate={(rating:number) => {
-        setModalVisible(false)
-        console.log(rating)
-        //dataProxy.rateUser(user.id, rating)
-      }} />
+      <RateUserModal user={user} visible={modalVisible} onRate={handleRateUser} />
     </View>
   );
 };

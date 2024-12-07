@@ -19,7 +19,6 @@ const DataContext = createContext<DataContextType | undefined>(undefined);
 // Create the provider component
 export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     const useDummyData = (Constants.expoConfig as CustomExpoConfig)?.useDummyData || false;
-    console.log('using dummy data:', useDummyData);
     const dataProxy = DataProxySingleton.getInstance(useDummyData);
 
     return (

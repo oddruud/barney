@@ -353,16 +353,23 @@ async uploadToFirebase(uri:string, name:string, onProgress:((progress:number)=>v
       }
     );
   });
-};
+}
 
-  async checkSessionValidity(userId: string): Promise<boolean> {
-    // TODO: Implement checkSessionValidity
-    return false;
-  }
+  async addRatingForUser(userId: string, rating: number): Promise<UserDetails | null> {
+    const db = getFirestore();
+    const userRef = doc(db, "users", userId);
+    let userData = await getDoc(userRef).then((docSnap) => {
+      const user = docSnap.data() as UserDetails | null;
+      return user;
+    });
 
-  async getEnticingImage(): Promise<string> {
-    // TODO: Implement getEnticingImage
-    return '';
+    if (userData) {
+      userData.rating = (userData.rating * userData.numberOfRatings + rating) / (userData.numberOfRatings + 1);
+      userData.numberOfRatings += 1;
+      await this.updateUserProfile(userData);
+    }
+
+    return userData;
   }
 
 

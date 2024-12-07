@@ -6,10 +6,10 @@ import { router } from 'expo-router';
 import { useUser } from '@/contexts/UserContext';
 import { authentication } from '@/data/authentication/Authentication';
 import { getAuth, onAuthStateChanged, User, GoogleAuthProvider, signInWithPopup } from "firebase/auth";
-import { FirebaseError } from 'firebase/app';
 import { useEnvironment } from '@/contexts/EnvironmentContext';
 import { useData } from '@/contexts/DataContext';
 import * as Linking from 'expo-linking';
+import { FirebaseError } from 'firebase/app';
 
 
 function sleep(ms: number) {
@@ -18,14 +18,12 @@ function sleep(ms: number) {
 
 export default function LoginScreen() {
     const { setUser } = useUser();
-    const { environment } = useEnvironment();
     const { dataProxy } = useData();
     const [isLoggingIn, setIsLoggingIn] = useState(false);
     const [email, setEmail] = useState('yelp@yolo.com');
     const [password, setPassword] = useState('testtest');
     const [errorMessage, setErrorMessage] = useState('');
     const [showLoginForm, setShowLoginForm] = useState(false);
-    const [counter, setCounter] = useState(0);
 
     const videoSource = 'https://roboruud.nl/walk.mp4';    
     const fadeAnim = useRef(new Animated.Value(0)).current; // Initial opacity value of 0
@@ -53,6 +51,7 @@ export default function LoginScreen() {
     useEffect(() => {
         const auth = getAuth();
 
+        //todo make this a hook
         onAuthStateChanged(auth, (user) => {
           if (user) {
             console.log("user signed in", user.uid);
@@ -84,8 +83,7 @@ export default function LoginScreen() {
             console.log("user is null");
         }
     }).catch((error) => {
-        setErrorMessage(error.message);
-        console.error("Sign up error:", error);
+        setErrorMessage(parseError(error));
     });
     }
 
@@ -101,9 +99,36 @@ export default function LoginScreen() {
                 setErrorMessage("User is null");
             }
         }).catch((error) => {
-            setErrorMessage(error.message);
-            console.error("Login error:", error);
+            setErrorMessage(parseError(error));
         });
+    }
+
+    const parseError = (error: FirebaseError): string => {
+        if (error.code === 'auth/invalid-email') {
+            return 'Invalid email address';
+        }
+        if (error.code === 'auth/wrong-password') {
+            return 'Wrong password';
+        }
+
+        if (error.code === 'auth/missing-password') {
+            return 'Please enter a password';
+        }
+
+        if (error.code === 'auth/user-not-found') {
+            return 'User not found';
+        }
+        if (error.code === 'auth/email-already-in-use') {
+            return 'Email already in use';
+        }
+        if (error.code === 'auth/weak-password') {
+            return 'Weak password';
+        }
+        if (error.code === 'auth/invalid-credential') {
+            return 'username and/or password incorrect';
+        }
+
+        return error.code;
     }
 
 
@@ -275,6 +300,9 @@ const styles = StyleSheet.create({
     loginButtonContainer: {
       position: 'absolute',
       bottom: 40,
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
     },
     title: {
       position: 'absolute',
@@ -295,7 +323,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'center',
         alignItems: 'center',
-        marginTop: 20,
+        bottom: -30,
     },
     inputContainer: {
         marginBottom: 30,

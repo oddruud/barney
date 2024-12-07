@@ -56,7 +56,7 @@ const WalkDetailsModal: React.FC<WalkDetailsModalProps> = ({ visible, walk, onCl
               source={{ uri: walk?.profileImage }}
               style={styles.profileImage}
             />
-            <ThemedText>with {walk?.username}</ThemedText>
+            <ThemedText>with {walk?.fullName}</ThemedText>
           </View>
           <View style={styles.buttonRow}>
             <Button
