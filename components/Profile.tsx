@@ -23,6 +23,7 @@ const Profile: React.FC<ProfileProps> = ({
 }) => {
     const [bio, setBio] = useState('');
     const [name, setName] = useState('');
+    const [warning, setWarning] = useState('');
     const { user, setUser } = useUser();
     const [profileImage, setProfileImage] = useState<string | null>(null);
     const [newProfileImage, setNewProfileImage] = useState<string | null>(null);
@@ -122,6 +123,7 @@ const Profile: React.FC<ProfileProps> = ({
       handleSave();
     } else {
       console.warn("bio or name is empty");
+      setWarning("Please enter your name and bio");
     }
   };
 
@@ -193,6 +195,12 @@ const Profile: React.FC<ProfileProps> = ({
             placeholderTextColor="#808080"
           />
         </ThemedView>
+
+        {warning.length > 0 && (
+          <ThemedView style={styles.warningContainer}>
+            <ThemedText style={styles.warning}>{warning}</ThemedText>
+          </ThemedView>
+        )}
 
         {user.numberOfRatings > 0 && (
           <ThemedView style={styles.ratingContainer}>
@@ -339,6 +347,14 @@ const styles = StyleSheet.create({
     },
     buttonContainer: {
       marginBottom: 180,
+    },
+    warningContainer: {
+      marginVertical: 20,
+      alignItems: 'center',
+      backgroundColor: '#e9eae4',
+    },
+    warning: {
+      color: '#f44336',
     },
   });
   
