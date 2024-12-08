@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { View, Image, StyleSheet, Animated, Modal, TouchableOpacity } from 'react-native';
+import { View, StyleSheet, Animated, Modal } from 'react-native';
 import { Text } from '../components/Themed';
 import { UserDetails } from '../types/UserDetails';
 import { Button } from './Button';
@@ -23,7 +23,6 @@ const AboutComponent: React.FC<AboutComponentProps> = ({ user }) => {
 
   const handleRateUser = async (rating: number) => {
     setModalVisible(false);
-    console.log("rating:", rating);
    const updatedUser = await dataProxy.addRatingForUser(user.id, rating);
    
    if (updatedUser) {

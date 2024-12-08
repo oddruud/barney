@@ -2,7 +2,7 @@ import { PlannedWalk } from '../types/PlannedWalk';
 import { UserDetails } from '../types/UserDetails';
 import { ChatMessage } from '../types/ChatMessage';
 import { DataProxy } from './DataProxyInterface';
-import {getDocs,collection, doc, getDoc, getFirestore, setDoc, query, where, addDoc} from "firebase/firestore";
+import {getDocs,collection, doc, getDoc, getFirestore, setDoc, query, where} from "firebase/firestore";
 import { getRandomId } from '../utils/IDUtils';
 import { Quote } from '@/types/Quote';
 import { getStorage, ref, uploadBytesResumable, getDownloadURL, UploadMetadata } from "firebase/storage";
@@ -64,7 +64,6 @@ class FireStoreDataProxy implements DataProxy {
   }
 
   async getInvitedPlannedWalksByUserId(userId: string): Promise<PlannedWalk[]> {
-    console.log("Getting invited walks by user id", userId);
     const db = getFirestore();
     const collectionRef = collection(db, "walks");
     const q = query(
@@ -87,7 +86,6 @@ class FireStoreDataProxy implements DataProxy {
   }
 
   async declineInvite(walkId: string, userId: string): Promise<PlannedWalk | null> {
-    console.log("declining walk", walkId);
     const db = getFirestore();
 
     const walk = await this.getPlannedWalk(walkId);
@@ -95,7 +93,6 @@ class FireStoreDataProxy implements DataProxy {
     if (walk) {
       walk.invitedUserIds = walk.invitedUserIds.filter(id => id !== userId);
       await this.updatePlannedWalk(walkId, walk);
-      console.log("declined walk", walkId);
     }
 
     return walk;
@@ -105,20 +102,15 @@ class FireStoreDataProxy implements DataProxy {
     const db = getFirestore();
     const docRef = doc(db, "walks", id);
     await setDoc(docRef, updatedWalk).then(()=>{
-      console.log("updated walk", updatedWalk);
     });
   }
 
   async cancelPlannedWalk(id: string): Promise<void> {
-    console.log("Cancelling walk", id);
-
     const db = getFirestore();
-
     const walk = await this.getPlannedWalk(id);
     if (walk) {
       walk.cancelled = true;
       await this.updatePlannedWalk(id, walk);
-      console.log("Walk cancelled", id);
     }
   }
 
@@ -195,7 +187,6 @@ class FireStoreDataProxy implements DataProxy {
     const walkId = getRandomId();
     const walkWithId = {...walk, id: walkId};
     await setDoc(doc(db, "walks", walkWithId.id), walkWithId).then(() => {  
-      console.log("walk created", walkWithId.id);
       return walkWithId.id;
     }).catch((error) => {
       console.error("Error creating walk", error);
@@ -208,7 +199,6 @@ class FireStoreDataProxy implements DataProxy {
   async updateUserProfile(userDetails: UserDetails): Promise<void> {
     const db = getFirestore();
     await setDoc(doc(db, "users", userDetails.id), userDetails).then(async () => {
-      console.log("User profile updated");
     }).catch((error) => {
       console.error("Error updating user profile", error);
       throw error;
@@ -316,11 +306,7 @@ class FireStoreDataProxy implements DataProxy {
   }
 
   async uploadImage(imageURI: string, onProgress?:((progress:number)=>void)): Promise<string> {
-
-    console.log("uploading image", imageURI);
-
     return await this.uploadToFirebase(imageURI, getRandomId(), onProgress ?? null).then((result) => {
-      console.log("image uploaded", result.downloadUrl);
       return result.downloadUrl;
     });
   }
@@ -354,7 +340,6 @@ async uploadToFirebase(uri:string, name:string, onProgress:((progress:number)=>v
     );
   });
 }
-
   async addRatingForUser(userId: string, rating: number): Promise<UserDetails | null> {
     const db = getFirestore();
     const userRef = doc(db, "users", userId);

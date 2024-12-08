@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { View, FlatList, TextInput, Button, StyleSheet, Animated, Image, Easing } from 'react-native';
+import { View, FlatList, TextInput, Button, StyleSheet, Animated } from 'react-native';
 import { ChatMessage } from '../types/ChatMessage';
 import ChatMessageItem from './ChatMessageItem';
 import { UserDetails } from '../types/UserDetails';

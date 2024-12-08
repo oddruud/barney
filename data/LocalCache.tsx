@@ -1,6 +1,6 @@
 import * as FileSystem from 'expo-file-system';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { getRandomId} from '@/utils/IDUtils';
+import {getRandomId} from '@/utils/IDUtils';
 
 class LocalCache{
     private static instance: LocalCache;
