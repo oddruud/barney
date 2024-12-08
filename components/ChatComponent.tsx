@@ -40,16 +40,6 @@ export default function ChatComponent({walkId, user }: ChatComponentProps) {
     // Poll for new messages every second
     const intervalId = setInterval(async () => {
       await pollForNewMessages();
-      /*
-        setMessages(prevMessages => {
-          const newUniqueMessages = newMessages.filter(
-            newMsg => !prevMessages.some(prevMsg => prevMsg.id === newMsg.id)
-          );
-          setMessageCount(prevMessages.length + newUniqueMessages.length);
-          
-          return [...prevMessages, ...newUniqueMessages];
-        });
-      */
     }, 1000);
 
     // Cleanup interval on component unmount
@@ -63,40 +53,6 @@ export default function ChatComponent({walkId, user }: ChatComponentProps) {
       useNativeDriver: true, // Use native driver for better performance
     }).start();
   }, [messages]); // Re-run the animation when messages change
-
-  function simulateBotResponse(walkId: string) {
-    // Array of possible bot responses
-    const botResponses = [
-      "Thanks for your message!",
-      "I'll get back to you soon.",
-      "How can I assist you further?",
-      "Your message has been received.",
-      "Thank you for reaching out!"
-    ];
-
-    // Select a random message from the array
-    const randomResponse = botResponses[Math.floor(Math.random() * botResponses.length)];
-
-    // Simulate a bot response
-    setTimeout(() => {
-      const botResponse: ChatMessage = {
-        id: (Date.now() + 1).toString(),
-        timestamp: new Date().toISOString(),
-        userName: 'John Doe',
-        message: randomResponse, // Use the random message
-        walkId: walkId,
-        userId: 10,
-        newMessage: true,
-      };
-
-      dataProxy.addChatMessage(botResponse).then(() => {
-        console.log('bot response sent successfully');
-      }).catch(error => {
-        console.error('Error sending message:', error);
-      });
-
-    }, 1000); // Respond after 1 second
-  }
 
   async function pollForNewMessages() {
     await dataProxy.getChatMessagesForWalk(walkId).then(newMessages => {
@@ -138,28 +94,20 @@ export default function ChatComponent({walkId, user }: ChatComponentProps) {
       const newMessage: ChatMessage = {
         id: '',
         timestamp: new Date().toISOString(),
-        userName: user?.fullName ?? 'You',
+        userName: user?.fullName || '',
         message: inputText,
         walkId: walkId,
-        userId: user?.id ?? '',
+        userId: user?.id || '',
         newMessage: true,
       };
      
       setInputText('');
 
-      // Send the message to the dataProxy
       await dataProxy.addChatMessage(newMessage).then(() => {
-        console.log('Message sent successfully');
       }).catch(error => {
-        console.error('Error sending message:', error);
       });
 
       await pollForNewMessages();
-
-      // Call the function to simulate a bot response
-      //if (environment === Environment.Development) {
-      //  simulateBotResponse(walkId);
-      //}
     }
   };
 

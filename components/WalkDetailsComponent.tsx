@@ -1,5 +1,5 @@
 import React, { useRef, useEffect, useState } from 'react';
-import { View, Image, StyleSheet, TouchableOpacity, Animated, ScrollView, Linking, Platform, Modal } from 'react-native';
+import { View, Image, StyleSheet, TouchableOpacity, Animated, ScrollView, Linking, Platform, Modal, Share } from 'react-native';
 import { Text } from '../components/Themed';
 import { Map } from '../components/Map';
 import { Button } from '../components/Button';
@@ -156,6 +156,25 @@ const WalkDetailsComponent: React.FC<WalkDetailsComponentProps> = ({
     setIsCalendarButtonPressed(true);
   };
 
+  const handleSharePress = async () => {
+    try {
+      const result = await Share.share({
+        message: `Join me for a walk at ${walkDetails.location} on ${formattedDate} at ${new Date(walkDetails.dateTime).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })}.`,
+      });
+      if (result.action === Share.sharedAction) {
+        if (result.activityType) {
+          // shared with activity type of result.activityType
+        } else {
+          // shared
+        }
+      } else if (result.action === Share.dismissedAction) {
+        // dismissed
+      }
+    } catch (error) {
+      console.error('An error occurred while sharing', error);
+    }
+  };
+
   return (
     <Animated.View style={{ flex: 1, opacity: fadeAnim }}>
       <ScrollView>
@@ -176,8 +195,12 @@ const WalkDetailsComponent: React.FC<WalkDetailsComponentProps> = ({
             <TouchableOpacity onPress={onProfileImagePress}>
               <ProfileImage uri={walkDetails.profileImage} style={styles.profileImageSmall} />
             </TouchableOpacity>
-            <Text style={styles.hostText}>With {walkDetails.fullName}</Text>
-            {isOrganizer && <Text style={styles.organizerText}>(You)</Text>}
+            <Text style={styles.hostText}>
+              {isOrganizer ? "Organized by you" : `With ${walkDetails.fullName}`}
+            </Text>
+            <TouchableOpacity onPress={handleSharePress} style={styles.shareButton}>
+              <Image source={require('../assets/images/share.png')} style={styles.shareImage} />
+            </TouchableOpacity>
           </Animated.View>
           <Map
             initialRegion={{
@@ -371,6 +394,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 8,
   },
+  iconContainer: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+  },
   icon: {
     marginRight: 4,
   },
@@ -465,6 +492,13 @@ const styles = StyleSheet.create({
   cancelledMessageText: {
     fontSize: 18,
     color: '#ff0000',
+  },
+  shareButton: {
+    marginLeft: 56,
+  },
+  shareImage: {
+    width: 24,
+    height: 24,
   },
 });
 

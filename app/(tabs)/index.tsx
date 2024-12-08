@@ -178,7 +178,7 @@ const styles = StyleSheet.create({
   },
   quoteContainer: {
     padding: 16,
-    marginVertical: -16,
+    marginVertical: -60,
     zIndex: 100,
   },
   quoteText: {
@@ -214,7 +214,7 @@ const styles = StyleSheet.create({
     width: '45%',
     alignSelf: 'center',
     height: 50,
-    marginTop: 32,
+    marginTop: 64,
   },
   buttonText: {
     fontFamily: 'SpaceMono',

@@ -34,7 +34,7 @@ export const EnvironmentProvider: React.FC<{ children: ReactNode }> = ({ childre
     return (
         <EnvironmentContext.Provider value={{ environment, setEnvironment, version: appVersion }}>
             {children}
-            {environment === Environment.Development && (
+            {environment === Environment.Development && false && (
                 <Text style={{
                     position: 'absolute',
                     bottom: 10,

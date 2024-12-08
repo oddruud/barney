@@ -18,7 +18,6 @@ class LocalCache{
        const localCachedFilePath =  await this.getCacheItem(url);
 
        if (localCachedFilePath) {
-            console.log("cached file found:", localCachedFilePath);
             return localCachedFilePath;
        }else {
           this.download(url);

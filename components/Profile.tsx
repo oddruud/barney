@@ -65,7 +65,6 @@ const Profile: React.FC<ProfileProps> = ({
       }, []);
     
   const pickImage = async () => {
-    console.log("picking image");
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
@@ -94,8 +93,6 @@ const Profile: React.FC<ProfileProps> = ({
       setProfileImage(resizedUri);
       await updateUserProfile(resizedUri);
       setNewProfileImage(null);
-    } else {
-      console.log("image picker canceled");
     }
   };
 
@@ -113,7 +110,7 @@ const Profile: React.FC<ProfileProps> = ({
     }
 
     await dataProxy.updateUserProfile(updatedDetails).then(() => {
-      console.log("updated user in firestore", user);
+     
     });
   };
 

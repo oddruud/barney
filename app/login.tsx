@@ -44,11 +44,6 @@ export default function LoginScreen() {
         }).start();
     }, [fadeAnim, buttonFadeAnim]);
 
-
-    useEffect(() => {
-        console.log("errorMessage", errorMessage);
-    }, [errorMessage]);
-
     useEffect(() => {
         const auth = getAuth();
 
@@ -66,9 +61,7 @@ export default function LoginScreen() {
                 }
             });
           }
-          else {
-            console.log("LOGIN SCREEN: user not signed in");
-          }
+          
 
         });
     }, []);
@@ -78,14 +71,11 @@ export default function LoginScreen() {
        await authentication.signUpWithEmailAndPassword(email, password).then((user) => {
         if (user) {
             const email = user.email ?? '';
-            console.log("registering user", user.uid, email);
             dataProxy.registerUser(user.uid, email).then(() => {
-                console.log("user registered");
+                setErrorMessage('User registered successfully');
             }).catch((error) => {
                 console.error("Error registering user", error);
             });
-        }else{
-            console.log("user is null");
         }
     }).catch((error) => {
         setErrorMessage(parseError(error));
@@ -95,13 +85,10 @@ export default function LoginScreen() {
     const handleLoginPress = async () => {
         setErrorMessage('');
         authentication.loginWithEmailAndPassword(email, password).then((user) => {
-            console.log("login success");
             if (user) {
                 loadUserDetails(user.uid).then(() => {
                     router.replace("/(tabs)");
                 });
-            } else {
-                setErrorMessage("User is null");
             }
         }).catch((error) => {
             setErrorMessage(parseError(error));

@@ -6,6 +6,7 @@ import { Text } from '@/components/Themed';
 import { Button } from '@/components/Button';
 import { IconSymbol } from '@/components/ui/IconSymbol';
 import { PlannedWalk } from '@/types/PlannedWalk';
+import ProfileImage from '../ProfileImage';
 
 interface WalkDetailsModalProps {
   visible: boolean;
@@ -52,8 +53,8 @@ const WalkDetailsModal: React.FC<WalkDetailsModalProps> = ({ visible, walk, onCl
             <ThemedText>{walk?.joinedUserIds.length} / {walk?.maxParticipants}</ThemedText>
           </View>
           <View style={styles.userInfoContainer}>
-            <Image
-              source={{ uri: walk?.profileImage }}
+            <ProfileImage
+              uri ={walk?.profileImage ?? ''}
               style={styles.profileImage}
             />
             <ThemedText>with {walk?.fullName}</ThemedText>

@@ -29,9 +29,11 @@ export default function PlannedWalks() {
   );
 
   const userLocale = navigator.language || 'en-US';
-  const today = new Date().toLocaleDateString(userLocale);
-  const todaysWalks = plannedWalks.filter(walk => new Date(walk.dateTime).toLocaleDateString(userLocale) === today);
-  const futureWalks = plannedWalks.filter(walk => new Date(walk.dateTime) > new Date(today));
+  const today = new Date();
+  const todaysWalks = plannedWalks.filter(walk => new Date(walk.dateTime).toLocaleDateString(userLocale) === today.toLocaleDateString(userLocale));
+  const tomorrow = new Date(today);
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  const futureWalks = plannedWalks.filter(walk => new Date(walk.dateTime) >= tomorrow);
 
   return (
     <View style={styles.container}>
