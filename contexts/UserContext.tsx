@@ -15,14 +15,14 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     const {dataProxy} = useData();
 
     const defaultUser: UserDetails = { 
-        id: "0",
-        email: "dummy@user.com",
-        userName: "Dummy User",
-        activeSince: "2024-01-01",
-        fullName: "Dummy User",
-        bio: "Dummy User",
-        rating: 4.5,
-        numberOfRatings: 10,
+        id: "",
+        email: "",
+        userName: "",
+        activeSince: "",
+        fullName: "",
+        bio: "",
+        rating: 0,
+        numberOfRatings: 0,
         profileImage: "",
         walksCompleted: 0
      };

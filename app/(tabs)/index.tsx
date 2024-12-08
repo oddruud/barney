@@ -164,8 +164,8 @@ const styles = StyleSheet.create({
     position: 'absolute',
   },
   image: {
-    width: 300,
-    height: 300,
+    width: 150,
+    height: 150,
     marginBottom: 16,
     zIndex: 1,
   },
@@ -178,13 +178,13 @@ const styles = StyleSheet.create({
   },
   quoteContainer: {
     padding: 16,
-    marginVertical: -60,
+    marginVertical: -40,
     zIndex: 100,
   },
   quoteText: {
     fontFamily: 'Voltaire-Frangela',
-    fontSize: 24,
-    color: '#000000',
+    fontSize: 18,
+    color: 'gray',
 
   },
   nextWalkText: {

@@ -1,10 +1,12 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { View, FlatList, TextInput, Button, StyleSheet, Animated } from 'react-native';
+import { View, FlatList, TextInput, Button, StyleSheet, Animated, TouchableOpacity, TouchableWithoutFeedback, Keyboard, Platform, KeyboardAvoidingView } from 'react-native';
 import { ChatMessage } from '../types/ChatMessage';
 import ChatMessageItem from './ChatMessageItem';
 import { UserDetails } from '../types/UserDetails';
 import { Text } from './Themed';
 import { useData } from '@/contexts/DataContext';
+import AudioRecorderPlayer from 'react-native-audio-recorder-player';
+import { IconSymbol } from '../components/ui/IconSymbol';
 
 
 type ChatComponentProps = {
@@ -20,7 +22,9 @@ export default function ChatComponent({chatId, user }: ChatComponentProps) {
   const flatListRef = useRef<FlatList>(null);
   const fadeAnim = useRef(new Animated.Value(0)).current; // Initial opacity value of 0
   const [isUserScrolling, setIsUserScrolling] = useState(false);
-
+  const audioRecorderPlayer = useRef(new AudioRecorderPlayer()).current;
+  const [isRecording, setIsRecording] = useState(false);
+  const [isVoiceRecordingEnabled, setIsVoiceRecordingEnabled] = useState(false);
   useEffect(() => {
     // Load initial messages from dataProxy
     dataProxy.getChatMessages(chatId).then(initialMessages => {
@@ -123,7 +127,35 @@ export default function ChatComponent({chatId, user }: ChatComponentProps) {
     }
   }, [messages, messageCount]);
 
+  const startRecording = async () => {
+    try {
+      const result = await audioRecorderPlayer.startRecorder();
+      setIsRecording(true);
+      console.log('Recording started:', result);
+    } catch (error) {
+      console.error('Failed to start recording:', error);
+    }
+  };
+
+  const stopRecording = async () => {
+    try {
+      const result = await audioRecorderPlayer.stopRecorder();
+      setIsRecording(false);
+      console.log('Recording stopped:', result);
+
+      // Play the recorded audio file
+      await audioRecorderPlayer.startPlayer(result);
+      console.log('Playing recording:', result);
+    } catch (error) {
+      console.error('Failed to stop recording or play audio:', error);
+    }
+  };
+
   return (
+    <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} 
+    style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }
+    }>
+  <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
     <View style={styles.chatContainer}>
       <View style={styles.messagesContainer}>
         <FlatList
@@ -136,14 +168,28 @@ export default function ChatComponent({chatId, user }: ChatComponentProps) {
           onMomentumScrollEnd={handleScrollEnd}
         />
       </View>
-      <TextInput
-        style={styles.input}
-        value={inputText}
-        onChangeText={setInputText}
-        placeholder="Type a message"
-      />
-      <Button title="Send" onPress={handleSend} />
+
+      <View style={styles.inputContainer}>
+        <TextInput
+          style={styles.input}
+          value={inputText}
+          onChangeText={setInputText}
+          placeholder="Type a message"
+        />
+        <TouchableOpacity onPress={handleSend}>
+          <IconSymbol name="paperplane.fill" size={40} color="white" style={styles.messageIcon} />
+        </TouchableOpacity>
+      </View>
+
+      {isVoiceRecordingEnabled && (
+        <Button
+          title={isRecording ? "Stop Recording" : "Start Recording"}
+          onPress={isRecording ? stopRecording : startRecording}
+        />
+      )}
     </View>
+    </TouchableWithoutFeedback>
+    </KeyboardAvoidingView>
   );
 }
 
@@ -168,6 +214,8 @@ const styles = StyleSheet.create({
     marginBottom: 8,
     borderRadius: 20,
     backgroundColor: '#ffffff',
+    width: '80%',
+    marginRight: 10,
   },
   localUserMessage: {
     backgroundColor: '#b2dfdb',
@@ -189,5 +237,16 @@ const styles = StyleSheet.create({
     color: '#00796b',
     fontSize: 16,
     fontWeight: 'bold',
+  },
+  inputContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  messageIcon: {
+    marginLeft: 10,
+    backgroundColor: '#00796b',
+    padding: 20,
+    borderRadius: 20,
+    marginBottom: 10,
   },
 });

@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "barney",
-    "slug": "barney",
+    "name": "Let's Walk",
+    "slug": "letswalk",
     "version": "0.7",
     "environment": "development",
     "useDummyData": false,
@@ -12,7 +12,7 @@
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.roboruud.barney"
+      "bundleIdentifier": "com.roboruud.letswalk"
     },
     "android": {
       "adaptiveIcon": {

@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { View, StyleSheet, Animated, Dimensions, Image, TextInput, Text, TouchableOpacity} from 'react-native';
+import { View, StyleSheet, Animated, Dimensions, Image, TextInput, Text, TouchableOpacity,KeyboardAvoidingView,Keyboard, Platform, TouchableWithoutFeedback,} from 'react-native';
 import { Video, ResizeMode } from 'expo-av';
 import { Button } from '@/components/Button';
 import { router } from 'expo-router';
@@ -202,6 +202,13 @@ export default function LoginScreen() {
                 />
             )}
             {!isLoggingIn && (
+                <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} 
+                style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }
+                }>
+                <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+                  <>  
+            <Animated.Text style={[styles.title, { opacity: fadeAnim, fontSize: scaledFontSize }]}>
+            </Animated.Text>
                 <Animated.View style={[styles.loginButtonContainer, { opacity: buttonFadeAnim }]}>
                     {!showLoginForm ? (
                         <>
@@ -252,11 +259,10 @@ export default function LoginScreen() {
                         </View>
                     )}
                 </Animated.View>
+                </>
+                </TouchableWithoutFeedback>
+                </KeyboardAvoidingView>
             )}
-      
-            <Animated.Text style={[styles.title, { opacity: fadeAnim, fontSize: scaledFontSize }]}>
-                Let's Walk
-            </Animated.Text>
         </View>
         </>
     );
@@ -279,7 +285,7 @@ const styles = StyleSheet.create({
       alignSelf: 'center',
       bottom: 10,
       opacity: 0.7,
-      backgroundColor: '#000000',
+      backgroundColor: 'rgba(0, 0, 0, 0.8)',
       padding: 10,
       borderRadius: 10,
       width: '40%',
@@ -287,25 +293,26 @@ const styles = StyleSheet.create({
     },
     openButton: {
         alignSelf: 'center',
-        backgroundColor: '#000000',
+        backgroundColor: 'rgba(0, 0, 0, 0.8)',
         padding: 10,
         borderRadius: 10,
         marginHorizontal: 10,
     },
     loginButtonContainer: {
-      position: 'absolute',
-      bottom: 40,
       flex: 1,
       justifyContent: 'center',
       alignItems: 'center',
+      padding: 24,
+      marginTop: 280,
     },
     title: {
-      position: 'absolute',
-      top: 290,
       alignSelf: 'center',
       fontFamily: 'Voltaire-Frangela',
       fontSize: 42,
       color: 'white',
+      marginBottom: 20,
+      position: 'absolute',
+      top: 140,
     },
     loadingImage: {
         position: 'absolute',
@@ -337,9 +344,8 @@ const styles = StyleSheet.create({
     },
     errorText: {
         color: 'red',
-        marginBottom: 10,
         textAlign: 'center',
-        backgroundColor: 'black',
+        backgroundColor: 'rgba(0, 0, 0, 0.5)',
         padding: 10,
         borderRadius: 5,
     },

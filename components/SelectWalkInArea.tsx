@@ -3,7 +3,7 @@ import { StyleSheet, Platform, Animated, View, Modal } from 'react-native';
 import { ThemedView } from '@/components/ThemedView';
 import { ThemedText } from '@/components/ThemedText';
 import { Map } from '@/components/Map';
-import { router } from 'expo-router';
+import { router, useFocusEffect } from 'expo-router';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import * as Location from 'expo-location';
 import { PlannedWalk } from '@/types/PlannedWalk';
@@ -13,6 +13,9 @@ import { useUser } from '@/contexts/UserContext';
 import { haversineDistance } from '@/utils/geoUtils';
 import WalkDetailsModal from '@/components/modals/WalkDetailsModal';
 import { useData } from '@/contexts/DataContext';
+import { WalkWithDistance } from '@/types/WalkWithDistance';
+import WalkSelect from '@/components/WalkSelect';
+
 export default function SelectWalkInArea({
   minSearchRadius = 1,
   maxSearchRadius = 50,
@@ -27,6 +30,8 @@ export default function SelectWalkInArea({
   const [endDate, setEndDate] = useState<Date | null>(initialEndDate);
   const [fadeAnim] = useState(new Animated.Value(0));
   const [walks, setWalks] = useState<PlannedWalk[]>([]);
+  const [filteredWalks, setFilteredWalks] = useState<PlannedWalk[]>([]);
+  const [walksSortedByDistance, setWalksSortedByDistance] = useState<WalkWithDistance[]>([]);
   const [selectedDistance, setSelectedDistance] = useState<number>(10);
   const [mapRegion, setMapRegion] = useState({
     latitude: 41.1579,
@@ -64,6 +69,53 @@ export default function SelectWalkInArea({
 
     fetchWalks();
   }, []);
+
+    // Reset state variables to their initial values
+    useFocusEffect(
+      React.useCallback(() => {
+        
+        const fetchWalks = async () => {
+          const fetchedWalks = await dataProxy.getPlannedWalks();
+          setWalks(fetchedWalks);
+        };
+    
+        fetchWalks();
+  
+        return () => {
+        
+        };
+      }, [])
+    );
+
+    useEffect(() => {
+
+      const walksWithDistance: WalkWithDistance[] = [];
+      if (walks.length > 0) {
+        const sortedByDistance = filteredWalks.sort((a, b) => calculateDistance(userLocation, a) - calculateDistance(userLocation, b));
+        sortedByDistance.forEach(walk => {
+          const distance = calculateDistance(userLocation, walk);
+          walksWithDistance.push({...walk, distance});
+        });
+
+        setWalksSortedByDistance(walksWithDistance);
+      }
+    }, [filteredWalks]);
+
+    useEffect(() => {
+      const filtered = filterWalks();
+      setFilteredWalks(filtered);
+    }, [walks, startDate, endDate, selectedDistance]);
+
+  const handleWalkSelect = (walk: WalkWithDistance) => {
+    if (walk){
+      setMapRegion({
+        latitude: walk.latitude,
+        longitude: walk.longitude,
+        latitudeDelta: 0.0922/4,
+        longitudeDelta: 0.0421/4,
+      });
+    }
+  };
 
   useEffect(() => {
     if (selectedWalk) {
@@ -112,16 +164,19 @@ export default function SelectWalkInArea({
     return haversineDistance(latitude, longitude, walkLatitude, walkLongitude);
   };
 
-  const filteredWalks = walks.filter(walk => {
-    const walkDate = new Date(walk.dateTime);
-    const distance = calculateDistance(userLocation, walk);
-    return (
-      walkDate >= new Date() &&
-      (!startDate || walkDate >= startDate) &&
-      (!endDate || walkDate <= endDate) &&
-      distance <= selectedDistance
-    );
-  });
+  const filterWalks = () : PlannedWalk[] => {
+    let filtered = walks.filter(walk => {
+      const walkDate = new Date(walk.dateTime);
+      const distance = calculateDistance(userLocation, walk);
+      return (
+        walkDate >= new Date() &&
+        (!startDate || walkDate >= startDate) &&
+        (!endDate || walkDate <= endDate) &&
+        distance <= selectedDistance
+      );
+    });
+    return filtered;
+  }
 
   return (
     <ThemedView style={styles.container}>
@@ -170,12 +225,14 @@ export default function SelectWalkInArea({
             description: walk.description
           }))}
           showUserLocation={true}
-          height="100%"
+          height="80%"
           width="100%"
           initialRegion={mapRegion}
           onMarkerPress={handleMarkerPress}
         />
       )}
+
+      <WalkSelect walks={walksSortedByDistance} onWalkSelect={handleWalkSelect} />
 
       <WalkDetailsModal
         visible={!!selectedWalk}
