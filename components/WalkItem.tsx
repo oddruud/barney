@@ -7,7 +7,7 @@ import { PlannedWalk } from '../types/PlannedWalk';
 import { StyleSheet } from 'react-native';
 import { IconSymbol } from '../components/ui/IconSymbol';
 import { Map } from '../components/Map';
-import { localCache } from '../data/LocalCache';
+import { localCache } from '../services/LocalCache';
 import ProfileImage from './ProfileImage';
 
 function WalkItem({ item, showDate }: { item: PlannedWalk, showDate: boolean }) {

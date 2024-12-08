@@ -1,6 +1,6 @@
 import React, { createContext, useContext, ReactNode } from 'react';
-import { DataProxy } from '../data/DataProxyInterface';
-import { DataProxySingleton } from '../data/DataProxy';
+import { DataProxy } from '../services/DataProxyInterface';
+import { DataProxySingleton } from '../services/DataProxy';
 import Constants from 'expo-constants';
 
 // Define the context type
@@ -18,8 +18,8 @@ const DataContext = createContext<DataContextType | undefined>(undefined);
 
 // Create the provider component
 export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-    const useDummyData = (Constants.expoConfig as CustomExpoConfig)?.useDummyData || false;
-    const dataProxy = DataProxySingleton.getInstance(useDummyData);
+    const useMockData = (Constants.expoConfig as CustomExpoConfig)?.useDummyData || false;
+    const dataProxy = DataProxySingleton.getInstance(useMockData);
 
     return (
         <DataContext.Provider value={{ dataProxy }}>

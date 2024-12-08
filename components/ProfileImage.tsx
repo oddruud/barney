@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Animated, StyleProp, ImageStyle } from 'react-native';
-import { localCache } from '@/data/LocalCache';
+import { localCache } from '@/services/LocalCache';
 
 interface ProfileImageProps {
   uri: string;

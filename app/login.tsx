@@ -4,7 +4,7 @@ import { Video, ResizeMode } from 'expo-av';
 import { Button } from '@/components/Button';
 import { router } from 'expo-router';
 import { useUser } from '@/contexts/UserContext';
-import { authentication } from '@/data/authentication/Authentication';
+import { authentication } from '@/services/authentication/Authentication';
 import { getAuth, onAuthStateChanged, User, GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 import { useEnvironment } from '@/contexts/EnvironmentContext';
 import { useData } from '@/contexts/DataContext';
