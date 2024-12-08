@@ -149,10 +149,10 @@ async getRandomWalkingQuote(): Promise<Quote> {
     return futureWalks[0];
   }
 
-  async getChatMessagesForWalk(walkId: string): Promise<ChatMessage[]> {
+  async getChatMessages(chatId: string): Promise<ChatMessage[]> {
     return new Promise((resolve) => {
       setTimeout(() => {
-        const messages = chatMessages.filter(message => message.walkId === walkId);
+        const messages = chatMessages.filter(message => message.chatId === chatId);
         resolve(messages);
       }, 10);
     });

@@ -1,6 +1,6 @@
 export interface ChatMessage {
   id: string;
-  walkId: string;
+  chatId: string;
   timestamp: string;
   userId: string;
   userName: string;

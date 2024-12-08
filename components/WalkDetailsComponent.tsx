@@ -8,9 +8,10 @@ import { ThemedText } from '../components/ThemedText';
 import { PlannedWalk } from '../types/PlannedWalk';
 import { UserDetails } from '../types/UserDetails';
 import { useData } from '@/contexts/DataContext';
-import * as Calendar from 'expo-calendar';
 import ProfileImage from './ProfileImage';
-
+import AreYouSureModal from './modals/AreYouSureModal';
+import { addToCalendar } from '../utils/calendarUtils';
+import FullscreenMapModal from './modals/FullscreenMapModal';
 interface WalkDetailsComponentProps {
   walkDetails: PlannedWalk;
   user: UserDetails | null;
@@ -42,6 +43,13 @@ const WalkDetailsComponent: React.FC<WalkDetailsComponentProps> = ({
   const isOrganizer = user?.id === walkDetails.userId;
   const isCancelled = walkDetails.cancelled;
   const [isAddedToCalendarModalVisible, setIsAddedToCalendarModalVisible] = useState(false);
+  const [fullscreenMapModalVisible, setFullscreenMapModalVisible] = useState(false);
+  const [location, setLocation] = useState({
+    latitude: walkDetails.latitude,
+    longitude: walkDetails.longitude,
+    title: walkDetails.location,
+    description: walkDetails.description
+  });
 
   useEffect(() => {
     const fetchUsersFromJoinedUserIds = async () => {
@@ -109,46 +117,17 @@ const WalkDetailsComponent: React.FC<WalkDetailsComponentProps> = ({
     setIsAreYouSureModalVisible(false);
   };
 
-  const requestCalendarPermissions = async () => {
-    const { status } = await Calendar.requestCalendarPermissionsAsync();
-    return status === 'granted';
-  };
+  const handleAddToCalendar = async () => {
+    const calendarTitle = "Walk Events";
+    const calendarColor = "blue";
+    const eventTitle = "walk with " + walkDetails.fullName + " at " + walkDetails.location;
+    const eventStart = new Date(walkDetails.dateTime);
+    const eventEnd = new Date(new Date(walkDetails.dateTime).getTime() + walkDetails.duration * 60 * 1000);
+    const eventLocation = walkDetails.location;
+    const eventNotes = walkDetails.description;
 
-  const addToCalendar = async () => {
-    const hasPermission = await requestCalendarPermissions();
-    if (!hasPermission) {
-      console.error('Calendar permissions not granted');
-      return;
-    }
-
-    let defaultCalendarSource;
-    if (Platform.OS === 'ios') {
-      const calendars = await Calendar.getCalendarsAsync(Calendar.EntityTypes.EVENT);
-      defaultCalendarSource = calendars.find(cal => cal.source && cal.source.type === 'local')?.source;
-    } else {
-      defaultCalendarSource = { isLocalAccount: true, name: 'Expo Calendar', type: 'local' };
-    }
-
-    const calendarId = await Calendar.createCalendarAsync({
-      title: 'Walk Events',
-      color: 'blue',
-      entityType: Calendar.EntityTypes.EVENT,
-      sourceId: Platform.OS === 'ios' ? defaultCalendarSource?.id : undefined,
-      source: defaultCalendarSource,
-      name: 'Walk Events',
-      ownerAccount: 'personal',
-      accessLevel: Calendar.CalendarAccessLevel.OWNER,
-    });
-
-    await Calendar.createEventAsync(calendarId, {
-      title: "walk with " + walkDetails.fullName + " at " + walkDetails.location,
-      startDate: new Date(walkDetails.dateTime),
-      endDate: new Date(new Date(walkDetails.dateTime).getTime() + walkDetails.duration * 60 * 1000),
-      timeZone: 'GMT',
-      location: walkDetails.location,
-      notes: walkDetails.description,
-    });
-
+    addToCalendar(calendarTitle, calendarColor, eventTitle, eventStart, eventEnd, eventLocation, eventNotes);
+    
     setIsAddedToCalendarModalVisible(true);
     setTimeout(() => {
       setIsAddedToCalendarModalVisible(false);
@@ -203,6 +182,7 @@ const WalkDetailsComponent: React.FC<WalkDetailsComponentProps> = ({
             </TouchableOpacity>
           </Animated.View>
           <Map
+            onPress={() => setFullscreenMapModalVisible(true)}
             initialRegion={{
               latitude: walkDetails.latitude,
               longitude: walkDetails.longitude,
@@ -210,7 +190,7 @@ const WalkDetailsComponent: React.FC<WalkDetailsComponentProps> = ({
               longitudeDelta: 0.0421,
               zoomLevel: 3, // Use animated zoom level
             }}
-            showUserLocation={true}
+            showUserLocation={false}
             markers={[
               {
                 id: '1',
@@ -273,7 +253,7 @@ const WalkDetailsComponent: React.FC<WalkDetailsComponentProps> = ({
           {!isCalendarButtonPressed && (
             <Button
               title="Add to Calendar"
-              onPress={addToCalendar}
+              onPress={handleAddToCalendar}
               style={styles.buttonStyle}
             />
           )}
@@ -321,22 +301,23 @@ const WalkDetailsComponent: React.FC<WalkDetailsComponentProps> = ({
         </View>
       )}
 
-      <Modal
-        transparent={true}
+      <AreYouSureModal
+        title="Are you sure you want to cancel this walk?"
         visible={isAreYouSureModalVisible}
-        animationType="fade"
-        onRequestClose={() => setIsAreYouSureModalVisible(false)}
-      >
-        <View style={styles.modalContainer}>
-          <View style={styles.modalContent}>
-            <Text style={styles.modalText}>Are you sure you want to cancel the walk?</Text>
-            <View style={styles.modalButtons}>
-              <Button title="Yes" onPress={handleCancelPress} style={styles.modalButtonYes} />
-              <Button title="No" onPress={() => setIsAreYouSureModalVisible(false)} style={styles.modalButton} />
-            </View>
-          </View>
-        </View>
-      </Modal>
+        onConfirm={handleCancelPress}
+        onCancel={() => setIsAreYouSureModalVisible(false)}
+      />
+
+      <FullscreenMapModal
+        title="Walk Location"
+        visible={fullscreenMapModalVisible}
+        initialLocation={location}
+        allowLocationSelection={false}
+        onLocationSelect={async (location: { latitude: number; longitude: number }) => {
+          
+        }}
+          onRequestClose={() => setFullscreenMapModalVisible(false)} // Allow closing the modal
+        />
 
       <Modal
         transparent={true}
@@ -375,10 +356,15 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   descriptionText: {
-    fontSize: 18,
-    color: '#333',
+    fontSize: 16,
+    color: '#666',
     marginBottom: 8,
+    marginTop: 0,
     fontStyle: 'italic',
+    borderWidth: 1,
+    borderColor: '#666',
+    padding: 8,
+    borderRadius: 8,
   },
   hostText: {
     fontSize: 16,
@@ -386,8 +372,7 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   walkDetailsContainer: {
-    marginTop: 32,
-
+    marginTop: 8,
   },
   durationContainer: {
     flexDirection: 'row',

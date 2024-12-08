@@ -30,7 +30,6 @@ export default function WalkDetails() {
       setWalkDetails(walk || null);
 
       if (walk) {
-        console.log("Walk found, getting organizer details");
         const user = await dataProxy.getUserDetailsById(walk.userId);
         setOrganizerDetails(user || null);
       }
@@ -100,7 +99,7 @@ export default function WalkDetails() {
       )}
 
       {activeTab === 'chat' && (
-        <ChatComponent walkId={id} user={user}/>
+        <ChatComponent chatId={id} user={user}/>
       )}
 
       {activeTab === 'about' && organizerDetails && (

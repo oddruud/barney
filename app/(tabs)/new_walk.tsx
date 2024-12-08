@@ -14,7 +14,7 @@ import { useData } from '@/contexts/DataContext';
 import { UserDetails } from '@/types/UserDetails';
 import { useFocusEffect } from '@react-navigation/native';
 import { Easing } from 'react-native';
-import SelectOnMapModal from '@/components/modals/SelectOnMapModal';
+import FullscreenMapModal from '@/components/modals/FullscreenMapModal';
 import InviteUsersModal from '@/components/modals/InviteUsersModal';
 import { fetchAddress } from '@/utils/geoUtils';
 import { PlannedWalk } from '@/types/PlannedWalk';
@@ -309,10 +309,12 @@ export default function NewWalkScreen() {
    />
 
       {!isLoadingLocation && (
-        <SelectOnMapModal
+        <FullscreenMapModal
+          title="Place a min where you will meet"
           visible={isSelectOnMapModalVisible}
           initialLocation={location}
-          onLocationSelect={async (location) => {
+          allowLocationSelection={true}
+          onLocationSelect={async (location: { latitude: number; longitude: number }) => {
             setLocation({
               ...location,
               title: '',

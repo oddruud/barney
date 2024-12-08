@@ -4,20 +4,18 @@ import { ChatMessage } from '../types/ChatMessage';
 import ChatMessageItem from './ChatMessageItem';
 import { UserDetails } from '../types/UserDetails';
 import { Text } from './Themed';
-import { useEnvironment, Environment } from '@/contexts/EnvironmentContext';
 import { useData } from '@/contexts/DataContext';
 
 
 type ChatComponentProps = {
-  walkId: string;
+  chatId: string;
   user: UserDetails | null;
 };
 
-export default function ChatComponent({walkId, user }: ChatComponentProps) {
+export default function ChatComponent({chatId, user }: ChatComponentProps) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [messageCount, setMessageCount] = useState(0);
   const [inputText, setInputText] = useState('');
-  const { environment } = useEnvironment();
   const { dataProxy } = useData();
   const flatListRef = useRef<FlatList>(null);
   const fadeAnim = useRef(new Animated.Value(0)).current; // Initial opacity value of 0
@@ -25,7 +23,7 @@ export default function ChatComponent({walkId, user }: ChatComponentProps) {
 
   useEffect(() => {
     // Load initial messages from dataProxy
-    dataProxy.getChatMessagesForWalk(walkId).then(initialMessages => {
+    dataProxy.getChatMessages(chatId).then(initialMessages => {
       const updatedMessages = initialMessages.map(message => ({
         ...message,
         newMessage: false,
@@ -44,7 +42,7 @@ export default function ChatComponent({walkId, user }: ChatComponentProps) {
 
     // Cleanup interval on component unmount
     return () => clearInterval(intervalId);
-  }, [walkId]);
+  }, [chatId]);
 
   useEffect(() => {
     Animated.timing(fadeAnim, {
@@ -55,7 +53,7 @@ export default function ChatComponent({walkId, user }: ChatComponentProps) {
   }, [messages]); // Re-run the animation when messages change
 
   async function pollForNewMessages() {
-    await dataProxy.getChatMessagesForWalk(walkId).then(newMessages => {
+    await dataProxy.getChatMessages(chatId).then(newMessages => {
       setMessages(prevMessages => {
         const newUniqueMessages = newMessages.filter(
           newMsg => !prevMessages.some(prevMsg => prevMsg.id === newMsg.id)
@@ -96,7 +94,7 @@ export default function ChatComponent({walkId, user }: ChatComponentProps) {
         timestamp: new Date().toISOString(),
         userName: user?.fullName || '',
         message: inputText,
-        walkId: walkId,
+        chatId: chatId,
         userId: user?.id || '',
         newMessage: true,
       };

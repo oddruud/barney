@@ -6,17 +6,19 @@ import { Button } from '@/components/Button';
 import { Text } from '@/components/Themed';
 import { fetchAddress } from '@/utils/geoUtils';
 
-interface SelectOnMapModalProps {
+interface FullscreenMapModalProps {
+  title: string;
   visible: boolean;
+  allowLocationSelection: boolean;
   initialLocation: {
     latitude: number;
     longitude: number;
   };
-  onLocationSelect: (location: { latitude: number; longitude: number }) => void;
+  onLocationSelect: ((location: { latitude: number; longitude: number }) => void) | null;
   onRequestClose: () => void;
 }
 
-const SelectOnMapModal: React.FC<SelectOnMapModalProps> = ({visible, initialLocation, onLocationSelect, onRequestClose }) => {
+const FullscreenMapModal: React.FC<FullscreenMapModalProps> = ({title,visible, allowLocationSelection, initialLocation, onLocationSelect, onRequestClose }) => {
   const [location, setLocation] = useState(initialLocation);
   const [address, setAddress] = useState('');
   const opacity = useRef(new Animated.Value(0)).current;
@@ -53,9 +55,16 @@ const SelectOnMapModal: React.FC<SelectOnMapModalProps> = ({visible, initialLoca
   }, [visible]);
 
   const handleMapPress = async (event: any) => {
+    if (!allowLocationSelection) {
+      return;
+    }
+
     const { latitude, longitude } = event.nativeEvent.coordinate;
     setLocation({ latitude, longitude });
-    onLocationSelect({ latitude, longitude });
+
+    if (onLocationSelect) { 
+      onLocationSelect({ latitude, longitude });
+    }
 
     try {
       const address = await fetchAddress(latitude, longitude);
@@ -99,7 +108,7 @@ const SelectOnMapModal: React.FC<SelectOnMapModalProps> = ({visible, initialLoca
           )}
           <Button style={styles.modalCloseButton} title="Close" onPress={onRequestClose} />
           <View style={styles.modalTextContainer}>
-            <Text style={styles.modalText}>Place a pin on the map to select the walk start location</Text>
+            <Text style={styles.modalText}>{title}</Text>
           </View>
 
           {address && (
@@ -154,4 +163,4 @@ const styles = StyleSheet.create({
     }
   });
 
-export default SelectOnMapModal;
+export default FullscreenMapModal;

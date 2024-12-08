@@ -128,17 +128,6 @@ export function Map({
       onPress={onPress}
       mapType={'standard'}
     >
-      {userLocation && showUserLocation && (
-        <Marker
-          coordinate={userLocation}
-          title="You"
-        >
-            <Image
-                source={require('../assets/images/circle.png')}
-                style={{ width: 20 , height: 20 }}
-            />
-        </Marker>
-      )}
       {showRoute && markers.length > 1 && (
         <Polyline
           coordinates={markers.map(marker => marker.coordinate)}
@@ -155,6 +144,18 @@ export function Map({
           onPress={() => onMarkerPress?.(marker)}
         />
       ))}
+
+{userLocation && showUserLocation && (
+        <Marker
+          coordinate={userLocation}
+          title="You"
+        >
+            <Image
+                source={require('../assets/images/circle.png')}
+                style={{ width: 20 , height: 20 }}
+            />
+        </Marker>
+      )}
     </MapView>
   );
 }

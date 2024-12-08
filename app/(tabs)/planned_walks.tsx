@@ -117,11 +117,11 @@ const styles = StyleSheet.create({
   },
   list: {
     flex: 1,
-    marginBottom: 10,
+    marginBottom: 70,
   },
   listUpcoming: {
     flex: 1,
-    marginBottom: 60,
+    marginBottom: 70,
   },
   noWalksContainer: {
     flex: 1,

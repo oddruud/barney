@@ -81,8 +81,11 @@ class FireStoreDataProxy implements DataProxy {
       walk.profileImage = userDetails?.profileImage ?? '';
       return walk;
     }));
+    //remove walks that have a date in the past
+    const walksWithUserDetailsFromNow = walksWithUserDetails.filter(walk => new Date(walk.dateTime) > new Date());
 
-    return walksWithUserDetails
+    const sorted = walksWithUserDetailsFromNow.sort((a, b) => new Date(a.dateTime).getTime() - new Date(b.dateTime).getTime());
+    return sorted
   }
 
   async declineInvite(walkId: string, userId: string): Promise<PlannedWalk | null> {
@@ -231,12 +234,12 @@ class FireStoreDataProxy implements DataProxy {
     return Promise.all(userDetailsPromises).then(users => users.filter(user => user !== null) as UserDetails[]);
   }
 
-  async getChatMessagesForWalk(walkId: string): Promise<ChatMessage[]> {
+  async getChatMessages(chatId: string): Promise<ChatMessage[]> {
     const db = getFirestore();
     const collectionRef = collection(db, "chatMessages");
     const q = query(
       collectionRef, 
-      where("walkId", "==", walkId)
+      where("chatId", "==", chatId)
     );
 
     const querySnapshot = await getDocs(q);
