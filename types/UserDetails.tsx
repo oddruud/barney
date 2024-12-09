@@ -9,4 +9,6 @@ export type UserDetails = {
   walksCompleted: number;
   rating: number;
   numberOfRatings: number;
+  latitude: number;
+  longitude: number;
 };

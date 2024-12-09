@@ -1,3 +1,4 @@
+import { PlannedWalk } from '@/types/PlannedWalk';
 import * as Location from 'expo-location';
 // Define the haversineDistance function
 const haversineDistance = (lat1: number, lon1: number, lat2: number, lon2: number): number => {
@@ -30,4 +31,11 @@ const fetchAddress = async (latitude: number, longitude: number) => {
   }
 };
 
-export { haversineDistance, fetchAddress };
+const calculateDistance = (userLocation: Location.LocationObject, walk: PlannedWalk) => {
+  const { latitude, longitude } = userLocation.coords;
+  const walkLatitude = walk.latitude;
+  const walkLongitude = walk.longitude;
+  return haversineDistance(latitude, longitude, walkLatitude, walkLongitude);
+};
+
+export { haversineDistance, calculateDistance,fetchAddress };

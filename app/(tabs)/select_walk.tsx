@@ -3,6 +3,9 @@ import { View, StyleSheet, TouchableOpacity } from 'react-native';
 import { Text } from '../../components/Themed';
 import SelectWalkInArea from '../../components/SelectWalkInArea';
 import InviteView from '../../components/InviteView';
+import PeopleList from '../../components/PeopleList';
+import { useData } from '@/contexts/DataContext';
+import { useUser } from '@/contexts/UserContext';
 import { useRoute, useNavigation } from '@react-navigation/native';
 
 export default function SelectWalkScreen() {
@@ -10,7 +13,7 @@ export default function SelectWalkScreen() {
   const [activeTab, setActiveTab] = useState('myArea');
   const route = useRoute();
   const navigation = useNavigation();
-
+  const { user } = useUser();
   useEffect(() => {
     if (route.params) {
       const { tab } = route.params as { tab: string };
@@ -31,6 +34,9 @@ export default function SelectWalkScreen() {
         <TouchableOpacity onPress={() => setActiveTab('invites')} style={activeTab === 'invites' ? styles.activeTab : styles.tab}>
           <Text style={styles.tabText}>Invites</Text>
         </TouchableOpacity>
+        <TouchableOpacity onPress={() => setActiveTab('peopleinyourarea')} style={activeTab === 'peopleinyourarea' ? styles.activeTab : styles.tab}>
+          <Text style={styles.tabText}>People in your area</Text>
+        </TouchableOpacity>
       </View>
 
       {/* Tab Content */}
@@ -40,6 +46,10 @@ export default function SelectWalkScreen() {
 
       {activeTab === 'invites' && (
         <InviteView />
+      )}
+
+      {activeTab === 'peopleinyourarea' && (
+        <PeopleList user={user}/>
       )}
     </View>
   );

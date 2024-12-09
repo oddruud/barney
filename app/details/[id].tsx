@@ -5,18 +5,19 @@ import { useRoute, useNavigation } from '@react-navigation/native';
 import ChatComponent from '../../components/ChatComponent';
 import WalkDetailsComponent from '../../components/WalkDetailsComponent';
 import AboutComponent from '../../components/AboutComponent';
-import { Button } from '../../components/Button';
 import { PlannedWalk } from '../../types/PlannedWalk';
 import { UserDetails } from '../../types/UserDetails';
 import { useUser } from '@/contexts/UserContext';
 import { router } from 'expo-router';
 import { useData } from '@/contexts/DataContext';
+import { IconSymbol } from '@/components/ui/IconSymbol';
 
 // Define a sleep function
 const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
 export default function WalkDetails() {
   const route = useRoute();
+  const [prevRoute, setPrevRoute] = useState<string | null>(null);
   const navigation = useNavigation();
   const { id } = route.params as { id: string };
   const { user } = useUser();
@@ -39,6 +40,17 @@ export default function WalkDetails() {
     fetchWalkDetails();
   }, []);
 
+
+    useEffect(() => {
+      const routes = navigation.getState()?.routes;
+      if (routes) {
+        const prevRoute = routes[routes.length - 2];
+        console.log("prevRoute", prevRoute);
+        const prevRouteName = prevRoute.name;
+        setPrevRoute(prevRouteName);
+      }
+    }, [route]);
+
     // State for managing active tab
     const [activeTab, setActiveTab] = useState('details');
 
@@ -48,7 +60,18 @@ export default function WalkDetails() {
 
   return (
     <View style={styles.container}>
-      <Button style ={styles.backButton} title="Back" onPress={() => router.back()} />
+      <TouchableOpacity onPress={() => router.back()} style={{ marginRight: 30 }}>
+        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+          <IconSymbol 
+            name="chevron.left" 
+            size={24} 
+            color="#00796b" 
+            style={{ opacity: 1 }}
+          />
+          <Text style={{ color: '#00796b', fontSize: 16 }}>Back</Text>
+        </View>
+      </TouchableOpacity>
+
       {/* Tab Navigation */}
       <View style={styles.tabContainer}>
         <TouchableOpacity onPress={() => setActiveTab('details')} style={activeTab === 'details' ? styles.activeTab : styles.tab}>
@@ -128,6 +151,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'flex-start',
     marginBottom: 16,
+    marginTop: 16,
   },
   tab: {
     padding: 10,

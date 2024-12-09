@@ -128,6 +128,13 @@ export default function NewWalkScreen() {
     }, [])
   );
 
+
+  useEffect(() => {
+    (async () => {
+      await fetchAddressAndUpdateLocation(location.latitude, location.longitude);
+    })();
+  }, [isLoadingLocation]);
+
   const handleDateChange = (event: any, selectedDate?: Date) => {
     setShowDatePicker(false);
     if (selectedDate) {

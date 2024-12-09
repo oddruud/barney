@@ -6,6 +6,10 @@ import {getDocs,collection, doc, getDoc, getFirestore, setDoc, query, where} fro
 import { getRandomId } from '../utils/IDUtils';
 import { Quote } from '@/types/Quote';
 import { getStorage, ref, uploadBytesResumable, getDownloadURL, UploadMetadata } from "firebase/storage";
+import { WalkWithDistance } from '@/types/WalkWithDistance';
+import { calculateDistance, haversineDistance } from '@/utils/geoUtils';
+import { LocationObject } from 'expo-location';
+import { UserDetailsWithDistance } from '@/types/UserDetailsWithDistance';
 
 class FireStoreDataProxy implements DataProxy {
 
@@ -199,7 +203,7 @@ class FireStoreDataProxy implements DataProxy {
     return walkId;
   }
 
-  async updateUserProfile(userDetails: UserDetails): Promise<void> {
+  async updateUser(userDetails: UserDetails): Promise<void> {
     const db = getFirestore();
     await setDoc(doc(db, "users", userDetails.id), userDetails).then(async () => {
     }).catch((error) => {
@@ -354,13 +358,55 @@ async uploadToFirebase(uri:string, name:string, onProgress:((progress:number)=>v
     if (userData) {
       userData.rating = (userData.rating * userData.numberOfRatings + rating) / (userData.numberOfRatings + 1);
       userData.numberOfRatings += 1;
-      await this.updateUserProfile(userData);
+      await this.updateUser(userData);
     }
 
     return userData;
   }
 
+  async getWalksSortedByDistance(
+    user: UserDetails,
+    userLocation: LocationObject | null,
+    startDate: Date, 
+    endDate: Date, 
+    maxDistance: number
+  ): Promise<WalkWithDistance[]> {
+    const walks = await this.getPlannedWalks();
+    if (!userLocation) return [];
+    console.log(userLocation);
+    const walksWithDistance: WalkWithDistance[] = walks.filter(walk => {
+        const walkDate = new Date(walk.dateTime);
+        const distance = calculateDistance(userLocation, walk);
+        return (
+          walkDate >= new Date() &&
+          (!startDate || walkDate >= startDate) &&
+          (!endDate || walkDate <= endDate) &&
+          distance <= maxDistance &&
+          user.id !== walk.userId &&
+          walk.cancelled === false &&
+          !walk.joinedUserIds.includes(user.id)
+        );
+      }).map(walk => {
+        const distance = calculateDistance(userLocation, walk);
+        return {...walk, distance};
+      })
 
+    const sortedWalks = walksWithDistance.sort((a, b) => a.distance - b.distance);
+    return sortedWalks;
+  }
+
+  async getUsersSortedByDistance(user: UserDetails, maxDistance: number): Promise<UserDetailsWithDistance[]> {
+    const users = await this.getAllUsers();
+    const usersWithDistance = users.map(otherUser => {
+      const distance = haversineDistance(otherUser.latitude, otherUser.longitude, user.latitude, user.longitude);
+      return {...otherUser, distance};
+    });
+
+    const sortedUsers = usersWithDistance.sort((a, b) => a.distance - b.distance);
+    return sortedUsers.filter(u => u.distance <= maxDistance && u.id !== user.id);
+  }
 }
+
+
 
 export { FireStoreDataProxy };

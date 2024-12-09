@@ -62,6 +62,13 @@ export default function RootLayout() {
             title: 'Walk Details'
           }} 
         />
+         <Stack.Screen 
+          name="user-interaction/[id]" 
+          options={{ 
+            headerShown: false,
+            title: 'User Interaction'
+          }} 
+        />
         <Stack.Screen 
           name="+not-found" 
           options={{ 
@@ -71,6 +78,7 @@ export default function RootLayout() {
          <Stack.Screen 
           name="first-login-profile" 
           options={{ 
+            headerShown: false,
             title: 'First Login Profile'
           }} 
         />

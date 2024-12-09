@@ -2,7 +2,6 @@ import React, { createContext, useState, useContext, ReactNode, useEffect } from
 import { UserDetails } from '@/types/UserDetails';
 import LocalUserData from '@/services/LocalUserData';
 import {useData} from '@/contexts/DataContext';
-
 interface UserContextType {
     user: UserDetails;
     setUser: (user: UserDetails) => void;
@@ -32,6 +31,12 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         if (user) {
             const localUserData = LocalUserData.getInstance();
             localUserData.saveUserData(user);
+
+            const updateUser = async () => {
+                await dataProxy.updateUser(user);
+            }
+            
+            updateUser();
         }
     }, [user]);
 

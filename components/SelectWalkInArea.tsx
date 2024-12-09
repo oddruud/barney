@@ -10,7 +10,7 @@ import { PlannedWalk } from '@/types/PlannedWalk';
 import { Text } from '@/components/Themed';
 import Slider from '@react-native-community/slider';
 import { useUser } from '@/contexts/UserContext';
-import { haversineDistance } from '@/utils/geoUtils';
+import { calculateDistance, haversineDistance } from '@/utils/geoUtils';
 import WalkDetailsModal from '@/components/modals/WalkDetailsModal';
 import { useData } from '@/contexts/DataContext';
 import { WalkWithDistance } from '@/types/WalkWithDistance';
@@ -90,7 +90,7 @@ export default function SelectWalkInArea({
     useEffect(() => {
 
       const walksWithDistance: WalkWithDistance[] = [];
-      if (walks.length > 0) {
+      if (walks.length > 0 && userLocation) {
         const sortedByDistance = filteredWalks.sort((a, b) => calculateDistance(userLocation, a) - calculateDistance(userLocation, b));
         sortedByDistance.forEach(walk => {
           const distance = calculateDistance(userLocation, walk);
@@ -156,13 +156,9 @@ export default function SelectWalkInArea({
     setEndDate(date || null);
   };
 
-  const calculateDistance = (userLocation: Location.LocationObject | null, walk: PlannedWalk) => {
-    if (!userLocation) return Infinity;
-    const { latitude, longitude } = userLocation.coords;
-    const walkLatitude = walk.latitude;
-    const walkLongitude = walk.longitude;
-    return haversineDistance(latitude, longitude, walkLatitude, walkLongitude);
-  };
+  const handleChooseWalk = (walk: WalkWithDistance) => {
+    setSelectedWalk(walk as PlannedWalk);
+  }
 
   const filterWalks = () : PlannedWalk[] => {
     let filtered = walks.filter(walk => {
@@ -232,7 +228,7 @@ export default function SelectWalkInArea({
         />
       )}
 
-      <WalkSelect walks={walksSortedByDistance} onWalkSelect={handleWalkSelect} />
+      <WalkSelect walks={walksSortedByDistance} onWalkSelect={handleWalkSelect} onChooseWalk={handleChooseWalk} />
 
       <WalkDetailsModal
         visible={!!selectedWalk}

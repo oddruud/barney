@@ -2,7 +2,9 @@ import { PlannedWalk } from '../types/PlannedWalk';
 import { UserDetails } from '../types/UserDetails';
 import { ChatMessage } from '../types/ChatMessage';
 import { Quote } from '../types/Quote';
-
+import { WalkWithDistance } from '@/types/WalkWithDistance';
+import { LocationObject } from 'expo-location';
+import { UserDetailsWithDistance } from '@/types/UserDetailsWithDistance';
 
 // Define the DataProxy interface
 interface DataProxy {
@@ -39,7 +41,7 @@ interface DataProxy {
     // Add a chat message
     addChatMessage(message: ChatMessage): Promise<void>;
     // Update a user profile
-    updateUserProfile(userDetails: UserDetails): Promise<void>;
+    updateUser(userDetails: UserDetails): Promise<void>;
     // Join a walk
     joinWalk(walkId: string, userId: string): Promise<PlannedWalk | null>;
     // Register a user
@@ -50,6 +52,11 @@ interface DataProxy {
     uploadImage(imageURI: string, onProgress?:((progress:number)=>void)): Promise<string>;
     // Add a rating for a user
     addRatingForUser(userId: string, rating: number): Promise<UserDetails | null>;
+
+    // Get walks sorted by distance
+    getWalksSortedByDistance(user: UserDetails, userLocation: LocationObject | null, startDate: Date, endDate: Date, maxDistance: number): Promise<WalkWithDistance[]>;
+
+    getUsersSortedByDistance(user: UserDetails, maxDistance: number): Promise<UserDetailsWithDistance[]>;
 }
 
 export { DataProxy };

@@ -9,9 +9,10 @@ import { IconSymbol } from './ui/IconSymbol';
 type WalkSelectProps = {
   walks: WalkWithDistance[];
   onWalkSelect: (walk: WalkWithDistance) => void;
+  onChooseWalk: (walk: WalkWithDistance) => void;
 };
 
-export default function WalkSelect({walks, onWalkSelect}: WalkSelectProps) {
+export default function WalkSelect({walks, onWalkSelect, onChooseWalk}: WalkSelectProps) {
   const [selectedWalkIndex, setSelectedWalkIndex] = useState(0);
   const [selectedWalk, setSelectedWalk] = useState(walks[0]);
 
@@ -41,6 +42,10 @@ export default function WalkSelect({walks, onWalkSelect}: WalkSelectProps) {
     }
   }
 
+  const handleSelectWalk = () => {
+    onChooseWalk(selectedWalk);
+  }
+
   return (
     <View>
       {walks.length > 0 && selectedWalk && (
@@ -55,6 +60,7 @@ export default function WalkSelect({walks, onWalkSelect}: WalkSelectProps) {
                   style={{ opacity: selectedWalkIndex > 0 ? 1 : 0.0 }}
                 />
               </TouchableOpacity>
+              <TouchableOpacity onPress={handleSelectWalk}>
             <View style={{flexDirection: 'row', alignItems: 'center'}}>
               <ProfileImage uri={selectedWalk.profileImage} style={styles.profileImage} />
               <View style={{marginLeft: 10}}>
@@ -65,6 +71,8 @@ export default function WalkSelect({walks, onWalkSelect}: WalkSelectProps) {
                 <Text style={{color: 'white'}}>{selectedWalk.distance.toFixed(1)}km</Text>
               </View>
             </View>
+            </TouchableOpacity>
+             
               <TouchableOpacity onPress={handleNextWalk} style={{marginLeft: 30}}>
                 <IconSymbol name="chevron.right" size={24} color="white" 
                 style={{ opacity: selectedWalkIndex < walks.length - 1 ? 1 : 0.0 }}/>

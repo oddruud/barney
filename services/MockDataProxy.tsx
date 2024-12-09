@@ -4,6 +4,10 @@ import { ChatMessage } from '../types/ChatMessage';
 import { plannedWalks as dummyPlannedWalks, userDetails as dummyUserDetails, walkingQuotes, chatMessages, enticingImages } from './MockData';
 import { DataProxy } from './DataProxyInterface';
 import { Quote } from '../types/Quote';
+import { WalkWithDistance } from '@/types/WalkWithDistance';
+import { LocationObject } from 'expo-location';
+import { calculateDistance, haversineDistance } from '@/utils/geoUtils';
+import { UserDetailsWithDistance } from '@/types/UserDetailsWithDistance';
 // Implement the DummyDataProxy class
 class MockDataProxy implements DataProxy {
 
@@ -167,7 +171,7 @@ async getRandomWalkingQuote(): Promise<Quote> {
     });
   }
 
-  async updateUserProfile(userDetails: UserDetails): Promise<void> {
+  async updateUser(userDetails: UserDetails): Promise<void> {
     return new Promise((resolve) => {
       setTimeout(() => {
         //get dummy user details
@@ -260,6 +264,29 @@ async getRandomWalkingQuote(): Promise<Quote> {
   async addRatingForUser(userId: string, rating: number): Promise<UserDetails | null> {
     return new Promise((resolve) => {
       resolve(null);
+    });
+  }
+
+  async getWalksSortedByDistance(
+    user: UserDetails,
+    userLocation: LocationObject,
+    startDate: Date, 
+    endDate: Date, 
+    maxDistance: number
+  ): Promise<WalkWithDistance[]> {
+
+    const walksWithDistance: WalkWithDistance[] = dummyPlannedWalks.map(walk => {
+      const distance = calculateDistance(userLocation, walk);
+      return { ...walk, distance };
+    });
+
+    return walksWithDistance;
+  }
+
+  async getUsersSortedByDistance(user: UserDetails, maxDistance: number): Promise<UserDetailsWithDistance[]> {
+    return dummyUserDetails.map(otherUser => {
+      const distance = haversineDistance(user.latitude, user.longitude, otherUser.latitude, otherUser.longitude);
+      return {...otherUser, distance};
     });
   }
 }

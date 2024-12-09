@@ -50,7 +50,8 @@ function WalkItem({ item, showDate }: { item: PlannedWalk, showDate: boolean }) 
       style={{ 
         ...styles.walkItem, 
         backgroundColor: isPastWalk ? 'rgba(211, 211, 211, 0.8)' : 'rgba(255, 255, 255, 0.8)',
-        opacity: 1, 
+        opacity: 1,
+        borderColor: item.joinedUserIds.includes(item.userId) ? '#00796b' : '#004d40',
         transform: [{ scale: scaleAnim }] 
       }}
     >

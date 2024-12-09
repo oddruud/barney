@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Image, StyleSheet, View, Animated } from 'react-native';
+import * as Location from 'expo-location';
 
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
@@ -12,7 +13,9 @@ import { Text } from '@/components/Themed';
 import { useFocusEffect } from '@react-navigation/native';
 import { Button } from '@/components/Button';
 import { router } from 'expo-router';
-
+import { WalkWithDistance } from '@/types/WalkWithDistance';
+import { LocationObject } from 'expo-location';
+import { UserDetailsWithDistance } from '@/types/UserDetailsWithDistance';
 
 
 
@@ -52,6 +55,8 @@ function NextWalkCountdown({ nextWalkTime }: { nextWalkTime: Date | null }) {
 function RandomWalkingQuote() {
   const [quote, setQuote] = useState<Quote>({quote: '', author: ''});
   const { dataProxy } = useData();
+
+
   // Fetch the random quote and trigger the fade-in animation
   useEffect(() => {
     const fetchQuote = async () => {
@@ -72,14 +77,51 @@ function RandomWalkingQuote() {
 }
 
 export default function HomeScreen() {
-  const { user } = useUser();
+  const { user, setUser } = useUser();
+  const [users, setUsers] = useState<UserDetailsWithDistance[]>([]);
   const [nextWalk, setNextWalk] = useState<PlannedWalk | null>(null);
   const [invitations, setInvitations] = useState<PlannedWalk[]>([]);
+  const [userLocation, setUserLocation] = useState<LocationObject | null>(null);
+  const [walksSortedByDistance, setWalksSortedByDistance] = useState<WalkWithDistance[]>([]);
+  const [closestWalk, setClosestWalk] = useState<WalkWithDistance | null>(null);
+  const [hoursfromNow, setHoursFromNow] = useState<number>(0);
+  const [minutesfromNow, setMinutesFromNow] = useState<number>(0);
   const { dataProxy } = useData();
 
   useEffect(() => {
     
   }, []);
+
+
+
+  useEffect(() => {
+    (async () => {
+      let { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== 'granted') {
+        console.log('Permission to access location was denied');
+        return;
+      }
+
+      let location = await Location.getCurrentPositionAsync({});
+      setUser({...user, latitude: location.coords.latitude, longitude: location.coords.longitude});
+
+
+    })();
+  }, []);
+
+  useEffect(() => {
+    (async () => {
+      const maxDistance = 30;
+      console.log("user", user);
+      const users = await dataProxy.getUsersSortedByDistance(user, maxDistance);
+      console.log("users-", users);
+      users.forEach(user => {
+        console.log(user.fullName, user.distance);
+      });
+
+      setUsers(users);
+    })();
+  }, [user]);
 
 
   // Reset state variables to their initial values
@@ -100,11 +142,43 @@ export default function HomeScreen() {
 
       fetchInvitations();
 
+      const getClosestLocations = async () => {
+      // Request location permissions
+      const { status } = await Location.requestForegroundPermissionsAsync();
+
+      if (status === 'granted') {
+        const currentLocation = await Location.getCurrentPositionAsync({});
+        setUserLocation(currentLocation);
+        const walks = await dataProxy.getWalksSortedByDistance(user, currentLocation ? currentLocation : null, new Date(), new Date(new Date().getTime() + 7 * 24 * 60 * 60 * 1000), 10);
+        setWalksSortedByDistance(walks);
+      };
+        
+      };
+
+      getClosestLocations();
+
       return () => {
       
       };
     }, [])
   );
+
+  useEffect(() => {
+      if (walksSortedByDistance.length > 0) {
+        setClosestWalk(walksSortedByDistance[0]);
+      }
+  }, [walksSortedByDistance]);
+
+
+  useEffect(() => {
+    console.log("closestWalk", closestWalk);
+    const difference = (new Date(closestWalk ?  closestWalk.dateTime : new Date())).getTime() - new Date().getTime();
+    const hours = Math.floor((difference / (1000 * 60 * 60)));
+    const minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
+    setHoursFromNow(hours);
+    setMinutesFromNow(minutes);
+  }, [closestWalk]);
+
 
   return (
     <View style={styles.container}>
@@ -116,6 +190,15 @@ export default function HomeScreen() {
       </ThemedView>
       <RandomWalkingQuote />
 
+      {users.length > 0 && (
+        <View style={styles.usersContainer}>
+          <Text style={styles.usersText}>
+            {users.length} active {users.length === 1 ? 'user' : 'users'} nearby. 
+            {users[0].fullName} is the closest at {users[0].distance.toFixed(1)}km.
+          </Text>
+        </View>
+      )}
+
       {invitations.length > 0 && (
         <Button 
           title={`${invitations.length} ${invitations.length === 1 ? 'invitation' : 'invitations'}`} 
@@ -124,13 +207,22 @@ export default function HomeScreen() {
         />
       )}
 
+      {closestWalk && (hoursfromNow > 0 || minutesfromNow > 0) && (
+        <View style={styles.closestWalkContainer}>
+          <Text style={styles.closestWalkText}>This walk is {hoursfromNow <=0 ? minutesfromNow : hoursfromNow} {hoursfromNow <=0 ? 'minutes' : 'hours'} from now and is {closestWalk.distance.toFixed(1)}km away:</Text>
+          <WalkItem item={closestWalk} showDate={true} />
+        </View>
+      )}
+
       <View style={styles.bottomContainer}>
         {nextWalk ? (
           <>
+          <View style={styles.nextWalkContainer}>
             <NextWalkCountdown 
               nextWalkTime={new Date(`${nextWalk.dateTime}`)} 
             />
             <WalkItem item={nextWalk} showDate={true} />
+          </View>
           </>
         ) : null}
       </View>
@@ -170,11 +262,9 @@ const styles = StyleSheet.create({
     zIndex: 1,
   },
   countdownContainer: {
-    padding: 16,
-    marginVertical: 16,
     zIndex: 1,
     backgroundColor: 'rgba(0, 0, 0, 0.0)', // Changed to semi-transparent
-    marginTop: 32,
+    marginBottom: 16,
   },
   quoteContainer: {
     padding: 16,
@@ -189,7 +279,7 @@ const styles = StyleSheet.create({
   },
   nextWalkText: {
     fontFamily: 'SpaceMono',
-    fontSize: 16,
+    fontSize: 12,
     color: '#000000',
   },
   noWalkImage: {
@@ -214,7 +304,7 @@ const styles = StyleSheet.create({
     width: '45%',
     alignSelf: 'center',
     height: 50,
-    marginTop: 64,
+    marginTop:55,
   },
   buttonText: {
     fontFamily: 'SpaceMono',
@@ -235,5 +325,26 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'flex-end',
     marginBottom: 98,
+  },
+  closestWalkContainer: {
+    padding: 16,
+  },
+  nextWalkContainer: {
+    padding: 16,
+  },
+  closestWalkText: {
+    fontFamily: 'SpaceMono',
+    fontSize: 12,
+    color: '#000000',
+    marginBottom: 16,
+  },
+  usersContainer: {
+    padding: 16,
+    marginTop: 16,
+  },
+  usersText: {
+    fontFamily: 'SpaceMono',
+    fontSize: 12,
+    color: '#000000',
   },
 });
