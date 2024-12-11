@@ -1,17 +1,13 @@
-import { useRoute, useNavigation } from '@react-navigation/native';
-
 export function getPrevRouteName(navigation: any) {
 
     const routes = navigation.getState()?.routes;
     if (routes) {
       const prevRoute = routes[routes.length - 2];
-      console.log("prevRoute", prevRoute);
       let prevRouteName = prevRoute.params?.screen;
 
       if (prevRouteName==undefined) {
         prevRouteName = prevRoute.state?.routeNames?.[prevRoute.state.index ?? 0] ?? null;
       } 
-      console.log("prevRouteName", prevRouteName);
       return lookUpName(prevRouteName);
     }
 

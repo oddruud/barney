@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { View, StyleSheet, Animated, Modal } from 'react-native';
+import { View, StyleSheet, Animated, Modal, TouchableOpacity } from 'react-native';
 import { Text } from '../components/Themed';
 import { UserDetails } from '../types/UserDetails';
 import { Button } from './Button';
@@ -7,6 +7,7 @@ import StarRating from './StarRating';  // Import the new StarRating component
 import RateUserModal from './modals/RateUserModal';  // Import the new modal component
 import ProfileImage from './ProfileImage';
 import { useData } from '@/contexts/DataContext';
+
 
 interface AboutComponentProps {
   user: UserDetails;
@@ -83,6 +84,11 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: 'space-between',
+  },
+  settingsText: {
+    fontSize: 16,
+    color: '#333',
+    marginLeft: 8,
   },
   aboutContainer: {
     alignItems: 'center',

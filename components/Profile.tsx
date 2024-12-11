@@ -13,6 +13,7 @@ import LocalUserData from '@/services/LocalUserData';
 import { router } from 'expo-router';
 import { useData } from '@/contexts/DataContext';
 import { useUser } from '@/contexts/UserContext';
+import { Ionicons } from '@expo/vector-icons'; // Import an icon library
 
 interface ProfileProps {
   firstLogin: boolean;
@@ -162,6 +163,11 @@ const Profile: React.FC<ProfileProps> = ({
         </View>
       </Modal>
       <ThemedView style={styles.container}>
+      <TouchableOpacity style={styles.settingsButton} onPress={() => {
+        router.push("/settings");
+      }}>
+        <Ionicons name="settings-outline" size={24} color="black" />
+      </TouchableOpacity>
         <TouchableOpacity onPress={pickImage} style={styles.profileImageContainer}>
           {profileImage ? (
             <ProfileImage uri={profileImage} style={styles.profileImage} />
@@ -246,6 +252,14 @@ const styles = StyleSheet.create({
       bottom: -90,
       left: -35,
       position: 'absolute',
+    },
+    settingsButton: {
+      position: 'absolute',
+      top: 20,
+      right: 20,
+      zIndex: 1,
+      flexDirection: 'row',
+      alignItems: 'center',
     },
     titleContainer: {
       flexDirection: 'row',

@@ -19,6 +19,7 @@ import InviteUsersModal from '@/components/modals/InviteUsersModal';
 import { fetchAddress } from '@/utils/geoUtils';
 import { PlannedWalk } from '@/types/PlannedWalk';
 import ProfileImage from '@/components/ProfileImage';
+import { Slider } from '@react-native-community/slider';
 
 export default function NewWalkScreen() {
   const { user } = useUser();
@@ -35,7 +36,7 @@ export default function NewWalkScreen() {
 
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [isLoadingLocation, setIsLoadingLocation] = useState(true);
-  const [groupSize, setGroupSize] = useState('2'); // Default group size
+  const [groupSize, setGroupSize] = useState(2); // Default group size
   const [invitedUsers, setInvitedUsers] = useState<UserDetails[]>([]); // New state for invited users
   const [isInviteUserModalVisible, setIsInviteUserModalVisible] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -87,7 +88,7 @@ export default function NewWalkScreen() {
       });
       setShowDatePicker(false);
       setIsLoadingLocation(true);
-      setGroupSize('2');
+      setGroupSize(2);
       setInvitedUsers([]);
       setIsInviteUserModalVisible(false);
       setIsLoading(true);
@@ -153,7 +154,7 @@ export default function NewWalkScreen() {
       userId: user?.id ?? '',
       dateTime: date.toISOString(),
       duration: parseInt(duration) / 60,
-      maxParticipants: parseInt(groupSize),
+      maxParticipants: groupSize,
       description: description,
       location: location.title,
       longitude: location.longitude,
@@ -229,12 +230,14 @@ export default function NewWalkScreen() {
         {/* Group Size Input */}
         <ThemedText style={styles.label}>Group Size</ThemedText>
         <ThemedTextInput
-          style={styles.input}
-          value={groupSize}
-          onChangeText={setGroupSize}
-          keyboardType="numeric"
+          style={[styles.input, styles.descriptionInput]}
+          value={groupSize.toString()}
+          onChangeText={(text) => setGroupSize(parseInt(text))}
           placeholder="Enter group size"
         />
+     
+        <Text>Selected Group Size: {groupSize}</Text>
+       
 
         {/* Location Map */}
         <ThemedText style={styles.label}>Location (tap map to set)</ThemedText>

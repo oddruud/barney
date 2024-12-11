@@ -1,29 +1,27 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, Platform, Animated, View, Modal } from 'react-native';
+import { StyleSheet, Platform, Animated, View, Modal, Button } from 'react-native';
 import { ThemedView } from '@/components/ThemedView';
-import { ThemedText } from '@/components/ThemedText';
 import { Map } from '@/components/Map';
 import { router, useFocusEffect } from 'expo-router';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import * as Location from 'expo-location';
 import { PlannedWalk } from '@/types/PlannedWalk';
 import { Text } from '@/components/Themed';
-import Slider from '@react-native-community/slider';
 import { useUser } from '@/contexts/UserContext';
 import { calculateDistance, haversineDistance } from '@/utils/geoUtils';
 import WalkDetailsModal from '@/components/modals/WalkDetailsModal';
 import { useData } from '@/contexts/DataContext';
 import { WalkWithDistance } from '@/types/WalkWithDistance';
 import WalkSelect from '@/components/WalkSelect';
+import { useSettings } from '@/contexts/SettingsContext';
 
 export default function SelectWalkInArea({
-  minSearchRadius = 1,
-  maxSearchRadius = 50,
   initialStartDate = new Date(),
   initialEndDate = new Date(new Date().setDate(new Date().getDate() + 7)),
 }) {
   const { user } = useUser();
   const { dataProxy } = useData();
+  const { settings } = useSettings();
   const [selectedWalk, setSelectedWalk] = useState<PlannedWalk | null>(null);
   const [userLocation, setUserLocation] = useState<Location.LocationObject | null>(null);
   const [startDate, setStartDate] = useState<Date | null>(initialStartDate);
@@ -32,7 +30,7 @@ export default function SelectWalkInArea({
   const [walks, setWalks] = useState<PlannedWalk[]>([]);
   const [filteredWalks, setFilteredWalks] = useState<PlannedWalk[]>([]);
   const [walksSortedByDistance, setWalksSortedByDistance] = useState<WalkWithDistance[]>([]);
-  const [selectedDistance, setSelectedDistance] = useState<number>(10);
+
   const [mapRegion, setMapRegion] = useState({
     latitude: 41.1579,
     longitude: -8.6291,
@@ -40,6 +38,7 @@ export default function SelectWalkInArea({
     longitudeDelta: 0.0421,
   });
   const [scaleAnim] = useState(new Animated.Value(0));
+  const [isModalVisible, setModalVisible] = useState(false);
 
   useEffect(() => {
     (async () => {
@@ -73,7 +72,6 @@ export default function SelectWalkInArea({
     // Reset state variables to their initial values
     useFocusEffect(
       React.useCallback(() => {
-        
         const fetchWalks = async () => {
           const fetchedWalks = await dataProxy.getPlannedWalks();
           setWalks(fetchedWalks);
@@ -104,7 +102,7 @@ export default function SelectWalkInArea({
     useEffect(() => {
       const filtered = filterWalks();
       setFilteredWalks(filtered);
-    }, [walks, startDate, endDate, selectedDistance]);
+    }, [walks, startDate, endDate, settings.searchRadius]);
 
   const handleWalkSelect = (walk: WalkWithDistance) => {
     if (walk){
@@ -162,52 +160,61 @@ export default function SelectWalkInArea({
 
   const filterWalks = () : PlannedWalk[] => {
     let filtered = walks.filter(walk => {
-      const walkDate = new Date(walk.dateTime);
-      const distance = calculateDistance(userLocation, walk);
-      return (
-        walkDate >= new Date() &&
-        (!startDate || walkDate >= startDate) &&
-        (!endDate || walkDate <= endDate) &&
-        distance <= selectedDistance
-      );
+      if (userLocation) {
+        const walkDate = new Date(walk.dateTime);
+        const distance = calculateDistance(userLocation, walk);
+        return (
+          walkDate >= new Date() &&
+          distance <= settings.searchRadius
+        );
+      } else {
+        return false;
+      }
     });
     return filtered;
   }
 
+  const toggleModal = () => {
+    setModalVisible(!isModalVisible);
+  };
+
   return (
     <ThemedView style={styles.container}>
 
-      <ThemedView style={styles.dateContainer}>
-        <Text style={styles.label}>Between:</Text>
-        <DateTimePicker
-          value={startDate || new Date()}
-          mode="date"
-          display="default"
-          onChange={handleStartDateChange}
-        />
+      <Button title="Open Filters" onPress={toggleModal} />
 
-        <Text style={styles.label}>And:</Text>
-        <DateTimePicker
-          value={endDate || new Date(new Date().setDate(new Date().getDate() + 7))}
-          mode="date"
-          display="default"
-          onChange={handleEndDateChange}
-        />
-      </ThemedView>
+      <Modal
+        visible={isModalVisible}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={toggleModal}
+      >
+        <View style={styles.modalBackground}>
+          <View style={styles.modalContent}>
+          <Text style={styles.title}>Filters</Text>
+            <ThemedView style={styles.dateContainer}>
+              <Text style={styles.label}>Between:</Text>
+              <DateTimePicker
+                value={startDate || new Date()}
+                mode="date"
+                display="default"
+                onChange={handleStartDateChange}
+              />
+            </ThemedView>
+            <ThemedView style={styles.dateContainer}>
+              <Text style={styles.label}>And:</Text>
+              <DateTimePicker
+                value={endDate || new Date(new Date().setDate(new Date().getDate() + 7))}
+                mode="date"
+                display="default"
+                onChange={handleEndDateChange}
+              />
+            </ThemedView>
 
-      <ThemedView style={styles.sliderContainer}>
-        <ThemedText>Search Radius: {selectedDistance} km</ThemedText>
-        <Slider
-          style={styles.slider}
-          minimumValue={minSearchRadius}
-          maximumValue={maxSearchRadius}
-          step={1}
-          value={selectedDistance}
-          onValueChange={setSelectedDistance}
-          minimumTrackTintColor="#00796b"
-          maximumTrackTintColor="#ccc"
-        />
-      </ThemedView>
+            <Button title="Close" onPress={toggleModal} />
+          </View>
+        </View>
+      </Modal>
 
       {Platform.OS !== 'web' && userLocation && (
         <Map
@@ -221,7 +228,7 @@ export default function SelectWalkInArea({
             description: walk.description
           }))}
           showUserLocation={true}
-          height="80%"
+          height="90%"
           width="100%"
           style={styles.map}
           initialRegion={mapRegion}
@@ -248,14 +255,14 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#e9eae4',
-    padding:16
   },
   label: {
     fontSize: 16,
     fontWeight: 'bold',
     color: '#333',
     marginBottom: 8,
-    backgroundColor: '#e9eae4',
+    width: 100,
+    marginRight: 10,
   },
   title: {
     fontSize: 28,
@@ -323,6 +330,8 @@ const styles = StyleSheet.create({
   slider: {
     width: '100%',
     height: 40,
+    marginTop: 10,
+    zIndex: 1000,
   },
   modalBackground: {
     flex: 1,
@@ -331,8 +340,8 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
   modalContent: {
-    width: '80%',
-    padding: 20,
+    width: '90%',
+    padding: 10,
     backgroundColor: '#ffffff',
     borderRadius: 10,
     alignItems: 'center',

@@ -6,7 +6,6 @@ import { router } from 'expo-router';
 import { useUser } from '@/contexts/UserContext';
 import { authentication } from '@/services/authentication/Authentication';
 import { getAuth, onAuthStateChanged, User, GoogleAuthProvider, signInWithPopup } from "firebase/auth";
-import { useEnvironment } from '@/contexts/EnvironmentContext';
 import { useData } from '@/contexts/DataContext';
 import * as Linking from 'expo-linking';
 import { FirebaseError } from 'firebase/app';
@@ -51,8 +50,6 @@ export default function LoginScreen() {
         onAuthStateChanged(auth, (user) => {
           if (user) {
             console.log("user signed in", user.uid);
-            // User is signed in, see docs for a list of available properties
-            // https://firebase.google.com/docs/reference/js/auth.user
             loadUserDetails(user.uid).then((userData) => {
                 if (userData?.bio === null || userData?.bio === '') {
                     router.replace("/first-login-profile");

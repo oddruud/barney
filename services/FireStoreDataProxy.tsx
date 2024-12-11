@@ -246,7 +246,6 @@ class FireStoreDataProxy implements DataProxy {
       collectionRef, 
       where("chatId", "==", chatId)
     );
-    console.log("getChatMessages", chatId);
     const querySnapshot = await getDocs(q);
     const messages =  querySnapshot.docs.map((doc) => doc.data() as ChatMessage);
     const sortedMessages = messages.sort((a, b) => a.timestamp.seconds - b.timestamp.seconds);

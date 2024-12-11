@@ -66,7 +66,7 @@ const InviteUsersModal: React.FC<InviteUsersModalProps> = ({
       animationType="fade"
       onRequestClose={onClose}
     >
-      <Animated.View style={[styles.modalContainer, { transform: [{ scale: springAnim }] }]}>
+      <Animated.View style={[styles.modalContainer]}>
         <TextInput
           style={styles.searchInput}
           placeholder="Search for a user"
