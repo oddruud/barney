@@ -29,7 +29,7 @@ export default function InviteView() {
   return (
     <View style={styles.container}>
       {loading ? (
-        <Text style={styles.loadingText}>Loading...</Text>
+        <Text style={styles.loadingText}></Text>
       ) : (
         <>
           {invitedWalks.length > 0 && (

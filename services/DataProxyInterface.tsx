@@ -5,6 +5,7 @@ import { Quote } from '../types/Quote';
 import { WalkWithDistance } from '@/types/WalkWithDistance';
 import { LocationObject } from 'expo-location';
 import { UserDetailsWithDistance } from '@/types/UserDetailsWithDistance';
+import { UserInteraction } from '@/types/UserInteraction';
 
 // Define the DataProxy interface
 interface DataProxy {
@@ -57,6 +58,17 @@ interface DataProxy {
     getWalksSortedByDistance(user: UserDetails, userLocation: LocationObject | null, startDate: Date, endDate: Date, maxDistance: number): Promise<WalkWithDistance[]>;
 
     getUsersSortedByDistance(user: UserDetails, maxDistance: number): Promise<UserDetailsWithDistance[]>;
+   
+    // Get user interaction for users
+    getUserInteractionForUsers(userId1: string, userId2: string): Promise<UserInteraction | null>;
+
+    // Create user interaction for users
+    createUserInteractionForUsers(userId1: string, userId2: string): Promise<UserInteraction | null>;
+
+   
+   
+    // Get last chat mesage for chat id
+    getLastChatMessageForChatId(chatId: string): Promise<ChatMessage | null>;
 }
 
 export { DataProxy };

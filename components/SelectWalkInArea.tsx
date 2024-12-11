@@ -178,7 +178,7 @@ export default function SelectWalkInArea({
     <ThemedView style={styles.container}>
 
       <ThemedView style={styles.dateContainer}>
-        <Text style={styles.label}>From:</Text>
+        <Text style={styles.label}>Between:</Text>
         <DateTimePicker
           value={startDate || new Date()}
           mode="date"
@@ -186,7 +186,7 @@ export default function SelectWalkInArea({
           onChange={handleStartDateChange}
         />
 
-        <Text style={styles.label}>To:</Text>
+        <Text style={styles.label}>And:</Text>
         <DateTimePicker
           value={endDate || new Date(new Date().setDate(new Date().getDate() + 7))}
           mode="date"
@@ -223,6 +223,7 @@ export default function SelectWalkInArea({
           showUserLocation={true}
           height="80%"
           width="100%"
+          style={styles.map}
           initialRegion={mapRegion}
           onMarkerPress={handleMarkerPress}
         />
@@ -246,8 +247,8 @@ export default function SelectWalkInArea({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 20,
     backgroundColor: '#e9eae4',
+    padding:16
   },
   label: {
     fontSize: 16,
@@ -299,7 +300,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: 20,
-    backgroundColor: '#e9eae4',
+    backgroundColor: 'rgba(0,0,0,0.0)',
   },
   durationContainer: {
     flexDirection: 'row',
@@ -317,7 +318,7 @@ const styles = StyleSheet.create({
   },
   sliderContainer: {
     marginBottom: 20,
-    backgroundColor: '#e9eae4',
+    backgroundColor: 'rgba(0,0,0,0.0)',
   },
   slider: {
     width: '100%',
@@ -344,5 +345,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     width: '100%',
     marginTop: 10,
+  },
+  map: {
   },
 });

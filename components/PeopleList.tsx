@@ -6,42 +6,58 @@ import { UserDetailsWithDistance } from '../types/UserDetailsWithDistance';
 import { useData } from '@/contexts/DataContext';
 import ProfileImage from './ProfileImage';
 import { Link, router } from 'expo-router';
+import { Timestamp } from 'firebase/firestore';
+import UserInteractionItem from './UserInteractionItem';
+import { useFocusEffect } from '@react-navigation/native';
 
 
 interface PeopleListProps {
   user: UserDetails;
+  searchRadius: number;
 };
 
-const PeopleList: React.FC<PeopleListProps> = ({ user }) => {
+interface UserInteractions {
+    user: UserDetailsWithDistance;
+    lastMessage: string;
+    lastMessageDate: Date;
+}
+
+const PeopleList: React.FC<PeopleListProps> = ({ user, searchRadius }) => {
   const { dataProxy } = useData();
-  const [users, setUsers] = useState<UserDetailsWithDistance[]>([]);
+  const [userInteractions, setUserInteractions] = useState<UserInteractions[]>([]);
+
+
+  const getInteractions = async () => {
+    const users = await dataProxy.getUsersSortedByDistance(user, searchRadius);
+    const interactions: UserInteractions[] = [];
+
+    users.forEach(async (otherUser) => {
+      const userInteraction = await dataProxy.getUserInteractionForUsers(user.id, otherUser.id);
+      if (userInteraction) {
+        const lastMessage = await dataProxy.getLastChatMessageForChatId(userInteraction.chatId);
+        interactions.push({ user: otherUser, lastMessage: lastMessage?.message || '', lastMessageDate: lastMessage?.timestamp.toDate() || new Date() });
+        setUserInteractions(interactions);
+      }
+    });
+  }
 
   useEffect(() => {
-    console.log("PeopleList for user", user.fullName);
-    const getUsers = async () => {
-      const users = await dataProxy.getUsersSortedByDistance(user, 30);
-      console.log("Users", users);
-      setUsers(users);
-    }
-
-    getUsers();
+    getInteractions();
   }, []);
 
+  useFocusEffect(
+    React.useCallback(() => {
+      getInteractions();
+    }, [])
+  );
 
   return (
     <View style={styles.container}>
-        <FlatList
-          data={users}
-          keyExtractor={(item) => item.email.toString()}
+      <FlatList
+        data={userInteractions}
+        keyExtractor={(item) => item.user.email.toString()}
         renderItem={({ item }) => (
-      
-        <Link href={{ pathname: '/user-interaction/[id]', params: { id: item.id } }}>
-            <View style={[styles.row,styles.userItem, {backgroundColor:'lightblue'}]}>
-                <ProfileImage uri={item.profileImage} style={styles.profileImage} />
-                <Text style={styles.name}>{item.fullName || 'Anonymous'}</Text>
-                <Text style={styles.distance}>{item.distance.toFixed(1)}km</Text>
-            </View>
-          </Link>
+          <UserInteractionItem userInteraction={item} />
         )}
       />
     </View>
@@ -53,33 +69,6 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'space-between',
     padding: 16,
-  },
-  profileImage: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-  },
-  row: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  name: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    marginLeft: 16,
-  },
-  distance: {
-    fontSize: 12,
-    marginLeft: 16,
-    color: 'gray',
-    fontWeight: 'bold',
-    flex: 1,
-    textAlign: 'right',
-  },
-  userItem: {
-    padding: 16,
-    marginBottom: 16,
-    borderRadius: 10,
   },
 });
 

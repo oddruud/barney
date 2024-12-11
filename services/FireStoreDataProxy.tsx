@@ -2,7 +2,7 @@ import { PlannedWalk } from '../types/PlannedWalk';
 import { UserDetails } from '../types/UserDetails';
 import { ChatMessage } from '../types/ChatMessage';
 import { DataProxy } from './DataProxyInterface';
-import {getDocs,collection, doc, getDoc, getFirestore, setDoc, query, where} from "firebase/firestore";
+import {getDocs,collection, doc, getDoc, getFirestore, setDoc, query, where, orderBy} from "firebase/firestore";
 import { getRandomId } from '../utils/IDUtils';
 import { Quote } from '@/types/Quote';
 import { getStorage, ref, uploadBytesResumable, getDownloadURL, UploadMetadata } from "firebase/storage";
@@ -10,6 +10,7 @@ import { WalkWithDistance } from '@/types/WalkWithDistance';
 import { calculateDistance, haversineDistance } from '@/utils/geoUtils';
 import { LocationObject } from 'expo-location';
 import { UserDetailsWithDistance } from '@/types/UserDetailsWithDistance';
+import { UserInteraction } from '@/types/UserInteraction';
 
 class FireStoreDataProxy implements DataProxy {
 
@@ -245,10 +246,10 @@ class FireStoreDataProxy implements DataProxy {
       collectionRef, 
       where("chatId", "==", chatId)
     );
-
+    console.log("getChatMessages", chatId);
     const querySnapshot = await getDocs(q);
     const messages =  querySnapshot.docs.map((doc) => doc.data() as ChatMessage);
-    const sortedMessages = messages.sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
+    const sortedMessages = messages.sort((a, b) => a.timestamp.seconds - b.timestamp.seconds);
     return sortedMessages;
   }
 
@@ -404,6 +405,73 @@ async uploadToFirebase(uri:string, name:string, onProgress:((progress:number)=>v
 
     const sortedUsers = usersWithDistance.sort((a, b) => a.distance - b.distance);
     return sortedUsers.filter(u => u.distance <= maxDistance && u.id !== user.id);
+  }
+
+  async getUserInteractionForUsers(userId1: string, userId2: string): Promise<UserInteraction | null> {
+    const db = getFirestore();
+    const collectionRef = collection(db, "userInteractions");
+    const q1 = query(
+      collectionRef, 
+      where("user1Id", "==", userId1),
+      where("user2Id", "==", userId2)
+    );
+
+    const q2 = query(
+      collectionRef, 
+      where("user1Id", "==", userId2),
+      where("user2Id", "==", userId1)
+    );
+
+    // Execute both queries and combine results
+    const querySnapshot1 = await getDocs(q1);
+    const querySnapshot2 = await getDocs(q2);
+
+    const userInteractions = [
+      ...querySnapshot1.docs.map(doc => doc.data() as UserInteraction),
+      ...querySnapshot2.docs.map(doc => doc.data() as UserInteraction)
+    ];
+
+    if (userInteractions.length === 0) {
+      return await this.createUserInteraction(userId1, userId2);
+    }
+
+    return userInteractions[0];
+  } 
+
+  async createUserInteraction(userId1: string, userId2: string): Promise<UserInteraction> {
+    const db = getFirestore();
+    const collectionRef = collection(db, "userInteractions");
+    const userInteractionId = getRandomId();
+    
+    const userInteraction: UserInteraction = {
+      id: userInteractionId,
+      user1Id: userId1,
+      user2Id: userId2,
+      chatId: getRandomId()
+    };
+
+    await setDoc(doc(collectionRef, userInteractionId), userInteraction);
+
+    //get doc from db
+    const docRef = doc(collectionRef, userInteractionId);
+    const docSnap = await getDoc(docRef);
+    const createdUserInteraction = docSnap.data() as UserInteraction;
+
+    return createdUserInteraction;
+  }
+
+  //TODO: this is not efficient, todo: use query to get last message
+  async getLastChatMessageForChatId(chatId: string): Promise<ChatMessage | null> {
+    const db = getFirestore();
+    const collectionRef = collection(db, "chatMessages");
+    const q = query(collectionRef, 
+      where("chatId", "==", chatId)
+    );
+    const querySnapshot = await getDocs(q);
+
+    const messages = querySnapshot.docs.map(doc => doc.data() as ChatMessage);
+    const sorted : ChatMessage[] = messages.sort((a, b) => a.timestamp.seconds - b.timestamp.seconds);
+    return sorted[sorted.length - 1];
   }
 }
 

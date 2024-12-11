@@ -10,9 +10,10 @@ import { useData } from '@/contexts/DataContext';
 
 interface AboutComponentProps {
   user: UserDetails;
+  showRateButton: boolean;
 };
 
-const AboutComponent: React.FC<AboutComponentProps> = ({ user }) => {
+const AboutComponent: React.FC<AboutComponentProps> = ({ user, showRateButton }) => {
   const fadeAnim = useRef(new Animated.Value(0)).current; // Initial value for opacity: 0
   const scaleAnim = useRef(new Animated.Value(0)).current; // Initial value for scale: 0
   const buttonAnim = useRef(new Animated.Value(100)).current; // Initial value for button position: 100 (off-screen)
@@ -68,7 +69,9 @@ const AboutComponent: React.FC<AboutComponentProps> = ({ user }) => {
        
       </Animated.View>
       <Animated.View style={{ transform: [{ translateY: buttonAnim }] }}>
-        <Button title={`Rate ${user.fullName}`} onPress={() => setModalVisible(true)} style={styles.rateButton} />
+        {showRateButton && (
+          <Button title={`Rate ${user.fullName}`} onPress={() => setModalVisible(true)} style={styles.rateButton} />
+        )}
       </Animated.View>
 
       <RateUserModal user={user} visible={modalVisible} onRate={handleRateUser} />

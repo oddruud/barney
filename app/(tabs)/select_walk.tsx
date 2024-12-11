@@ -4,9 +4,9 @@ import { Text } from '../../components/Themed';
 import SelectWalkInArea from '../../components/SelectWalkInArea';
 import InviteView from '../../components/InviteView';
 import PeopleList from '../../components/PeopleList';
-import { useData } from '@/contexts/DataContext';
 import { useUser } from '@/contexts/UserContext';
 import { useRoute, useNavigation } from '@react-navigation/native';
+import { useSettings } from '@/contexts/SettingsContext';
 
 export default function SelectWalkScreen() {
   // State for managing active tab
@@ -14,6 +14,8 @@ export default function SelectWalkScreen() {
   const route = useRoute();
   const navigation = useNavigation();
   const { user } = useUser();
+  const { settings } = useSettings();
+
   useEffect(() => {
     if (route.params) {
       const { tab } = route.params as { tab: string };
@@ -49,7 +51,7 @@ export default function SelectWalkScreen() {
       )}
 
       {activeTab === 'peopleinyourarea' && (
-        <PeopleList user={user}/>
+        <PeopleList user={user} searchRadius={settings.searchRadius}/>
       )}
     </View>
   );

@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { View, FlatList, TextInput, Button, StyleSheet, Animated, TouchableOpacity, TouchableWithoutFeedback, Keyboard, Platform, KeyboardAvoidingView } from 'react-native';
+import { View, FlatList, TextInput, Button, StyleSheet, Animated, TouchableOpacity, TouchableWithoutFeedback, Keyboard, Platform, KeyboardAvoidingView, StyleProp, ViewStyle } from 'react-native';
 import { Text } from './Themed';
 
 import { WalkWithDistance } from '@/types/WalkWithDistance';
@@ -8,11 +8,12 @@ import { IconSymbol } from './ui/IconSymbol';
 
 type WalkSelectProps = {
   walks: WalkWithDistance[];
+  style?: StyleProp<ViewStyle>;
   onWalkSelect: (walk: WalkWithDistance) => void;
   onChooseWalk: (walk: WalkWithDistance) => void;
 };
 
-export default function WalkSelect({walks, onWalkSelect, onChooseWalk}: WalkSelectProps) {
+export default function WalkSelect({walks, onWalkSelect, onChooseWalk, style}: WalkSelectProps) {
   const [selectedWalkIndex, setSelectedWalkIndex] = useState(0);
   const [selectedWalk, setSelectedWalk] = useState(walks[0]);
 
@@ -47,9 +48,8 @@ export default function WalkSelect({walks, onWalkSelect, onChooseWalk}: WalkSele
   }
 
   return (
-    <View>
+    <View style={[styles.container, style]}>
       {walks.length > 0 && selectedWalk && (
-        <View style={styles.container}>
           <View style={styles.inner}>
           <View style={{flexDirection: 'row', alignItems: 'center'}}>
               <TouchableOpacity onPress={handlePreviousWalk} style={{marginRight: 30}}>
@@ -79,7 +79,6 @@ export default function WalkSelect({walks, onWalkSelect, onChooseWalk}: WalkSele
               </TouchableOpacity>
           </View>
         </View>
-        </View>
       )}
     </View>
   );
@@ -87,14 +86,16 @@ export default function WalkSelect({walks, onWalkSelect, onChooseWalk}: WalkSele
 
 const styles = StyleSheet.create({
   container: {
-    position: 'absolute',
-    bottom:60,
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
     zIndex: 1000,
-    width: '100%',
-
+    width: '110%',
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    bottom:81,
+    backgroundColor: 'rgba(0,0,0,0.4)',
   },
   inner: {
     width: '100%',
@@ -102,7 +103,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: 'rgba(0,0,0,0.5)',
-    padding: 10,
+    padding: 16,
   },
   profileImage: {
     width: 50,

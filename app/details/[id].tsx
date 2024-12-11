@@ -11,7 +11,7 @@ import { useUser } from '@/contexts/UserContext';
 import { router } from 'expo-router';
 import { useData } from '@/contexts/DataContext';
 import { IconSymbol } from '@/components/ui/IconSymbol';
-
+import { getPrevRouteName } from '@/utils/routeUtils';
 // Define a sleep function
 const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
@@ -40,15 +40,9 @@ export default function WalkDetails() {
     fetchWalkDetails();
   }, []);
 
-
     useEffect(() => {
-      const routes = navigation.getState()?.routes;
-      if (routes) {
-        const prevRoute = routes[routes.length - 2];
-        console.log("prevRoute", prevRoute);
-        const prevRouteName = prevRoute.name;
-        setPrevRoute(prevRouteName);
-      }
+      const prevRouteName = getPrevRouteName(navigation);
+      setPrevRoute(prevRouteName);
     }, [route]);
 
     // State for managing active tab
@@ -68,14 +62,16 @@ export default function WalkDetails() {
             color="#00796b" 
             style={{ opacity: 1 }}
           />
-          <Text style={{ color: '#00796b', fontSize: 16 }}>Back</Text>
+          <Text style={{ color: '#00796b', fontSize: 16 }}>{prevRoute}</Text>
         </View>
       </TouchableOpacity>
-
+      <Text style={styles.title}>
+            {walkDetails.location}, {new Date(walkDetails.dateTime).toLocaleDateString(undefined, { dateStyle: 'medium' })} at {new Date(walkDetails.dateTime).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })}
+        </Text>
       {/* Tab Navigation */}
       <View style={styles.tabContainer}>
         <TouchableOpacity onPress={() => setActiveTab('details')} style={activeTab === 'details' ? styles.activeTab : styles.tab}>
-          <Text style={styles.tabText}>Details</Text>
+          <Text style={styles.tabText}>Info</Text>
         </TouchableOpacity>
         <TouchableOpacity onPress={() => setActiveTab('chat')} style={activeTab === 'chat' ? styles.activeTab : styles.tab}>
           <Text style={styles.tabText}>Chat</Text>
@@ -126,7 +122,7 @@ export default function WalkDetails() {
       )}
 
       {activeTab === 'about' && organizerDetails && (
-        <AboutComponent user={organizerDetails} />
+        <AboutComponent user={organizerDetails} showRateButton={true} />
       )}
     </View>
   );
@@ -138,6 +134,17 @@ const styles = StyleSheet.create({
     padding: 24,
     marginTop: 32,
     backgroundColor: '#f5f5f5',
+  },
+  textBold: {
+    fontWeight: 'bold',
+    fontSize: 16,
+    marginBottom: 16,
+  },
+  title: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginBottom: 16,
+    marginTop: 16,
   },
   backButton: {
     color: '#000000',

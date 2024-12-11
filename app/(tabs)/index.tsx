@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Image, StyleSheet, View, Animated } from 'react-native';
+import { Image, StyleSheet, View, Animated, Share } from 'react-native';
 import * as Location from 'expo-location';
 
 import { ThemedText } from '@/components/ThemedText';
@@ -16,11 +16,30 @@ import { router } from 'expo-router';
 import { WalkWithDistance } from '@/types/WalkWithDistance';
 import { LocationObject } from 'expo-location';
 import { UserDetailsWithDistance } from '@/types/UserDetailsWithDistance';
+import {useSettings} from '@/contexts/SettingsContext';
 
+function getCountDownText(date: Date): string {
+  const difference = date.getTime() - new Date().getTime();
+  const days = Math.floor(difference / (1000 * 60 * 60 * 24));
+  const hours = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+  const minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
+  const seconds = Math.floor((difference % (1000 * 60)) / 1000);
 
+  if (days > 0) {
+    return `${days} days`;
+  } else if (hours > 0) {
+    return `${hours} hours`;
+  } else if (minutes > 0) {
+    return `${minutes} minutes`;
+  } else {
+    return `${seconds} seconds`;
+  }
+  
+  return '';
+}
 
 // Add a new component to display countdown to the next walk
-function NextWalkCountdown({ nextWalkTime }: { nextWalkTime: Date | null }) {
+function NextWalkCountdown({ prefix, nextWalkTime }: { prefix: string, nextWalkTime: Date | null }) {
   const [countDownText, setCountDownText] = React.useState('');
 
   React.useEffect(() => {
@@ -34,11 +53,7 @@ function NextWalkCountdown({ nextWalkTime }: { nextWalkTime: Date | null }) {
         setCountDownText('Enjoy your walk!');
         clearInterval(interval);
       } else {
-        const days = Math.floor(difference / (1000 * 60 * 60 * 24));
-        const hours = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-        const minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
-        const seconds = Math.floor((difference % (1000 * 60)) / 1000);
-        setCountDownText(`Next Walk In: ${days}d ${hours}h ${minutes}m ${seconds}s`);
+        setCountDownText(prefix + getCountDownText(nextWalkTime));
       }
     }, 1000);
 
@@ -56,7 +71,6 @@ function RandomWalkingQuote() {
   const [quote, setQuote] = useState<Quote>({quote: '', author: ''});
   const { dataProxy } = useData();
 
-
   // Fetch the random quote and trigger the fade-in animation
   useEffect(() => {
     const fetchQuote = async () => {
@@ -71,7 +85,7 @@ function RandomWalkingQuote() {
     <Animated.View style={[styles.quoteContainer]}>
       <ThemedText style={styles.quoteText}>{quote.quote}</ThemedText>
       <ThemedText></ThemedText>
-      <ThemedText style={styles.quoteText}>-{quote.author}</ThemedText>
+      <ThemedText style={styles.quoteText}>- {quote.author}</ThemedText>
     </Animated.View>
   );
 }
@@ -87,6 +101,7 @@ export default function HomeScreen() {
   const [hoursfromNow, setHoursFromNow] = useState<number>(0);
   const [minutesfromNow, setMinutesFromNow] = useState<number>(0);
   const { dataProxy } = useData();
+  const { settings} = useSettings();
 
   useEffect(() => {
     
@@ -111,7 +126,7 @@ export default function HomeScreen() {
 
   useEffect(() => {
     (async () => {
-      const maxDistance = 30;
+      const maxDistance = settings.searchRadius;
       console.log("user", user);
       const users = await dataProxy.getUsersSortedByDistance(user, maxDistance);
       console.log("users-", users);
@@ -179,6 +194,25 @@ export default function HomeScreen() {
     setMinutesFromNow(minutes);
   }, [closestWalk]);
 
+  const handleShare = async () => {
+    try {
+      const result = await Share.share({
+        message: "Let's walk together! Check out this app to find walking buddies and join planned walks.",
+      });
+
+      if (result.action === Share.sharedAction) {
+        if (result.activityType) {
+          // shared with activity type of result.activityType
+        } else {
+          // shared
+        }
+      } else if (result.action === Share.dismissedAction) {
+        // dismissed
+      }
+    } catch (error) {
+      console.error('Error sharing:', error);
+    }
+  };
 
   return (
     <View style={styles.container}>
@@ -190,12 +224,19 @@ export default function HomeScreen() {
       </ThemedView>
       <RandomWalkingQuote />
 
-      {users.length > 0 && (
+      {users.length > 0 && users.length < 100 && invitations.length === 0 && (
         <View style={styles.usersContainer}>
-          <Text style={styles.usersText}>
-            {users.length} active {users.length === 1 ? 'user' : 'users'} nearby. 
-            {users[0].fullName} is the closest at {users[0].distance.toFixed(1)}km.
+          <Text style={styles.usersTitle}>
+            {users.length} {users.length === 1 ? 'person' : 'people'} active in your area.  
           </Text>
+          <Text style={styles.usersText}>
+            You may want to share 'Let's walk' with your friends.
+          </Text>
+          <Button 
+            title="Share" 
+            onPress={handleShare}
+            style={styles.shareButton}
+          />
         </View>
       )}
 
@@ -207,24 +248,32 @@ export default function HomeScreen() {
         />
       )}
 
-      {closestWalk && (hoursfromNow > 0 || minutesfromNow > 0) && (
-        <View style={styles.closestWalkContainer}>
-          <Text style={styles.closestWalkText}>This walk is {hoursfromNow <=0 ? minutesfromNow : hoursfromNow} {hoursfromNow <=0 ? 'minutes' : 'hours'} from now and is {closestWalk.distance.toFixed(1)}km away:</Text>
-          <WalkItem item={closestWalk} showDate={true} />
-        </View>
-      )}
+ 
 
       <View style={styles.bottomContainer}>
         {nextWalk ? (
           <>
-          <View style={styles.nextWalkContainer}>
+          <View style={styles.proposedWalkContainer}>
+          <Text style={styles.proposedWalkTitle}>Your next walk</Text>
             <NextWalkCountdown 
-              nextWalkTime={new Date(`${nextWalk.dateTime}`)} 
+              prefix = "Next walk in "   nextWalkTime={new Date(`${nextWalk.dateTime}`)} 
             />
             <WalkItem item={nextWalk} showDate={true} />
           </View>
           </>
         ) : null}
+
+      {!nextWalk && closestWalk && (
+        <View style={styles.proposedWalkContainer}>
+          <Text style={styles.proposedWalkTitle}>Joinable walk</Text>
+           <NextWalkCountdown 
+              prefix = {`${closestWalk.distance.toFixed(1)}km from you, starting in `} 
+              nextWalkTime={new Date(`${closestWalk.dateTime}`)} 
+            />
+          <WalkItem item={closestWalk} showDate={true} />
+        </View>
+      )}
+
       </View>
     </View>
   );
@@ -281,6 +330,7 @@ const styles = StyleSheet.create({
     fontFamily: 'SpaceMono',
     fontSize: 12,
     color: '#000000',
+    textAlign: 'center',
   },
   noWalkImage: {
     width: '100%',
@@ -305,6 +355,16 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     height: 50,
     marginTop:55,
+  },
+  shareButton: {
+    marginHorizontal: 8,
+    backgroundColor: '#4CAF50',
+    borderRadius: 8,
+    alignItems: 'center',
+    width: '45%',
+    alignSelf: 'center',
+    height: 50,
+    marginTop:16,
   },
   buttonText: {
     fontFamily: 'SpaceMono',
@@ -332,19 +392,36 @@ const styles = StyleSheet.create({
   nextWalkContainer: {
     padding: 16,
   },
+  proposedWalkContainer: {
+    padding: 16,
+  },
   closestWalkText: {
-    fontFamily: 'SpaceMono',
     fontSize: 12,
     color: '#000000',
     marginBottom: 16,
   },
   usersContainer: {
     padding: 16,
-    marginTop: 16,
+    marginTop: 64,
+
   },
   usersText: {
-    fontFamily: 'SpaceMono',
     fontSize: 12,
     color: '#000000',
+    textAlign: 'center',
+  },
+  usersTitle: {
+    fontSize: 16,
+    color: '#000000',
+    marginBottom: 8,
+    fontWeight: 'bold',
+    textAlign: 'center',
+  },
+  proposedWalkTitle: {
+    fontSize: 16,
+    color: '#000000',
+    marginBottom: 8,
+    fontWeight: 'bold',
+    textAlign: 'center',
   },
 });

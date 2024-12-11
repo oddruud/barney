@@ -7,6 +7,7 @@ import { Text } from './Themed';
 import { useData } from '@/contexts/DataContext';
 import AudioRecorderPlayer from 'react-native-audio-recorder-player';
 import { IconSymbol } from '../components/ui/IconSymbol';
+import { Timestamp } from 'firebase/firestore';
 
 
 type ChatComponentProps = {
@@ -70,8 +71,8 @@ export default function ChatComponent({chatId, user }: ChatComponentProps) {
   }
 
   const renderItem = ({ item, index }: { item: ChatMessage, index: number }) => {
-    const currentMessageDate = new Date(item.timestamp);
-    const previousMessageDate = index > 0 ? new Date(messages[index - 1].timestamp) : null;
+    const currentMessageDate = new Date(item.timestamp.toDate());
+    const previousMessageDate = index > 0 ? new Date(messages[index - 1].timestamp.toDate()) : null;
     const isNewDay = !previousMessageDate || currentMessageDate.toDateString() !== previousMessageDate.toDateString();
 
     const today = new Date();
@@ -95,7 +96,7 @@ export default function ChatComponent({chatId, user }: ChatComponentProps) {
     if (inputText.trim()) {
       const newMessage: ChatMessage = {
         id: '',
-        timestamp: new Date().toISOString(),
+        timestamp: Timestamp.fromDate(new Date()),
         userName: user?.fullName || '',
         message: inputText,
         chatId: chatId,

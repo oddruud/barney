@@ -158,29 +158,6 @@ const WalkDetailsComponent: React.FC<WalkDetailsComponentProps> = ({
     <Animated.View style={{ flex: 1, opacity: fadeAnim }}>
       <ScrollView>
         <View style={{ flex: 1 }}>
-          <Text style={styles.textBold}>
-            {walkDetails.location}, {formattedDate} at {new Date(walkDetails.dateTime).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })}
-          </Text>
-          
-          <Animated.View
-            style={[
-              styles.profileContainer,
-              {
-                opacity: scaleFadeAnim,
-                transform: [{ scale: scaleFadeAnim }],
-              },
-            ]}
-          >
-            <TouchableOpacity onPress={onProfileImagePress}>
-              <ProfileImage uri={walkDetails.profileImage} style={styles.profileImageSmall} />
-            </TouchableOpacity>
-            <Text style={styles.hostText}>
-              {isOrganizer ? "Organized by you" : `With ${walkDetails.fullName}`}
-            </Text>
-            <TouchableOpacity onPress={handleSharePress} style={styles.shareButton}>
-              <Image source={require('../assets/images/share.png')} style={styles.shareImage} />
-            </TouchableOpacity>
-          </Animated.View>
           <Map
             onPress={() => setFullscreenMapModalVisible(true)}
             initialRegion={{
@@ -219,7 +196,23 @@ const WalkDetailsComponent: React.FC<WalkDetailsComponentProps> = ({
               </ThemedText>
             </View>
           </View> 
+          <Animated.View
+            style={[
+              styles.profileContainer,
+              {
+                opacity: scaleFadeAnim,
+                transform: [{ scale: scaleFadeAnim }],
+              },
+            ]}
+          >
+            <TouchableOpacity onPress={onProfileImagePress}>
+              <ProfileImage uri={walkDetails.profileImage} style={styles.profileImageSmall} />
+            </TouchableOpacity>
+            <Text style={styles.hostText}>
+              {isOrganizer ? "Organized by you" : `With ${walkDetails.fullName}`}
+            </Text>
           
+          </Animated.View>
           <View style={styles.usersListContainer}>
             {users
               .filter(user => user.id !== walkDetails.userId)
@@ -340,6 +333,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: 16,
+    marginTop: 16,
   },
   profileImageSmall: {
     width: 40,
@@ -361,10 +355,7 @@ const styles = StyleSheet.create({
     marginBottom: 8,
     marginTop: 0,
     fontStyle: 'italic',
-    borderWidth: 1,
-    borderColor: '#666',
     padding: 8,
-    borderRadius: 8,
   },
   hostText: {
     fontSize: 16,

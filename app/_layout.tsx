@@ -11,6 +11,7 @@ import { useColorScheme } from '@/hooks/useColorScheme';
 import { UserProvider } from '@/contexts/UserContext';
 import { EnvironmentProvider } from '@/contexts/EnvironmentContext';
 import { DataProvider } from '@/contexts/DataContext';
+import { SettingsProvider } from '@/contexts/SettingsContext';
 
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
@@ -40,6 +41,7 @@ export default function RootLayout() {
       <EnvironmentProvider>
         <DataProvider>
           <UserProvider>
+            <SettingsProvider>
             <Stack initialRouteName="login">
               <Stack.Screen 
           name="login" 
@@ -85,6 +87,7 @@ export default function RootLayout() {
         
       </Stack>
           <StatusBar style="auto" />
+            </SettingsProvider>
           </UserProvider>
         </DataProvider>
       </EnvironmentProvider>

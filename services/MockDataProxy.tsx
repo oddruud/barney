@@ -8,6 +8,7 @@ import { WalkWithDistance } from '@/types/WalkWithDistance';
 import { LocationObject } from 'expo-location';
 import { calculateDistance, haversineDistance } from '@/utils/geoUtils';
 import { UserDetailsWithDistance } from '@/types/UserDetailsWithDistance';
+import { UserInteraction } from '@/types/UserInteraction';
 // Implement the DummyDataProxy class
 class MockDataProxy implements DataProxy {
 
@@ -287,6 +288,18 @@ async getRandomWalkingQuote(): Promise<Quote> {
     return dummyUserDetails.map(otherUser => {
       const distance = haversineDistance(user.latitude, user.longitude, otherUser.latitude, otherUser.longitude);
       return {...otherUser, distance};
+    });
+  }
+
+  async getUserInteractionForUsers(userId1: string, userId2: string): Promise<UserInteraction | null> {
+    return new Promise((resolve) => {
+      resolve(null);
+    });
+  }
+
+  async createUserInteractionForUsers(userId1: string, userId2: string): Promise<UserInteraction | null> {
+    return new Promise((resolve) => {
+      resolve(null);
     });
   }
 }

@@ -1,4 +1,4 @@
-import { StyleSheet, Dimensions, Linking, Platform, Image } from 'react-native';
+import { StyleSheet, Dimensions, Linking, Platform, Image, StyleProp, ViewStyle } from 'react-native';
 import { useEffect, useState, useRef } from 'react';
 import * as Location from 'expo-location';
 import MapView from 'react-native-maps';
@@ -25,6 +25,7 @@ type Props = {
   showUserLocation?: boolean;
   width?: number | string;
   height?: number | string;
+  style?: StyleProp<ViewStyle>;
   onMarkerPress?: (marker: Marker) => void;
   showRoute?: boolean;
   onPress?: (event: {
@@ -51,6 +52,7 @@ export function Map({
   height = 600,
   onMarkerPress,
   showRoute = false,
+  style,
   onPress
 }: Props) {
   const [userLocation, setUserLocation] = useState<Marker['coordinate'] | null>(null);
@@ -120,10 +122,13 @@ export function Map({
   return (
     <MapView 
       ref={mapRef}
-      style={{
-        width,
-        height
-      }}
+      style={[
+        {
+          width,
+          height
+        },
+        style
+      ]}
       initialRegion={adjustedRegion}
       onPress={onPress}
       mapType={'standard'}

@@ -38,7 +38,7 @@ function ChatMessageItem({ message, isLocalUser }: { message: ChatMessage, isLoc
           {message.userName.charAt(0).toUpperCase() + message.userName.slice(1).toLowerCase()}
         </Text>
         <Text style={styles.date}>
-          {new Date(message.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+          {new Date(message.timestamp.toDate()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
         </Text>
       </View>
       <Text style={styles.message}>{message.message}</Text>
