@@ -93,7 +93,11 @@ const Profile: React.FC<ProfileProps> = ({
       setNewProfileImage(resizedUri);
       setProfileImage(resizedUri);
       await updateUserProfile(resizedUri);
-      setNewProfileImage(null);
+
+      //wait for the profile image to be updated
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      setProfileImage(user.profileImage);
+      await updateUserProfile(profileImage);
     }
   };
 
@@ -106,14 +110,18 @@ const Profile: React.FC<ProfileProps> = ({
 
     if (newProfileImage) {
       updatedDetails.profileImage = await dataProxy.uploadImage(newProfileImage);
+      console.log('updated profile image', updatedDetails.profileImage);
+      setUser(updatedDetails);
     } else {
       console.warn("no new profile image to upload");
     }
 
-    await dataProxy.updateUserProfile(updatedDetails).then(() => {
-     
+    await dataProxy.updateUser(updatedDetails).then(() => {
+    
     });
   };
+
+
 
 
   const handleContinue = async () => {
@@ -170,7 +178,7 @@ const Profile: React.FC<ProfileProps> = ({
       </TouchableOpacity>
         <TouchableOpacity onPress={pickImage} style={styles.profileImageContainer}>
           {profileImage ? (
-            <ProfileImage uri={profileImage} style={styles.profileImage} />
+            <ProfileImage user={user} profileImageOverride={profileImage} style={styles.profileImage} />
           ) : (
             <ThemedView style={styles.profileImagePlaceholder}>
               <ThemedText>Tap to add photo</ThemedText>

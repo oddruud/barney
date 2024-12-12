@@ -1,6 +1,7 @@
 export type UserDetails = {
   id: string;
   email: string;
+  isVerified: boolean;
   userName: string;
   activeSince: string;
   fullName: string;
@@ -11,4 +12,5 @@ export type UserDetails = {
   numberOfRatings: number;
   latitude: number;
   longitude: number;
+  lastCheckIn: string;
 };

@@ -8,7 +8,9 @@ import { useData } from '@/contexts/DataContext';
 import AudioRecorderPlayer from 'react-native-audio-recorder-player';
 import { IconSymbol } from '../components/ui/IconSymbol';
 import { Timestamp } from 'firebase/firestore';
+import Constants from 'expo-constants'
 
+const isRunningInExpoGo = Constants.appOwnership === 'expo'
 
 type ChatComponentProps = {
   chatId: string;
@@ -21,11 +23,38 @@ export default function ChatComponent({chatId, user }: ChatComponentProps) {
   const [inputText, setInputText] = useState('');
   const { dataProxy } = useData();
   const flatListRef = useRef<FlatList>(null);
+  const [uniqueUsers, setUniqueUsers] = useState<UserDetails[] | null>([]);
   const fadeAnim = useRef(new Animated.Value(0)).current; // Initial opacity value of 0
   const [isUserScrolling, setIsUserScrolling] = useState(false);
   const audioRecorderPlayer = useRef(new AudioRecorderPlayer()).current;
   const [isRecording, setIsRecording] = useState(false);
   const [isVoiceRecordingEnabled, setIsVoiceRecordingEnabled] = useState(false);
+
+  let messageSound = null;
+  
+  if (!isRunningInExpoGo) {
+    console.log('using expo-audio');
+  }
+
+  const getUniqueUserIds  = (messages: ChatMessage[]) => {
+    const uniqueUserIds = messages.map(message => message.userId).filter((value, index, self) => self.indexOf(value) === index);
+    return uniqueUserIds;
+  }
+
+  const getUniqueUsers = async (messages: ChatMessage[]): Promise<UserDetails[]> => {
+    const uniqueUserIds = getUniqueUserIds(messages);
+    const uniqueUsers = await Promise.all(
+      uniqueUserIds.map(userId => dataProxy.getUserDetailsById(userId))
+    );
+    // Filter out null values and explicitly type the return
+    return uniqueUsers.filter((user): user is UserDetails => user !== null);
+  }
+
+  const getUserById = (userId: string): UserDetails | null => {
+    const user = uniqueUsers?.find(user => user.id === userId);
+    return user || null;
+  }
+
   useEffect(() => {
     // Load initial messages from dataProxy
     dataProxy.getChatMessages(chatId).then(initialMessages => {
@@ -34,7 +63,7 @@ export default function ChatComponent({chatId, user }: ChatComponentProps) {
         newMessage: false,
       }));
       setMessages(updatedMessages);
-      
+
       if (flatListRef.current) {
         flatListRef.current.scrollToEnd({ animated: false });
       }
@@ -50,6 +79,14 @@ export default function ChatComponent({chatId, user }: ChatComponentProps) {
   }, [chatId]);
 
   useEffect(() => {
+    getUniqueUsers(messages).then(uniqueUsers => {
+      if (uniqueUsers) {
+        setUniqueUsers(uniqueUsers.filter((user): user is UserDetails => user !== null));
+      }
+    });
+  }, [messages]);
+
+  useEffect(() => {
     Animated.timing(fadeAnim, {
       toValue: 1, // Fade to opacity 1
       duration: 500, // Duration of the fade animation
@@ -63,8 +100,7 @@ export default function ChatComponent({chatId, user }: ChatComponentProps) {
         const newUniqueMessages = newMessages.filter(
           newMsg => !prevMessages.some(prevMsg => prevMsg.id === newMsg.id)
         );
-        setMessageCount(prevMessages.length + newUniqueMessages.length);
-        
+        setMessageCount(prevMessages.length + newUniqueMessages.length);      
         return [...prevMessages, ...newUniqueMessages];
       });
     });
@@ -87,7 +123,7 @@ export default function ChatComponent({chatId, user }: ChatComponentProps) {
             </Text>
           </Animated.View>
         )}
-        <ChatMessageItem message={item} isLocalUser={item.userId === user?.id} />
+        <ChatMessageItem message={item} user={getUserById(item.userId)} isLocalUser={item.userId === user?.id} />
       </>
     );
   };
@@ -178,7 +214,12 @@ export default function ChatComponent({chatId, user }: ChatComponentProps) {
           placeholder="Type a message"
         />
         <TouchableOpacity onPress={handleSend}>
-          <IconSymbol name="paperplane.fill" size={40} color="white" style={styles.messageIcon} />
+          <View style={[
+            styles.sendButton,
+            { backgroundColor: inputText.trim() ? '#00796b' : '#808080' }
+          ]}>
+            <IconSymbol name="paperplane.fill" size={30} color="white" style={styles.messageIcon} />
+          </View>
         </TouchableOpacity>
       </View>
 
@@ -244,10 +285,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   messageIcon: {
-    marginLeft: 10,
-    backgroundColor: '#00796b',
-    padding: 20,
-    borderRadius: 20,
+  },
+  sendButton: {
+    marginLeft: 5,
+    padding: 10,
+    borderRadius: 50,
     marginBottom: 10,
   },
 });

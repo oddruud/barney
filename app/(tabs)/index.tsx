@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Image, StyleSheet, View, Animated, Share } from 'react-native';
 import * as Location from 'expo-location';
+import * as Notifications from 'expo-notifications';
 
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
@@ -17,6 +18,7 @@ import { WalkWithDistance } from '@/types/WalkWithDistance';
 import { LocationObject } from 'expo-location';
 import { UserDetailsWithDistance } from '@/types/UserDetailsWithDistance';
 import {useSettings} from '@/contexts/SettingsContext';
+import { formatDistance } from '@/utils/stringUtils';
 
 function getCountDownText(date: Date): string {
   const difference = date.getTime() - new Date().getTime();
@@ -118,22 +120,26 @@ export default function HomeScreen() {
       }
 
       let location = await Location.getCurrentPositionAsync({});
-      setUser({...user, latitude: location.coords.latitude, longitude: location.coords.longitude});
+      setUser({...user, latitude: location.coords.latitude, longitude: location.coords.longitude, lastCheckIn: new Date().toISOString()});
 
-
+      // Request notification permissions
+      const { status: notificationStatus } = await Notifications.requestPermissionsAsync();
+      if (notificationStatus === 'granted') {
+        await Notifications.scheduleNotificationAsync({
+          content: {
+            title: "Let's walk",
+            body: 'You have a walk coming up!',
+          },
+          trigger: null, // null means show immediately
+        });
+      }
     })();
   }, []);
 
   useEffect(() => {
     (async () => {
       const maxDistance = settings.searchRadius;
-      console.log("user", user);
       const users = await dataProxy.getUsersSortedByDistance(user, maxDistance);
-      console.log("users-", users);
-      users.forEach(user => {
-        console.log(user.fullName, user.distance);
-      });
-
       setUsers(users);
     })();
   }, [user]);
@@ -164,6 +170,7 @@ export default function HomeScreen() {
       if (status === 'granted') {
         const currentLocation = await Location.getCurrentPositionAsync({});
         setUserLocation(currentLocation);
+        
         const walks = await dataProxy.getWalksSortedByDistance(user, currentLocation ? currentLocation : null, new Date(), new Date(new Date().getTime() + 7 * 24 * 60 * 60 * 1000), 10);
         setWalksSortedByDistance(walks);
       };
@@ -258,7 +265,7 @@ export default function HomeScreen() {
             <NextWalkCountdown 
               prefix = "Next walk in "   nextWalkTime={new Date(`${nextWalk.dateTime}`)} 
             />
-            <WalkItem item={nextWalk} showDate={true} />
+            <WalkItem item={nextWalk} showDate={true} animated={true} />
           </View>
           </>
         ) : null}
@@ -267,10 +274,10 @@ export default function HomeScreen() {
         <View style={styles.proposedWalkContainer}>
           <Text style={styles.proposedWalkTitle}>Joinable walk</Text>
            <NextWalkCountdown 
-              prefix = {`${closestWalk.distance.toFixed(1)}km from you, starting in `} 
+              prefix = {`${formatDistance(closestWalk.distance)} from you, starting in `} 
               nextWalkTime={new Date(`${closestWalk.dateTime}`)} 
             />
-          <WalkItem item={closestWalk} showDate={true} />
+          <WalkItem item={closestWalk} showDate={true} animated={true} />
         </View>
       )}
 
@@ -354,7 +361,7 @@ const styles = StyleSheet.create({
     width: '45%',
     alignSelf: 'center',
     height: 50,
-    marginTop:55,
+    marginTop:75,
   },
   shareButton: {
     marginHorizontal: 8,

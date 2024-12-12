@@ -1,12 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { View, StyleSheet, Animated, Modal, FlatList, ScrollView, TouchableOpacity } from 'react-native';
-import { Text } from '../components/Themed';
 import { UserDetails } from '../types/UserDetails';
 import { UserDetailsWithDistance } from '../types/UserDetailsWithDistance';
 import { useData } from '@/contexts/DataContext';
-import ProfileImage from './ProfileImage';
-import { Link, router } from 'expo-router';
-import { Timestamp } from 'firebase/firestore';
 import UserInteractionItem from './UserInteractionItem';
 import { useFocusEffect } from '@react-navigation/native';
 

@@ -47,14 +47,14 @@ export default function PlannedWalks() {
       </View>
 
       {loading ? (
-        <Text style={styles.loadingText}>Loading...</Text>
+        <Text style={styles.loadingText}></Text>
       ) : (
         <>
           {activeTab === 'today' && todaysWalks.length > 0 && (
             <>
               <FlatList
                 data={todaysWalks}
-                renderItem={({ item }) => <WalkItem item={item} showDate={false} />}
+                renderItem={({ item }) => <WalkItem item={item} showDate={false} animated={false} />}
                 keyExtractor={(item) => item.id}
                 style={styles.list}
               />
@@ -64,7 +64,7 @@ export default function PlannedWalks() {
             <>
               <FlatList
                 data={futureWalks}
-                renderItem={({ item }) => <WalkItem item={item} showDate={true} />}
+                renderItem={({ item }) => <WalkItem item={item} showDate={true} animated={false} />}
                 keyExtractor={(item) => item.id}
                 style={styles.listUpcoming}
               />

@@ -14,6 +14,8 @@ PODS:
     - ExpoModulesCore
   - ExpoAsset (11.0.1):
     - ExpoModulesCore
+  - ExpoAudio (0.3.0):
+    - ExpoModulesCore
   - ExpoBlur (14.0.1):
     - ExpoModulesCore
   - ExpoCalendar (14.0.4):
@@ -1778,6 +1780,8 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
+  - RNFS (2.20.0):
+    - React-Core
   - RNGestureHandler (2.20.2):
     - DoubleConversion
     - glog
@@ -1799,6 +1803,11 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
+  - RNNotifee (9.1.3):
+    - React-Core
+    - RNNotifee/NotifeeCore (= 9.1.3)
+  - RNNotifee/NotifeeCore (9.1.3):
+    - React-Core
   - RNReanimated (3.16.3):
     - DoubleConversion
     - glog
@@ -2010,6 +2019,7 @@ DEPENDENCIES:
   - EXImageLoader (from `../node_modules/expo-image-loader/ios`)
   - Expo (from `../node_modules/expo`)
   - ExpoAsset (from `../node_modules/expo-asset/ios`)
+  - ExpoAudio (from `../node_modules/expo-audio/ios`)
   - ExpoBlur (from `../node_modules/expo-blur/ios`)
   - ExpoCalendar (from `../node_modules/expo-calendar/ios`)
   - ExpoFileSystem (from `../node_modules/expo-file-system/ios`)
@@ -2101,7 +2111,9 @@ DEPENDENCIES:
   - RNAudioRecorderPlayer (from `../node_modules/react-native-audio-recorder-player`)
   - "RNCAsyncStorage (from `../node_modules/@react-native-async-storage/async-storage`)"
   - "RNDateTimePicker (from `../node_modules/@react-native-community/datetimepicker`)"
+  - RNFS (from `../node_modules/react-native-fs`)
   - RNGestureHandler (from `../node_modules/react-native-gesture-handler`)
+  - "RNNotifee (from `../node_modules/@notifee/react-native`)"
   - RNReanimated (from `../node_modules/react-native-reanimated`)
   - RNScreens (from `../node_modules/react-native-screens`)
   - RNSVG (from `../node_modules/react-native-svg`)
@@ -2131,6 +2143,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/expo"
   ExpoAsset:
     :path: "../node_modules/expo-asset/ios"
+  ExpoAudio:
+    :path: "../node_modules/expo-audio/ios"
   ExpoBlur:
     :path: "../node_modules/expo-blur/ios"
   ExpoCalendar:
@@ -2310,8 +2324,12 @@ EXTERNAL SOURCES:
     :path: "../node_modules/@react-native-async-storage/async-storage"
   RNDateTimePicker:
     :path: "../node_modules/@react-native-community/datetimepicker"
+  RNFS:
+    :path: "../node_modules/react-native-fs"
   RNGestureHandler:
     :path: "../node_modules/react-native-gesture-handler"
+  RNNotifee:
+    :path: "../node_modules/@notifee/react-native"
   RNReanimated:
     :path: "../node_modules/react-native-reanimated"
   RNScreens:
@@ -2332,6 +2350,7 @@ SPEC CHECKSUMS:
   EXImageLoader: 759063a65ab016b836f73972d3bb25404888713d
   Expo: 148aac4ce0da148c63447d09ae41ddb153f35506
   ExpoAsset: 8138f2a9ec55ae1ad7c3871448379f7d97692d15
+  ExpoAudio: 6a61d59e80c5a2714a5c128f7b96d59c60137cf1
   ExpoBlur: 562b3da84d3cd79016c411671eaf71a404266415
   ExpoCalendar: 584170a07064802a186bc199914d4b6db4119e27
   ExpoFileSystem: dc2679a2b5d4c465ca881129074da95faee943d5
@@ -2422,7 +2441,9 @@ SPEC CHECKSUMS:
   RNAudioRecorderPlayer: 224c7de87722938aedce04000d09baa633148f5b
   RNCAsyncStorage: fe98f1b459a87b80f12207da80c50b3a3abb6081
   RNDateTimePicker: 6008d74df8122d6af6d9d08096bff19a8c6ba647
+  RNFS: 4ac0f0ea233904cb798630b3c077808c06931688
   RNGestureHandler: fc5ce5bf284640d3af6431c3a5c3bc121e98d045
+  RNNotifee: 522276e0be010e98173175fb838514b69f18cbe0
   RNReanimated: 006a5d3961bf09c1e96d62ed436e02b2e43b89bb
   RNScreens: 27587018b2e6082f5172b1ecf158c14a0e8842d6
   RNSVG: 536cd3c866c878faf72beaba166c8b02fe2b762b

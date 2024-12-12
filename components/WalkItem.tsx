@@ -7,22 +7,35 @@ import { PlannedWalk } from '../types/PlannedWalk';
 import { StyleSheet } from 'react-native';
 import { IconSymbol } from '../components/ui/IconSymbol';
 import { Map } from '../components/Map';
-import { localCache } from '../services/LocalCache';
 import ProfileImage from './ProfileImage';
+import { UserDetails } from '@/types/UserDetails';
+import { useData } from '@/contexts/DataContext';
 
-function WalkItem({ item, showDate }: { item: PlannedWalk, showDate: boolean }) {
+function WalkItem({ item, showDate, animated }: { item: PlannedWalk, showDate: boolean, animated: boolean }) {
+  const { dataProxy } = useData();
   const navigation = useNavigation();
-  const fadeAnim = useRef(new Animated.Value(0)).current;
-  const scaleAnim = useRef(new Animated.Value(0.8)).current;
+  const fadeAnim = useRef(new Animated.Value(animated ? 0 : 1)).current;
+  const scaleAnim = useRef(new Animated.Value(animated ? 0.8 : 1)).current;
+  const [organizer, setOrganizer] = useState<UserDetails | null>(null);
   const [imageLoaded, setImageLoaded] = useState(false);
   const imageOpacity = useRef(new Animated.Value(0)).current;
 
   const isPastWalk = new Date(item.dateTime) < new Date();
 
+  const fetchOrganizer = async () => {
+    const organizer = await dataProxy.getUserDetailsById(item.userId);
+    setOrganizer(organizer);
+  };
+
   useEffect(() => {
-    Animated.parallel([
-      Animated.timing(fadeAnim, {
-        toValue: 1,
+    fetchOrganizer();
+  }, []);
+
+  useEffect(() => {
+    if (animated) {
+      Animated.parallel([
+        Animated.timing(fadeAnim, {
+          toValue: 1,
         duration: 500,
         useNativeDriver: true,
       }),
@@ -31,19 +44,10 @@ function WalkItem({ item, showDate }: { item: PlannedWalk, showDate: boolean }) 
         friction: 5,
         useNativeDriver: true,
       }),
-    ]).start();
-  }, [fadeAnim, scaleAnim]);
+      ]).start();
+  }
+}, [fadeAnim, scaleAnim]);
 
-
-  useEffect(() => {
-    if (imageLoaded) {
-      Animated.timing(imageOpacity, {
-        toValue: 1,
-        duration: 500,
-        useNativeDriver: true,
-      }).start();
-    }
-  }, [imageLoaded]);
 
   return (
     <Animated.View 
@@ -57,7 +61,7 @@ function WalkItem({ item, showDate }: { item: PlannedWalk, showDate: boolean }) 
     >
       <Link href={{ pathname: '/details/[id]', params: { id: item.id } }}>
         <View style={styles.walkHeader}>
-          <ProfileImage uri={item.profileImage} style={styles.profileImage} />
+          {organizer && <ProfileImage user={organizer} style={styles.profileImage} />}
           <View style={styles.walkInfo}>
             <Text style={styles.date}>
               {showDate ? `${new Date(item.dateTime).toLocaleDateString(undefined, { day: 'numeric', month: 'short' })} at ${new Date(item.dateTime).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })}` : new Date(item.dateTime).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })}

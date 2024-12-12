@@ -56,7 +56,7 @@ const AboutComponent: React.FC<AboutComponentProps> = ({ user, showRateButton })
   return (
     <View style={styles.container}>
       <Animated.View style={[styles.aboutContainer, { opacity: fadeAnim }]}>
-        <ProfileImage uri={user.profileImage} style={styles.profileImage} />
+        <ProfileImage user={user} style={styles.profileImage} />
         <Text style={styles.textBold}>{user.fullName}</Text>
         <Text style={styles.text}>Active Since: {new Date(user.activeSince).toLocaleDateString()}</Text>
         <Text style={styles.text}>Walks Completed: {user.walksCompleted}</Text>

@@ -15,7 +15,7 @@ export const SettingsProvider: React.FC<{ children: ReactNode }> = ({ children }
     const {dataProxy} = useData();
     
     const defaultSettings: Settings = {
-        searchRadius: 30
+        searchRadius: 70
     };
 
     // Logic to perform when user changes

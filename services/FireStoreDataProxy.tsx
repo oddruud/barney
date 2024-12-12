@@ -135,6 +135,16 @@ class FireStoreDataProxy implements DataProxy {
     
     let userData = await getDoc(docRef).then((docSnap) => {
       const userDetails = docSnap.data() as UserDetails | null;
+      
+      //TODO: remove this after testing
+      if (userDetails) {
+        userDetails.isVerified = true;
+
+        if (!userDetails.lastCheckIn) {
+          userDetails.lastCheckIn = new Date().toISOString();
+        }
+      }
+
       return userDetails;
     }).catch((error) => {
       console.error("Error getting user details", error);
@@ -373,7 +383,7 @@ async uploadToFirebase(uri:string, name:string, onProgress:((progress:number)=>v
   ): Promise<WalkWithDistance[]> {
     const walks = await this.getPlannedWalks();
     if (!userLocation) return [];
-    console.log(userLocation);
+    
     const walksWithDistance: WalkWithDistance[] = walks.filter(walk => {
         const walkDate = new Date(walk.dateTime);
         const distance = calculateDistance(userLocation, walk);

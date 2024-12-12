@@ -10,13 +10,13 @@
 		13B07FBC1A68108700A75B9A /* AppDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB01A68108700A75B9A /* AppDelegate.mm */; };
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
 		13B07FC11A68108700A75B9A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
+		3081D0CD6434446FB2706194 /* noop-file.swift in Sources */ = {isa = PBXBuildFile; fileRef = 85BF169869D04C95A421CDBC /* noop-file.swift */; };
 		3E461D99554A48A4959DE609 /* SplashScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */; };
+		80D8E35642E14BCA9B9610D5 /* Voltaire-Frangela.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 932F3CC4210B466DBC579BD1 /* Voltaire-Frangela.ttf */; };
 		96905EF65AED1B983A6B3ABC /* libPods-LetsWalk.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 58EEBF8E8E6FB1BC6CAF49B5 /* libPods-LetsWalk.a */; };
-		99E38D45C4F4473EAC2D2A29 /* noop-file.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4332A7FF58E74E59A4AF0556 /* noop-file.swift */; };
-		9F55EC08F8683A169737D425 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = DB7D1CE41A2A28B84E81D6E4 /* PrivacyInfo.xcprivacy */; };
+		AF489F3E9B58682C2B328B8D /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = AB61E5289572C23F11327752 /* PrivacyInfo.xcprivacy */; };
 		B18059E884C0ABDD17F3DC3D /* ExpoModulesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAC715A2D49A985799AEE119 /* ExpoModulesProvider.swift */; };
 		BB2F792D24A3F905000567C9 /* Expo.plist in Resources */ = {isa = PBXBuildFile; fileRef = BB2F792C24A3F905000567C9 /* Expo.plist */; };
-		C6AF1BF6CE7C43A78ED067AA /* Voltaire-Frangela.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 7715C9778F9B47FD9F7B8564 /* Voltaire-Frangela.ttf */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -26,15 +26,15 @@
 		13B07FB51A68108700A75B9A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = LetsWalk/Images.xcassets; sourceTree = "<group>"; };
 		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = LetsWalk/Info.plist; sourceTree = "<group>"; };
 		13B07FB71A68108700A75B9A /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = main.m; path = LetsWalk/main.m; sourceTree = "<group>"; };
-		40A52928137A4B2589F62020 /* LetsWalk-Bridging-Header.h */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 4; includeInIndex = 0; lastKnownFileType = sourcecode.c.h; name = "LetsWalk-Bridging-Header.h"; path = "LetsWalk/LetsWalk-Bridging-Header.h"; sourceTree = "<group>"; };
-		4332A7FF58E74E59A4AF0556 /* noop-file.swift */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 4; includeInIndex = 0; lastKnownFileType = sourcecode.swift; name = "noop-file.swift"; path = "LetsWalk/noop-file.swift"; sourceTree = "<group>"; };
 		58EEBF8E8E6FB1BC6CAF49B5 /* libPods-LetsWalk.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-LetsWalk.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		6C2E3173556A471DD304B334 /* Pods-LetsWalk.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-LetsWalk.debug.xcconfig"; path = "Target Support Files/Pods-LetsWalk/Pods-LetsWalk.debug.xcconfig"; sourceTree = "<group>"; };
-		7715C9778F9B47FD9F7B8564 /* Voltaire-Frangela.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Voltaire-Frangela.ttf"; path = "../assets/fonts/Voltaire-Frangela.ttf"; sourceTree = "<group>"; };
 		7A4D352CD337FB3A3BF06240 /* Pods-LetsWalk.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-LetsWalk.release.xcconfig"; path = "Target Support Files/Pods-LetsWalk/Pods-LetsWalk.release.xcconfig"; sourceTree = "<group>"; };
+		85BF169869D04C95A421CDBC /* noop-file.swift */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 4; includeInIndex = 0; lastKnownFileType = sourcecode.swift; name = "noop-file.swift"; path = "LetsWalk/noop-file.swift"; sourceTree = "<group>"; };
+		932F3CC4210B466DBC579BD1 /* Voltaire-Frangela.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Voltaire-Frangela.ttf"; path = "../assets/fonts/Voltaire-Frangela.ttf"; sourceTree = "<group>"; };
+		A92479D6690A4C2F897DDA31 /* LetsWalk-Bridging-Header.h */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 4; includeInIndex = 0; lastKnownFileType = sourcecode.c.h; name = "LetsWalk-Bridging-Header.h"; path = "LetsWalk/LetsWalk-Bridging-Header.h"; sourceTree = "<group>"; };
 		AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = SplashScreen.storyboard; path = LetsWalk/SplashScreen.storyboard; sourceTree = "<group>"; };
+		AB61E5289572C23F11327752 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xml; name = PrivacyInfo.xcprivacy; path = LetsWalk/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		BB2F792C24A3F905000567C9 /* Expo.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Expo.plist; sourceTree = "<group>"; };
-		DB7D1CE41A2A28B84E81D6E4 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xml; name = PrivacyInfo.xcprivacy; path = LetsWalk/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
 		FAC715A2D49A985799AEE119 /* ExpoModulesProvider.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ExpoModulesProvider.swift; path = "Pods/Target Support Files/Pods-LetsWalk/ExpoModulesProvider.swift"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -61,19 +61,11 @@
 				13B07FB61A68108700A75B9A /* Info.plist */,
 				13B07FB71A68108700A75B9A /* main.m */,
 				AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */,
-				4332A7FF58E74E59A4AF0556 /* noop-file.swift */,
-				40A52928137A4B2589F62020 /* LetsWalk-Bridging-Header.h */,
-				DB7D1CE41A2A28B84E81D6E4 /* PrivacyInfo.xcprivacy */,
+				85BF169869D04C95A421CDBC /* noop-file.swift */,
+				A92479D6690A4C2F897DDA31 /* LetsWalk-Bridging-Header.h */,
+				AB61E5289572C23F11327752 /* PrivacyInfo.xcprivacy */,
 			);
 			name = LetsWalk;
-			sourceTree = "<group>";
-		};
-		25ACD8E5D4E04DC6977043CC /* Resources */ = {
-			isa = PBXGroup;
-			children = (
-				7715C9778F9B47FD9F7B8564 /* Voltaire-Frangela.ttf */,
-			);
-			name = Resources;
 			sourceTree = "<group>";
 		};
 		2D16E6871FA4F8E400B85C8A /* Frameworks */ = {
@@ -101,7 +93,7 @@
 				2D16E6871FA4F8E400B85C8A /* Frameworks */,
 				D65327D7A22EEC0BE12398D9 /* Pods */,
 				D7E4C46ADA2E9064B798F356 /* ExpoModulesProviders */,
-				25ACD8E5D4E04DC6977043CC /* Resources */,
+				F2F3515C793D4358B6B08D14 /* Resources */,
 			);
 			indentWidth = 2;
 			sourceTree = "<group>";
@@ -150,6 +142,14 @@
 			name = ExpoModulesProviders;
 			sourceTree = "<group>";
 		};
+		F2F3515C793D4358B6B08D14 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				932F3CC4210B466DBC579BD1 /* Voltaire-Frangela.ttf */,
+			);
+			name = Resources;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -158,13 +158,13 @@
 			buildConfigurationList = 13B07F931A680F5B00A75B9A /* Build configuration list for PBXNativeTarget "LetsWalk" */;
 			buildPhases = (
 				08A4A3CD28434E44B6B9DE2E /* [CP] Check Pods Manifest.lock */,
-				F7F256A25B9343705F35C05F /* [Expo] Configure project */,
+				B6734A2A75DAF6B6091575ED /* [Expo] Configure project */,
 				13B07F871A680F5B00A75B9A /* Sources */,
 				13B07F8C1A680F5B00A75B9A /* Frameworks */,
 				13B07F8E1A680F5B00A75B9A /* Resources */,
 				00DD1BFF1BD5951E006B06BC /* Bundle React Native code and images */,
 				800E24972A6A228C8D4807E9 /* [CP] Copy Pods Resources */,
-				100B3176F8B893C8FE63A961 /* [CP] Embed Pods Frameworks */,
+				A072E77C503B0D760CC59A55 /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -214,8 +214,8 @@
 				BB2F792D24A3F905000567C9 /* Expo.plist in Resources */,
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
 				3E461D99554A48A4959DE609 /* SplashScreen.storyboard in Resources */,
-				C6AF1BF6CE7C43A78ED067AA /* Voltaire-Frangela.ttf in Resources */,
-				9F55EC08F8683A169737D425 /* PrivacyInfo.xcprivacy in Resources */,
+				80D8E35642E14BCA9B9610D5 /* Voltaire-Frangela.ttf in Resources */,
+				AF489F3E9B58682C2B328B8D /* PrivacyInfo.xcprivacy in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -257,24 +257,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
-			showEnvVarsInLog = 0;
-		};
-		100B3176F8B893C8FE63A961 /* [CP] Embed Pods Frameworks */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-LetsWalk/Pods-LetsWalk-frameworks.sh",
-				"${PODS_XCFRAMEWORKS_BUILD_DIR}/hermes-engine/Pre-built/hermes.framework/hermes",
-			);
-			name = "[CP] Embed Pods Frameworks";
-			outputPaths = (
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/hermes.framework",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-LetsWalk/Pods-LetsWalk-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 		800E24972A6A228C8D4807E9 /* [CP] Copy Pods Resources */ = {
@@ -357,7 +339,25 @@
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-LetsWalk/Pods-LetsWalk-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
-		F7F256A25B9343705F35C05F /* [Expo] Configure project */ = {
+		A072E77C503B0D760CC59A55 /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-LetsWalk/Pods-LetsWalk-frameworks.sh",
+				"${PODS_XCFRAMEWORKS_BUILD_DIR}/hermes-engine/Pre-built/hermes.framework/hermes",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputPaths = (
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/hermes.framework",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-LetsWalk/Pods-LetsWalk-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		B6734A2A75DAF6B6091575ED /* [Expo] Configure project */ = {
 			isa = PBXShellScriptBuildPhase;
 			alwaysOutOfDate = 1;
 			buildActionMask = 2147483647;
@@ -386,7 +386,7 @@
 				13B07FBC1A68108700A75B9A /* AppDelegate.mm in Sources */,
 				13B07FC11A68108700A75B9A /* main.m in Sources */,
 				B18059E884C0ABDD17F3DC3D /* ExpoModulesProvider.swift in Sources */,
-				99E38D45C4F4473EAC2D2A29 /* noop-file.swift in Sources */,
+				3081D0CD6434446FB2706194 /* noop-file.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -408,6 +408,7 @@
 					"FB_SONARKIT_ENABLED=1",
 				);
 				INFOPLIST_FILE = LetsWalk/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "Let's Walk";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.social-networking";
 				IPHONEOS_DEPLOYMENT_TARGET = 15.1;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -422,7 +423,7 @@
 				);
 				OTHER_SWIFT_FLAGS = "$(inherited) -D EXPO_CONFIGURATION_DEBUG";
 				PRODUCT_BUNDLE_IDENTIFIER = com.roboruud.letswalk;
-				PRODUCT_NAME = LetsWalk;
+				PRODUCT_NAME = "LetsWalk";
 				SWIFT_OBJC_BRIDGING_HEADER = "LetsWalk/LetsWalk-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
@@ -441,6 +442,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = EQ7Q5L6DF5;
 				INFOPLIST_FILE = LetsWalk/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "Let's Walk";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.social-networking";
 				IPHONEOS_DEPLOYMENT_TARGET = 15.1;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -455,7 +457,7 @@
 				);
 				OTHER_SWIFT_FLAGS = "$(inherited) -D EXPO_CONFIGURATION_RELEASE";
 				PRODUCT_BUNDLE_IDENTIFIER = com.roboruud.letswalk;
-				PRODUCT_NAME = LetsWalk;
+				PRODUCT_NAME = "LetsWalk";
 				SWIFT_OBJC_BRIDGING_HEADER = "LetsWalk/LetsWalk-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";

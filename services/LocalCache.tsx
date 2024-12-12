@@ -2,6 +2,7 @@ import * as FileSystem from 'expo-file-system';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {getRandomId} from '@/utils/IDUtils';
 
+
 class LocalCache{
     private static instance: LocalCache;
   
@@ -18,8 +19,17 @@ class LocalCache{
        const localCachedFilePath =  await this.getCacheItem(url);
 
        if (localCachedFilePath) {
+        let info = await FileSystem.getInfoAsync(localCachedFilePath);
+        
+        if (!info.exists) {
+            console.log('File does not exist, the local cache is corrupted, removing item from cache');
+            this.removeCacheItem(url);
+            this.download(url);
+            return url;
+        } else {
             return localCachedFilePath;
-       }else {
+        }
+       } else {
           this.download(url);
        }
 
@@ -63,6 +73,10 @@ class LocalCache{
       console.error('Failed to fetch user data', e);
       return null;
     }
+  }
+
+  async removeCacheItem(key: string): Promise<void> {
+    await AsyncStorage.removeItem(key);
   }
 }
 

@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import { View, Modal, StyleSheet, Animated, Image } from 'react-native';
 import { ThemedView } from '@/components/ThemedView';
 import { ThemedText } from '@/components/ThemedText';
@@ -7,6 +7,8 @@ import { Button } from '@/components/Button';
 import { IconSymbol } from '@/components/ui/IconSymbol';
 import { PlannedWalk } from '@/types/PlannedWalk';
 import ProfileImage from '../ProfileImage';
+import { UserDetails } from '@/types/UserDetails';
+import { useData } from '@/contexts/DataContext';
 
 interface WalkDetailsModalProps {
   visible: boolean;
@@ -17,6 +19,14 @@ interface WalkDetailsModalProps {
 
 const WalkDetailsModal: React.FC<WalkDetailsModalProps> = ({ visible, walk, onClose, onCheckOut }) => {
   const scaleValue = useRef(new Animated.Value(0)).current;
+  const [organizer, setOrganizer] = useState<UserDetails | null>(null);
+  const { dataProxy } = useData();
+
+  useEffect(() => {
+    if (walk) {
+      dataProxy.getUserDetailsById(walk.userId).then(setOrganizer);
+    }
+  }, [walk]);
 
   useEffect(() => {
     if (visible) {
@@ -52,13 +62,15 @@ const WalkDetailsModal: React.FC<WalkDetailsModalProps> = ({ visible, walk, onCl
             <IconSymbol name="person" size={16} color="#333" style={styles.icon} />
             <ThemedText>{walk?.joinedUserIds.length} / {walk?.maxParticipants}</ThemedText>
           </View>
+          {organizer && (
           <View style={styles.userInfoContainer}>
             <ProfileImage
-              uri ={walk?.profileImage ?? ''}
+              user={organizer}
               style={styles.profileImage}
             />
-            <ThemedText>with {walk?.fullName}</ThemedText>
-          </View>
+              <ThemedText>with {walk?.fullName}</ThemedText>
+            </View>
+          )}
           <View style={styles.buttonRow}>
             <Button
               title="Check out"

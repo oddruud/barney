@@ -1,14 +1,19 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import { View, Animated, Easing, StyleSheet } from 'react-native';
 import { Text } from '../components/Themed';
 import { ChatMessage } from '../types/ChatMessage';
 import { getColorFromUsername } from '../utils/colorUtils';// Assuming styles are in a separate file
+import { UserDetails } from '../types/UserDetails';
+import ProfileImage from './ProfileImage';
 
-
-
-function ChatMessageItem({ message, isLocalUser }: { message: ChatMessage, isLocalUser: boolean }) {
+function ChatMessageItem({ message, user, isLocalUser }: { message: ChatMessage, user: UserDetails | null, isLocalUser: boolean }) {
   const fadeAnim = useRef(new Animated.Value(0)).current; // Initial opacity value
   const slideAnim = useRef(new Animated.Value(isLocalUser ? 300 : -300)).current; // Initial position value
+  const [messageUser, setMessageUser] = useState<UserDetails | null>(user);
+
+  useEffect(() => {
+      setMessageUser(user);
+  }, [user]);
 
   useEffect(() => {
     Animated.parallel([
@@ -27,6 +32,11 @@ function ChatMessageItem({ message, isLocalUser }: { message: ChatMessage, isLoc
   }, [fadeAnim, slideAnim]);
 
   return (
+    <Animated.View  style={[
+      isLocalUser ? styles.localUserMessageContainer : styles.otherUserMessageContainer,
+      { opacity: fadeAnim, transform: [{ translateX: slideAnim }] },
+    ]}>
+       {messageUser && !isLocalUser && <ProfileImage showVerifiedMark={false} user={messageUser} style={[styles.profileImage, { marginRight: 10 }]}/>}
     <Animated.View
       style={[
         isLocalUser ? styles.localUserMessage : styles.otherUserMessage,
@@ -43,6 +53,8 @@ function ChatMessageItem({ message, isLocalUser }: { message: ChatMessage, isLoc
       </View>
       <Text style={styles.message}>{message.message}</Text>
     </Animated.View>
+    {messageUser && isLocalUser && <ProfileImage showVerifiedMark={false} user={messageUser} style={[styles.profileImage, { marginLeft: 10 }]}/>}
+    </Animated.View>
   );
 }
 
@@ -56,7 +68,6 @@ const styles = StyleSheet.create({
     },
     localUserMessage: {
       backgroundColor: '#b2dfdb',
-      alignSelf: 'flex-end',
       padding: 10,
       marginTop: 10,
       borderRadius: 20,
@@ -70,7 +81,6 @@ const styles = StyleSheet.create({
     },
     otherUserMessage: {
       backgroundColor: '#e3ffed',
-      alignSelf: 'flex-start',
       padding: 10,
       marginTop: 10,
       borderRadius: 20,
@@ -95,6 +105,22 @@ const styles = StyleSheet.create({
       flexDirection: 'row',
       justifyContent: 'space-between',
       alignItems: 'center',
+    },
+    profileImage: {
+      width: 40,
+      height: 40,
+      borderRadius: 20,
+    },
+    localUserMessageContainer: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'flex-end',
+      alignSelf: 'flex-end',
+    },
+    otherUserMessageContainer: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      alignSelf: 'flex-start',
     },
 });
   

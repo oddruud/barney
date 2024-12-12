@@ -167,7 +167,6 @@ export default function NewWalkScreen() {
     };
 
     await dataProxy.createPlannedWalk(walk).then((id) => {
-      console.log("Walk created, opening detail page", id);
       router.push(`/details/${id}`);
     });
 
@@ -279,7 +278,7 @@ export default function NewWalkScreen() {
                   key={user.id}
                   onPress={() => setInvitedUsers(invitedUsers.filter(invitedUser => invitedUser.id !== user.id))}
                 >
-                <ProfileImage uri={user.profileImage} style={styles.profileImage} />
+                <ProfileImage user={user} style={styles.profileImage} />
                 </TouchableOpacity>
               ))}
             </View>
@@ -320,7 +319,7 @@ export default function NewWalkScreen() {
 
       {!isLoadingLocation && (
         <FullscreenMapModal
-          title="Place a min where you will meet"
+          title="Place a pin for the start of the walk"
           visible={isSelectOnMapModalVisible}
           initialLocation={location}
           allowLocationSelection={true}

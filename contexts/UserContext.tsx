@@ -23,7 +23,11 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         rating: 0,
         numberOfRatings: 0,
         profileImage: "",
-        walksCompleted: 0
+        walksCompleted: 0,
+        isVerified: false,
+        latitude: 0,
+        longitude: 0,
+        lastCheckIn: ""
      };
 
     // Logic to perform when user changes
@@ -35,7 +39,7 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             const updateUser = async () => {
                 await dataProxy.updateUser(user);
             }
-            
+
             updateUser();
         }
     }, [user]);

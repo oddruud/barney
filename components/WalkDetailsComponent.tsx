@@ -31,6 +31,7 @@ const WalkDetailsComponent: React.FC<WalkDetailsComponentProps> = ({
 }) => {
   const fadeAnim = useRef(new Animated.Value(0)).current; // Initial value for opacity: 0
   const [users, setUsers] = useState<UserDetails[]>([]);
+  const [organizer, setOrganizer] = useState<UserDetails | null>(null);
   const [isLocalUserJoined, setIsLocalUserJoined] = useState(false);
   const [updateState, setUpdateState] = useState(0);
   const [isInvited, setIsInvited] = useState(false);
@@ -44,6 +45,7 @@ const WalkDetailsComponent: React.FC<WalkDetailsComponentProps> = ({
   const isCancelled = walkDetails.cancelled;
   const [isAddedToCalendarModalVisible, setIsAddedToCalendarModalVisible] = useState(false);
   const [fullscreenMapModalVisible, setFullscreenMapModalVisible] = useState(false);
+  const [isFull, setIsFull] = useState(false);
   const [location, setLocation] = useState({
     latitude: walkDetails.latitude,
     longitude: walkDetails.longitude,
@@ -52,12 +54,23 @@ const WalkDetailsComponent: React.FC<WalkDetailsComponentProps> = ({
   });
 
   useEffect(() => {
+    setIsFull(walkDetails.joinedUserIds.length >= walkDetails.maxParticipants);
+  }, [walkDetails.joinedUserIds, walkDetails.maxParticipants]);
+
+  useEffect(() => {
     const fetchUsersFromJoinedUserIds = async () => {
       const users = await dataProxy.getUsersFromJoinedUserIds(walkDetails.id);
       setUsers(users);
     };
     fetchUsersFromJoinedUserIds();
-    
+
+    const fetchOrganizer = async () => {
+      const organizer = await dataProxy.getUserDetailsById(walkDetails.userId);
+      setOrganizer(organizer);
+    };
+
+    fetchOrganizer();
+
     setIsLocalUserJoined(walkDetails.joinedUserIds.includes(user?.id ?? 0));
     setIsInvited(walkDetails.invitedUserIds.includes(user?.id ?? 0));
 
@@ -206,7 +219,7 @@ const WalkDetailsComponent: React.FC<WalkDetailsComponentProps> = ({
             ]}
           >
             <TouchableOpacity onPress={onProfileImagePress}>
-              <ProfileImage uri={walkDetails.profileImage} style={styles.profileImageSmall} />
+              {organizer && <ProfileImage user={organizer} style={styles.profileImageSmall} />}
             </TouchableOpacity>
             <Text style={styles.hostText}>
               {isOrganizer ? "Organized by you" : `With ${walkDetails.fullName}`}
@@ -227,7 +240,7 @@ const WalkDetailsComponent: React.FC<WalkDetailsComponentProps> = ({
                     },
                   ]}
                 >
-                  <ProfileImage uri={user.profileImage} style={styles.userImage} />
+                  <ProfileImage user={user} style={styles.userImage} />
                   <Text style={styles.userName}>{user.fullName}</Text>
                 </Animated.View>
               ))}
@@ -251,12 +264,13 @@ const WalkDetailsComponent: React.FC<WalkDetailsComponentProps> = ({
             />
           )}
           </View>
-          {!isLocalUserJoined && (
+          {!isLocalUserJoined && !isFull && (
             <View style={styles.buttonRow}>
               <Button
                 title="Join"
                 onPress={async () => {
                   setIsLocalUserJoined(true);
+                  setUpdateState(updateState + 1); //ugly hack
                   await onJoinPress();
                   setUpdateState(updateState + 1);
                 }}
@@ -332,8 +346,8 @@ const styles = StyleSheet.create({
   profileContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 16,
-    marginTop: 16,
+    marginBottom: 4,
+    marginTop: 4,
   },
   profileImageSmall: {
     width: 40,

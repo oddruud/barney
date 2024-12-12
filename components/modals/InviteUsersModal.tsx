@@ -44,7 +44,6 @@ const InviteUsersModal: React.FC<InviteUsersModalProps> = ({
       setSearchResults([]);
       return;
     }
-    console.log("searching for users", users.length);
 
     const results = users.filter(user => {
       if (user.fullName) {

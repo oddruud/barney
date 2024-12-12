@@ -28,7 +28,9 @@ export default function UserInteractionScreen() {
         setUserInteraction(interaction);
 
         if (interaction) {
-          const otherUser = await dataProxy.getUserDetailsById(interaction.user2Id);
+          // Get the ID of the user that isn't the current user
+          const otherUserId = interaction.user1Id === user.id ? interaction.user2Id : interaction.user1Id;
+          const otherUser = await dataProxy.getUserDetailsById(otherUserId);
           setOtherUser(otherUser);
         }
       }

@@ -17,13 +17,19 @@ function sleep(ms: number) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
 
+export interface Message {
+    message: string;
+    type: 'error' | 'success';
+}
+
+
 export default function LoginScreen() {
     const { setUser } = useUser();
     const { dataProxy } = useData();
     const [isLoggingIn, setIsLoggingIn] = useState(false);
     const [email, setEmail] = useState('yelp@yolo.com');
     const [password, setPassword] = useState('testtest');
-    const [errorMessage, setErrorMessage] = useState('');
+    const [message, setMessage] = useState<Message | null>(null);
     const [showLoginForm, setShowLoginForm] = useState(false);
     const { environment } = useEnvironment();
 
@@ -57,10 +63,37 @@ export default function LoginScreen() {
         });
     }
 
+    const loginOrVerifyEmail = async (user: User) => {
+        if (environment === Environment.Development) {
+            console.log("environment is development, log in immediately");
+            console.log("user signed in", user.uid);
+            loginUser(user);
+        } else {
+            console.log("environment is production or staging, verify email");
+            if (user.emailVerified) {
+                loginUser(user);
+            } else {
+                sendEmailVerification(user).then(() => {
+                    console.log("email verification sent");
+                    setMessage({ message: 'Please verify your email', type: 'success' });
+                });
+            }
+        }
+    }
+
     useEffect(() => {
+        console.log("environment is ", environment);
+
         const auth = getAuth();
 
+        const currentUser = auth.currentUser;
+        if (currentUser) {
+            loginOrVerifyEmail(currentUser);
+        } else {
+            console.log("no user signed in");
+        }
         //todo make this a hook
+        /*
         onAuthStateChanged(auth, (user: User | null) => { 
           if (user) {
             if (environment === Environment.Development) {
@@ -75,15 +108,15 @@ export default function LoginScreen() {
                     //todo place in authentication service
                     sendEmailVerification(user).then(() => {
                         console.log("email verification sent");
+                        setMessage({ message: 'Please verify your email', type: 'success' });
                     }).catch((error) => {
                         console.error("Error sending email verification", error);
                     });
                 }
             }
           }
-          
+          */
 
-        });
     }, []);
 
     const handleSignUpPress = async () => {
@@ -92,26 +125,24 @@ export default function LoginScreen() {
         if (user) {
             const email = user.email ?? '';
             dataProxy.registerUser(user.uid, email).then(() => {
-                setErrorMessage('User registered successfully');
+                loginOrVerifyEmail(user);
             }).catch((error) => {
                 console.error("Error registering user", error);
             });
         }
     }).catch((error) => {
-        setErrorMessage(parseError(error));
+        setMessage({ message: parseError(error), type: 'error' });
     });
     }
 
     const handleLoginPress = async () => {
-        setErrorMessage('');
+        setMessage(null);
         authentication.loginWithEmailAndPassword(email, password).then((user) => {
             if (user) {
-                loadUserDetails(user.uid).then(() => {
-                    router.replace("/(tabs)");
-                });
+                loginUser(user);
             }
         }).catch((error) => {
-            setErrorMessage(parseError(error));
+            setMessage({ message: parseError(error), type: 'error' });
         });
     }
 
@@ -263,8 +294,8 @@ export default function LoginScreen() {
                                 onChangeText={setPassword}
                                 secureTextEntry
                             />
-                            {errorMessage ? (
-                                <Text style={styles.errorText}>{errorMessage}</Text>
+                            {message ? (
+                                <Text style={{...styles.messageText, color: message.type === 'error' ? 'red' : 'green'}}>{message.message}</Text>
                             ) : null}
                             <View style={styles.buttonRow}>
                                 <Button style={styles.loginButton}
@@ -362,10 +393,9 @@ const styles = StyleSheet.create({
         borderRadius: 5,
         marginBottom: 10,
     },
-    errorText: {
-        color: 'red',
+    messageText: {
         textAlign: 'center',
-        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+        backgroundColor: 'rgba(0, 0, 0, 1)',
         padding: 10,
         borderRadius: 5,
     },

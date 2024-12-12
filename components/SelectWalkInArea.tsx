@@ -137,7 +137,10 @@ export default function SelectWalkInArea({
 
   const handleMarkerPress = (marker: any) => {
     const walk = walks.find(w => w.id === marker.id);
-    setSelectedWalk(walk || null);
+    //setSelectedWalk(walk || null);
+    if (walk) {
+      router.push(`/details/${walk.id}`);
+    }
   };
 
   const handleCheckOutWalk = () => {
@@ -155,7 +158,9 @@ export default function SelectWalkInArea({
   };
 
   const handleChooseWalk = (walk: WalkWithDistance) => {
-    setSelectedWalk(walk as PlannedWalk);
+    if (walk) {
+      router.push(`/details/${walk.id}`);
+    }
   }
 
   const filterWalks = () : PlannedWalk[] => {

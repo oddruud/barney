@@ -5,7 +5,9 @@ import { Text } from './Themed';
 import { WalkWithDistance } from '@/types/WalkWithDistance';
 import ProfileImage from './ProfileImage';
 import { IconSymbol } from './ui/IconSymbol';
-
+import { formatDistance } from '@/utils/stringUtils';
+import { useData } from '@/contexts/DataContext';
+import { UserDetails } from '@/types/UserDetails';
 type WalkSelectProps = {
   walks: WalkWithDistance[];
   style?: StyleProp<ViewStyle>;
@@ -16,13 +18,22 @@ type WalkSelectProps = {
 export default function WalkSelect({walks, onWalkSelect, onChooseWalk, style}: WalkSelectProps) {
   const [selectedWalkIndex, setSelectedWalkIndex] = useState(0);
   const [selectedWalk, setSelectedWalk] = useState(walks[0]);
+  const { dataProxy } = useData();
+  const [organizer, setOrganizer] = useState<UserDetails | null>(null);
+  
+  const fetchOrganizer = async () => {
+    const organizer = await dataProxy.getUserDetailsById(walks[selectedWalkIndex].userId);
+    setOrganizer(organizer);
+  };
 
   useEffect(() => {
+    fetchOrganizer();
   }, [walks]);
 
   useEffect(() => {
     if (selectedWalkIndex < walks.length && selectedWalkIndex >= 0) {
       setSelectedWalk(walks[selectedWalkIndex]);
+      fetchOrganizer();
     }
   },[selectedWalkIndex, walks]);
 
@@ -62,13 +73,13 @@ export default function WalkSelect({walks, onWalkSelect, onChooseWalk, style}: W
               </TouchableOpacity>
               <TouchableOpacity onPress={handleSelectWalk}>
             <View style={{flexDirection: 'row', alignItems: 'center'}}>
-              <ProfileImage uri={selectedWalk.profileImage} style={styles.profileImage} />
+              {organizer && <ProfileImage user={organizer} showVerifiedMark={false} style={styles.profileImage} />}
               <View style={{marginLeft: 10}}>
               <Text style={{color: 'white', fontSize: 16, fontWeight: 'bold'}}>{selectedWalk.location}</Text>
                 <Text style={{color: 'white'}}>
                   {new Date(selectedWalk.dateTime).toLocaleDateString(undefined, { day: 'numeric', month: 'long' })}
                 </Text>
-                <Text style={{color: 'white'}}>{selectedWalk.distance.toFixed(1)}km</Text>
+                <Text style={{color: 'white'}}>{formatDistance(selectedWalk.distance)}</Text>
               </View>
             </View>
             </TouchableOpacity>

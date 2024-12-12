@@ -11,7 +11,7 @@ const UserItem: React.FC<UserItemProps> = ({ user, onSelectUser }) => {
   return (
     <TouchableOpacity onPress={() => onSelectUser(user)}>
       <Animated.View style={styles.userItemContainer}>
-        <ProfileImage uri={user.profileImage} style={styles.userProfileImage} />
+        <ProfileImage user={user} style={styles.userProfileImage} />
         <Text style={styles.userItem}>{user.fullName}</Text>
       </Animated.View>
     </TouchableOpacity>

@@ -36,7 +36,7 @@ export default function InviteView() {
             <>
               <FlatList
                 data={invitedWalks}
-                renderItem={({ item }) => <WalkItem item={item} showDate={true} />}
+                renderItem={({ item }) => <WalkItem item={item} showDate={true} animated={true} />}
                 keyExtractor={(item) => item.id}
                 style={styles.list}
               />
