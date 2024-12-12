@@ -5,11 +5,12 @@ import { Button } from '@/components/Button';
 import { router } from 'expo-router';
 import { useUser } from '@/contexts/UserContext';
 import { authentication } from '@/services/authentication/Authentication';
-import { getAuth, onAuthStateChanged, User, GoogleAuthProvider, signInWithPopup } from "firebase/auth";
+import { getAuth, onAuthStateChanged, User, GoogleAuthProvider, signInWithPopup, sendEmailVerification } from "firebase/auth";
 import { useData } from '@/contexts/DataContext';
 import * as Linking from 'expo-linking';
 import { FirebaseError } from 'firebase/app';
 import { UserDetails } from '@/types/UserDetails';
+import { Environment, useEnvironment } from '@/contexts/EnvironmentContext';
 
 
 function sleep(ms: number) {
@@ -24,6 +25,7 @@ export default function LoginScreen() {
     const [password, setPassword] = useState('testtest');
     const [errorMessage, setErrorMessage] = useState('');
     const [showLoginForm, setShowLoginForm] = useState(false);
+    const { environment } = useEnvironment();
 
     const videoSource = 'https://roboruud.nl/walk.mp4';    
     const fadeAnim = useRef(new Animated.Value(0)).current; // Initial opacity value of 0
@@ -43,20 +45,41 @@ export default function LoginScreen() {
         }).start();
     }, [fadeAnim, buttonFadeAnim]);
 
+
+    const loginUser = async (user: User) => {
+        console.log("user signed in", user.uid);
+        loadUserDetails(user.uid).then((userData) => {
+            if (userData?.bio === null || userData?.bio === '') {
+                router.replace("/first-login-profile");
+            } else {
+                router.replace("/(tabs)");
+            }
+        });
+    }
+
     useEffect(() => {
         const auth = getAuth();
 
         //todo make this a hook
-        onAuthStateChanged(auth, (user) => {
+        onAuthStateChanged(auth, (user: User | null) => { 
           if (user) {
-            console.log("user signed in", user.uid);
-            loadUserDetails(user.uid).then((userData) => {
-                if (userData?.bio === null || userData?.bio === '') {
-                    router.replace("/first-login-profile");
+            if (environment === Environment.Development) {
+                console.log("environment is development, log in immediately");
+                console.log("user signed in", user.uid);
+                loginUser(user);
+            } else {
+                console.log("environment is production or staging, verify email");
+                if (user.emailVerified) {
+                    loginUser(user);
                 } else {
-                    router.replace("/(tabs)");
+                    //todo place in authentication service
+                    sendEmailVerification(user).then(() => {
+                        console.log("email verification sent");
+                    }).catch((error) => {
+                        console.error("Error sending email verification", error);
+                    });
                 }
-            });
+            }
           }
           
 

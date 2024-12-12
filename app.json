@@ -3,7 +3,7 @@
     "name": "Let's Walk",
     "slug": "letswalk",
     "version": "0.7",
-    "environment": "development",
+    "environment": "staging",
     "useDummyData": false,
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
