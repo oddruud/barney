@@ -333,9 +333,10 @@ export default function NewWalkScreen() {
             });
             await fetchAddressAndUpdateLocation(location.latitude, location.longitude);
           }}
-          allowRouteCreation={false}
+          allowRouteCreation={true}
           onRouteCreated={async (routeInfo: RouteInfo) => {
             console.log("route has been created");
+            console.log(routeInfo.description);
           }}
           onRequestClose={() => setIsSelectOnMapModalVisible(false)} // Allow closing the modal
         />

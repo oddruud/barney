@@ -40,7 +40,7 @@ const Profile: React.FC<ProfileProps> = ({
           setProfileImage(user.profileImage);
         }
       }, [user]);
-    
+
       useEffect(() => {
         if (profileImage) {
           Animated.spring(scaleValue, {

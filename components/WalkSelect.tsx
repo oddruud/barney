@@ -60,6 +60,11 @@ export default function WalkSelect({walks, onWalkSelect, onChooseWalk, style}: W
 
   return (
     <View style={[styles.container,style]}>
+      {walks.length === 0 && (
+        <View style={styles.inner}>
+          <Text style={{color: 'white'}}>No walks found</Text>
+        </View>
+      )}
       {walks.length > 0 && selectedWalk && (
           <View style={styles.inner}>
           <View style={{flexDirection: 'row', alignItems: 'center'}}>

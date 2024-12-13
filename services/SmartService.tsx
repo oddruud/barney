@@ -25,7 +25,7 @@ class SmartService {
         SmartService.serverUrl = url;
     }
 
-    public async createRoute(latitude: number, longitude: number, duration: number): Promise<RouteInfo | null> {
+    public async createRoute(latitude: number, longitude: number, address:string, duration: number): Promise<RouteInfo | null> {
         try {
             const url = `${SmartService.serverUrl}/route`;
             const response = await fetch(url, {
@@ -36,13 +36,14 @@ class SmartService {
                 body: JSON.stringify({
                     latitude,
                     longitude,
-                    duration
+                    duration,
+                    address
                 })
             });
 
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
-            }
+             if (!response.ok) {
+                 throw new Error('Network response was not ok');
+             }
 
             try {
                 const data = await response.json();         

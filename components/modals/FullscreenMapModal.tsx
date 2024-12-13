@@ -78,15 +78,17 @@ const FullscreenMapModal: React.FC<FullscreenMapModalProps> = ({title,visible, a
       onLocationSelect({ latitude, longitude });
     }
 
+    let address = {title: '', description: ''};
     try {
-      const address = await fetchAddress(latitude, longitude);
+      address = await fetchAddress(latitude, longitude);
       setAddress(address.title);
     } catch (error) {
       console.error('Error fetching address:', error);
     }
 
     if (allowRouteCreation) { 
-      const routeInfo : RouteInfo | null = await smartService.createRoute(latitude, longitude, 30);
+      const addressString = address.title + ", " + address.description;
+      const routeInfo : RouteInfo | null = await smartService.createRoute(latitude, longitude,addressString, 30);
       
       if (routeInfo) {
         console.log(routeInfo.description);
@@ -99,9 +101,9 @@ const FullscreenMapModal: React.FC<FullscreenMapModalProps> = ({title,visible, a
           },
         }});
     
-        console.log("Setting route markers");
-        setRoute(routeMarkers);
-        setRouteUpdated(routeMarkers.length);
+        //console.log("Setting route markers");
+        //setRoute(routeMarkers);
+        //setRouteUpdated(routeMarkers.length);
         if (onRouteCreated) {
           onRouteCreated(routeInfo);
         }
