@@ -1,13 +1,14 @@
-import { TouchableOpacity, StyleSheet, TouchableOpacityProps } from 'react-native';
+import { TouchableOpacity, StyleSheet, TouchableOpacityProps, TextStyle, StyleProp } from 'react-native';
 import { ThemedText } from '@/components/ThemedText';
 import { useThemeColor } from '@/hooks/useThemeColor';
 
 interface ButtonProps extends TouchableOpacityProps {
   title: string;
+  textStyle?: StyleProp<TextStyle>;
   onPress: () => void;
 }
 
-export function Button({ title, style, onPress, ...props }: ButtonProps) {
+export function Button({ title, style, onPress, textStyle, ...props }: ButtonProps) {
   const backgroundColor = useThemeColor({}, 'tint');
   const textColor = useThemeColor({}, 'background');
 
@@ -19,7 +20,7 @@ export function Button({ title, style, onPress, ...props }: ButtonProps) {
       {...props}
     >
       <ThemedText
-        style={styles.text}
+        style={[styles.text, textStyle]}
         lightColor={textColor}
         darkColor={textColor}
       >

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, Platform, Animated, View, Modal, Button } from 'react-native';
+import { StyleSheet, Platform, Animated, View, Modal } from 'react-native';
 import { ThemedView } from '@/components/ThemedView';
 import { Map } from '@/components/Map';
 import { router, useFocusEffect } from 'expo-router';
@@ -14,7 +14,7 @@ import { useData } from '@/contexts/DataContext';
 import { WalkWithDistance } from '@/types/WalkWithDistance';
 import WalkSelect from '@/components/WalkSelect';
 import { useSettings } from '@/contexts/SettingsContext';
-
+import { Button } from '@/components/Button';
 export default function SelectWalkInArea({
   initialStartDate = new Date(),
   initialEndDate = new Date(new Date().setDate(new Date().getDate() + 7)),
@@ -186,8 +186,6 @@ export default function SelectWalkInArea({
   return (
     <ThemedView style={styles.container}>
 
-      <Button title="Open Filters" onPress={toggleModal} />
-
       <Modal
         visible={isModalVisible}
         transparent={true}
@@ -229,17 +227,19 @@ export default function SelectWalkInArea({
               latitude: walk.latitude,
               longitude: walk.longitude,
             },
-            title: walk.location,
-            description: walk.description
+            title: walk.fullName,
+            description: walk.description,
+            image: walk.profileImage,
           }))}
           showUserLocation={true}
-          height="90%"
+          height="100%"
           width="100%"
           style={styles.map}
           initialRegion={mapRegion}
           onMarkerPress={handleMarkerPress}
         />
       )}
+      <Button style={styles.button} textStyle={styles.buttonText} title="Open Filters" onPress={toggleModal} />
 
       <WalkSelect walks={walksSortedByDistance} onWalkSelect={handleWalkSelect} onChooseWalk={handleChooseWalk} />
 
@@ -259,7 +259,6 @@ export default function SelectWalkInArea({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#e9eae4',
   },
   label: {
     fontSize: 16,
@@ -328,16 +327,6 @@ const styles = StyleSheet.create({
   icon: {
     marginRight: 4,
   },
-  sliderContainer: {
-    marginBottom: 20,
-    backgroundColor: 'rgba(0,0,0,0.0)',
-  },
-  slider: {
-    width: '100%',
-    height: 40,
-    marginTop: 10,
-    zIndex: 1000,
-  },
   modalBackground: {
     flex: 1,
     justifyContent: 'center',
@@ -361,5 +350,22 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
   map: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+  },
+  button: {
+    position: 'absolute',
+    bottom: 190,
+    padding: 10,
+    zIndex: 1000,
+    alignSelf: 'center',
+    textAlign: 'center',
+  },
+  buttonText: {
+    fontSize: 12,
+    color: '#fff',
   },
 });

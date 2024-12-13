@@ -1,28 +1,40 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { View, Platform, Modal, Animated } from 'react-native';
-import { Map } from '@/components/Map';
+import { Map, Marker } from '@/components/Map';
 import { StyleSheet } from 'react-native';
 import { Button } from '@/components/Button';
 import { Text } from '@/components/Themed';
 import { fetchAddress } from '@/utils/geoUtils';
+import { useSmartService } from '@/contexts/SmartServiceContext';
+import { RouteInfo } from '@/types/RouteInfo';
 
 interface FullscreenMapModalProps {
   title: string;
   visible: boolean;
   allowLocationSelection: boolean;
+  allowRouteCreation?: boolean;
   initialLocation: {
     latitude: number;
     longitude: number;
   };
   onLocationSelect: ((location: { latitude: number; longitude: number }) => void) | null;
+  onRouteCreated?: ((routeInfo: RouteInfo) => void) | null;
   onRequestClose: () => void;
 }
 
-const FullscreenMapModal: React.FC<FullscreenMapModalProps> = ({title,visible, allowLocationSelection, initialLocation, onLocationSelect, onRequestClose }) => {
+const FullscreenMapModal: React.FC<FullscreenMapModalProps> = ({title,visible, allowLocationSelection, allowRouteCreation = false, initialLocation, onLocationSelect, onRouteCreated, onRequestClose }) => {
   const [location, setLocation] = useState(initialLocation);
+  const [route, setRoute] = useState<Marker[]>([]);
+  const [routeUpdated, setRouteUpdated] = useState(0);
   const [address, setAddress] = useState('');
   const opacity = useRef(new Animated.Value(0)).current;
   const scale = useRef(new Animated.Value(0)).current;
+  const { smartService } = useSmartService();
+
+  useEffect(() => {
+    setRoute(route);
+  }, [route]);
+
 
   useEffect(() => {
     if (visible) {
@@ -72,6 +84,30 @@ const FullscreenMapModal: React.FC<FullscreenMapModalProps> = ({title,visible, a
     } catch (error) {
       console.error('Error fetching address:', error);
     }
+
+    if (allowRouteCreation) { 
+      const routeInfo : RouteInfo | null = await smartService.createRoute(latitude, longitude, 30);
+      
+      if (routeInfo) {
+        console.log(routeInfo.description);
+
+        const routeMarkers = routeInfo.route.map((routeMarker, index) => { return {
+          id: index.toString(),
+          coordinate: {
+            latitude: routeMarker.latitude,
+            longitude: routeMarker.longitude,
+          },
+        }});
+    
+        console.log("Setting route markers");
+        setRoute(routeMarkers);
+        setRouteUpdated(routeMarkers.length);
+        if (onRouteCreated) {
+          onRouteCreated(routeInfo);
+        }
+      }
+    }
+
   };
 
   return (
@@ -86,6 +122,8 @@ const FullscreenMapModal: React.FC<FullscreenMapModalProps> = ({title,visible, a
           {Platform.OS !== 'web' && (
             <Map
               showUserLocation={true}
+              showRoute={true}
+
               markers={[{
                 id: '1',
                 coordinate: {
@@ -95,6 +133,8 @@ const FullscreenMapModal: React.FC<FullscreenMapModalProps> = ({title,visible, a
                 title: 'Selected Location',
                 description: 'Tap to set details'
               }]}
+              route={route}
+              routeUpdated={routeUpdated}
               height="100%"
               width="100%"
               initialRegion={{

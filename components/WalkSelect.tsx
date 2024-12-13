@@ -59,7 +59,7 @@ export default function WalkSelect({walks, onWalkSelect, onChooseWalk, style}: W
   }
 
   return (
-    <View style={[styles.container, style]}>
+    <View style={[styles.container,style]}>
       {walks.length > 0 && selectedWalk && (
           <View style={styles.inner}>
           <View style={{flexDirection: 'row', alignItems: 'center'}}>
@@ -77,7 +77,12 @@ export default function WalkSelect({walks, onWalkSelect, onChooseWalk, style}: W
               <View style={{marginLeft: 10}}>
               <Text style={{color: 'white', fontSize: 16, fontWeight: 'bold'}}>{selectedWalk.location}</Text>
                 <Text style={{color: 'white'}}>
-                  {new Date(selectedWalk.dateTime).toLocaleDateString(undefined, { day: 'numeric', month: 'long' })}
+                  {new Date(selectedWalk.dateTime).toLocaleString(undefined, { 
+                    day: 'numeric', 
+                    month: 'short', 
+                    hour: '2-digit', 
+                    minute: '2-digit' 
+                  })}
                 </Text>
                 <Text style={{color: 'white'}}>{formatDistance(selectedWalk.distance)}</Text>
               </View>
@@ -97,15 +102,13 @@ export default function WalkSelect({walks, onWalkSelect, onChooseWalk, style}: W
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
     zIndex: 1000,
-    width: '110%',
+    width: '100%',
+    height: 80,
     position: 'absolute',
-    left: 0,
-    right: 0,
-    bottom:81,
+    bottom: 80,
     backgroundColor: 'rgba(0,0,0,0.4)',
   },
   inner: {

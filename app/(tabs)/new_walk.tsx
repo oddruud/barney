@@ -19,7 +19,9 @@ import InviteUsersModal from '@/components/modals/InviteUsersModal';
 import { fetchAddress } from '@/utils/geoUtils';
 import { PlannedWalk } from '@/types/PlannedWalk';
 import ProfileImage from '@/components/ProfileImage';
-import { Slider } from '@react-native-community/slider';
+import { useSmartService } from '@/contexts/SmartServiceContext';
+import { RouteInfo } from '@/types/RouteInfo';
+
 
 export default function NewWalkScreen() {
   const { user } = useUser();
@@ -33,7 +35,7 @@ export default function NewWalkScreen() {
     title: '',
     description: ''
   });
-
+  const { smartService } = useSmartService();
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [isLoadingLocation, setIsLoadingLocation] = useState(true);
   const [groupSize, setGroupSize] = useState(2); // Default group size
@@ -330,6 +332,10 @@ export default function NewWalkScreen() {
               description: ''
             });
             await fetchAddressAndUpdateLocation(location.latitude, location.longitude);
+          }}
+          allowRouteCreation={false}
+          onRouteCreated={async (routeInfo: RouteInfo) => {
+            console.log("route has been created");
           }}
           onRequestClose={() => setIsSelectOnMapModalVisible(false)} // Allow closing the modal
         />

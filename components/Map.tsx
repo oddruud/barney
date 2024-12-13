@@ -1,9 +1,11 @@
-import { StyleSheet, Dimensions, Linking, Platform, Image, StyleProp, ViewStyle } from 'react-native';
+import { StyleSheet, Dimensions, Linking, Platform, Image, StyleProp, ViewStyle, ImageStyle } from 'react-native';
 import { useEffect, useState, useRef } from 'react';
 import * as Location from 'expo-location';
 import MapView from 'react-native-maps';
+import CachedImage from './CachedImage';
 
-type Marker = {
+
+export type Marker = {
   id: string;
   coordinate: {
     latitude: number;
@@ -11,6 +13,8 @@ type Marker = {
   };
   title?: string;
   description?: string;
+  image?: string;
+  imageStyle?: StyleProp<ImageStyle>;
 };
 
 type Props = {
@@ -22,12 +26,14 @@ type Props = {
     zoomLevel?: number;
   };
   markers?: Marker[];
+  route?: Marker[];
   showUserLocation?: boolean;
   width?: number | string;
   height?: number | string;
   style?: StyleProp<ViewStyle>;
   onMarkerPress?: (marker: Marker) => void;
   showRoute?: boolean;
+  routeUpdated?: number;
   onPress?: (event: {
     nativeEvent: {
       coordinate: {
@@ -47,15 +53,18 @@ export function Map({
     zoomLevel: 3,
   },
   markers = [],
+  route = [],
   showUserLocation = false,
   width = Dimensions.get('window').width,
   height = 600,
   onMarkerPress,
   showRoute = false,
+  routeUpdated,
   style,
   onPress
 }: Props) {
   const [userLocation, setUserLocation] = useState<Marker['coordinate'] | null>(null);
+  const [routeMarkers, setRouteMarkers] = useState<Marker[]>(route);
   const mapRef = useRef<MapView | null>(null);
 
   useEffect(() => {
@@ -91,6 +100,10 @@ export function Map({
       animateToRegion(adjustedRegion);
     }
   }, [initialRegion]);
+
+  useEffect(() => {
+    setRouteMarkers(route);
+  }, [routeUpdated]);
 
   const animateToRegion = (region: {
     latitude: number;
@@ -133,11 +146,11 @@ export function Map({
       onPress={onPress}
       mapType={'standard'}
     >
-      {showRoute && markers.length > 1 && (
+      {showRoute && routeMarkers.length > 1 && (
         <Polyline
-          coordinates={markers.map(marker => marker.coordinate)}
-          strokeColor="#000" // Black line
-          strokeWidth={2}
+          coordinates = {routeMarkers.map(routeMarker => routeMarker.coordinate)}
+          strokeColor = "#ff0000"
+          strokeWidth = {3}
         />
       )}
       {markers.map(marker => (
@@ -147,7 +160,9 @@ export function Map({
           title={marker.title}
           description={marker.description}
           onPress={() => onMarkerPress?.(marker)}
-        />
+        >
+          {marker.image && <CachedImage url={marker.image} style={[styles.markerImage, marker.imageStyle]} />}
+        </Marker>
       ))}
 
 {userLocation && showUserLocation && (
@@ -166,3 +181,19 @@ export function Map({
 }
 
 export { Marker};
+
+const styles = StyleSheet.create({
+  markerImage: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    borderWidth: 5,
+    borderColor: 'rgba(255, 255, 255, 1.0)',
+    shadowColor: 'rgba(0, 0, 0, 0.5)',
+    shadowOffset: { width: 0, height: 2 },
+    boxShadow: '0 2px 4px rgba(0, 0, 0, 0.5)',
+    shadowOpacity: 0.5,
+    shadowRadius: 2,
+    elevation: 5,
+  },
+});

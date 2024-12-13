@@ -1,7 +1,6 @@
 import React, { useRef, useEffect, useState } from 'react';
-import { View, Image, Animated } from 'react-native';
+import { View, Animated } from 'react-native';
 import { Text } from '../components/Themed';
-import { useNavigation } from '@react-navigation/native';
 import { Link } from 'expo-router';
 import { PlannedWalk } from '../types/PlannedWalk';
 import { StyleSheet } from 'react-native';
@@ -10,15 +9,14 @@ import { Map } from '../components/Map';
 import ProfileImage from './ProfileImage';
 import { UserDetails } from '@/types/UserDetails';
 import { useData } from '@/contexts/DataContext';
+//{ id: item.id, coordinate: { latitude: item.latitude, longitude: item.longitude } }
+
 
 function WalkItem({ item, showDate, animated }: { item: PlannedWalk, showDate: boolean, animated: boolean }) {
   const { dataProxy } = useData();
-  const navigation = useNavigation();
   const fadeAnim = useRef(new Animated.Value(animated ? 0 : 1)).current;
   const scaleAnim = useRef(new Animated.Value(animated ? 0.8 : 1)).current;
   const [organizer, setOrganizer] = useState<UserDetails | null>(null);
-  const [imageLoaded, setImageLoaded] = useState(false);
-  const imageOpacity = useRef(new Animated.Value(0)).current;
 
   const isPastWalk = new Date(item.dateTime) < new Date();
 
@@ -80,10 +78,10 @@ function WalkItem({ item, showDate, animated }: { item: PlannedWalk, showDate: b
             initialRegion={{
               latitude: item.latitude,
               longitude: item.longitude,
-              latitudeDelta: 0.01,
-              longitudeDelta: 0.01,
+              latitudeDelta: 0.009,
+              longitudeDelta: 0.009,
             }}
-            markers={[{ id: item.id, coordinate: { latitude: item.latitude, longitude: item.longitude } }]}
+            markers={[]}
             width={80}
             height={80}
           />
