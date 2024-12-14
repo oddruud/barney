@@ -12,7 +12,7 @@ import { UserProvider } from '@/contexts/UserContext';
 import { EnvironmentProvider } from '@/contexts/EnvironmentContext';
 import { DataProvider } from '@/contexts/DataContext';
 import { SettingsProvider } from '@/contexts/SettingsContext';
-import { SmartServiceProvider } from '@/contexts/SmartServiceContext';
+import { GenAIProvider } from '@/contexts/GenAIContext';
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -40,7 +40,7 @@ export default function RootLayout() {
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
       <EnvironmentProvider>
         <DataProvider>
-          <SmartServiceProvider>
+          <GenAIProvider>
           <UserProvider>
             <SettingsProvider>
             <Stack initialRouteName="login">
@@ -97,7 +97,7 @@ export default function RootLayout() {
           <StatusBar style="auto" />
             </SettingsProvider>
           </UserProvider>
-          </SmartServiceProvider>
+          </GenAIProvider>
         </DataProvider>
       </EnvironmentProvider>
     </ThemeProvider>

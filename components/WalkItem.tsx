@@ -9,15 +9,15 @@ import { Map } from '../components/Map';
 import ProfileImage from './ProfileImage';
 import { UserDetails } from '@/types/UserDetails';
 import { useData } from '@/contexts/DataContext';
-//{ id: item.id, coordinate: { latitude: item.latitude, longitude: item.longitude } }
-
+import { RewardInfo } from '@/types/RewardInfo';
+import CachedImage from './CachedImage';
 
 function WalkItem({ item, showDate, animated }: { item: PlannedWalk, showDate: boolean, animated: boolean }) {
   const { dataProxy } = useData();
   const fadeAnim = useRef(new Animated.Value(animated ? 0 : 1)).current;
   const scaleAnim = useRef(new Animated.Value(animated ? 0.8 : 1)).current;
   const [organizer, setOrganizer] = useState<UserDetails | null>(null);
-
+  const [rewardInfo, setRewardInfo] = useState<RewardInfo | null>(null);
   const isPastWalk = new Date(item.dateTime) < new Date();
 
   const fetchOrganizer = async () => {
@@ -25,8 +25,15 @@ function WalkItem({ item, showDate, animated }: { item: PlannedWalk, showDate: b
     setOrganizer(organizer);
   };
 
+  const fetchRewardInfo = async () => {
+    const rewardInfo = await dataProxy.getRewardInfo(item.id);
+    setRewardInfo(rewardInfo);
+    console.log("Reward info for walk:",item.description, rewardInfo);
+  };
+
   useEffect(() => {
     fetchOrganizer();
+    fetchRewardInfo();
   }, []);
 
   useEffect(() => {
@@ -74,17 +81,22 @@ function WalkItem({ item, showDate, animated }: { item: PlannedWalk, showDate: b
               </View>
             )}
           </View>
-          <Map
-            initialRegion={{
-              latitude: item.latitude,
-              longitude: item.longitude,
-              latitudeDelta: 0.009,
-              longitudeDelta: 0.009,
-            }}
-            markers={[]}
-            width={80}
-            height={80}
-          />
+          {rewardInfo && (
+            <CachedImage url={rewardInfo.image} style={styles.rewardImage} />
+          )}
+          {!rewardInfo && (
+            <Map
+              initialRegion={{
+                latitude: item.latitude,
+                longitude: item.longitude,
+                latitudeDelta: 0.009,
+                longitudeDelta: 0.009,
+              }}
+              markers={[]}
+              width={80}
+              height={80}
+            />
+          )}
         </View>
       </Link>
     </Animated.View>
@@ -152,6 +164,11 @@ const styles = StyleSheet.create({
     },
     messageIcon: {
       marginRight: 4,
+    },
+    rewardImage: {
+      width: 80,
+      height: 80,
+      borderRadius: 8,
     },
   });
   

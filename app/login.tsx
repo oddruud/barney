@@ -32,6 +32,8 @@ export default function LoginScreen() {
     const [message, setMessage] = useState<Message | null>(null);
     const [showLoginForm, setShowLoginForm] = useState(false);
     const { environment } = useEnvironment();
+    const [isRegistering, setIsRegistering] = useState(false);
+    const [isInProgress, setIsInProgress] = useState(false);
 
     const videoSource = 'https://roboruud.nl/walk.mp4';    
     const fadeAnim = useRef(new Animated.Value(0)).current; // Initial opacity value of 0
@@ -231,6 +233,8 @@ export default function LoginScreen() {
         };
     }, []);
 
+    const isGoogleSignInEnabled = false;
+
     return (
         <>
         <View style={styles.container}>
@@ -263,15 +267,12 @@ export default function LoginScreen() {
                 <Animated.View style={[styles.loginButtonContainer, { opacity: buttonFadeAnim }]}>
                     {!showLoginForm ? (
                         <>
-                    <TouchableOpacity onPress={handleGoogleSignInPress}>
-                              <Image
-                                  source={require('../assets/images/signin.png')} // Replace with your image path
-                                  style={styles.googleSignInImage} // Add a style for the image
-                              />
-                          </TouchableOpacity>
+                    {isGoogleSignInEnabled && (
+                        <View></View>
+                        )}
                         <Button
                             style={styles.openButton}
-                            title="email login"
+                            title="Enter"
                             onPress={() => setShowLoginForm(true)}
                         />
                         </>
@@ -298,21 +299,43 @@ export default function LoginScreen() {
                                 <Text style={{...styles.messageText, color: message.type === 'error' ? 'red' : 'green'}}>{message.message}</Text>
                             ) : null}
                             <View style={styles.buttonRow}>
-                                <Button style={styles.loginButton}
-                                    title="Login" 
-                                    onPress={handleLoginPress} 
-                                />
-                                <Button style={styles.loginButton}
-                                    title="Sign Up" 
-                                    onPress={handleSignUpPress} 
-                                />
+                                {isRegistering ? (
+                                    <Button style={styles.loginButton}
+                                        title="Register" 
+                                        onPress={handleSignUpPress} 
+                                    />
+                                ) : (
+                                    <Button style={styles.loginButton}
+                                        title="Login" 
+                                        onPress={handleLoginPress} 
+                                    />
+                                )}
                             </View>
+                            <Button style={styles.loginRegisterSwitchButton} textStyle={styles.loginRegisterSwitchButtonText}
+                                    title={isRegistering ? "Login" : "Register"} 
+                                    onPress={() => {
+                                        setMessage(null);
+                                        setIsRegistering(!isRegistering)
+                                    }} 
+                                />
+                       
+                        
                         </View>
+                        
                     )}
                 </Animated.View>
                 </>
                 </TouchableWithoutFeedback>
                 </KeyboardAvoidingView>
+            )}
+            
+            {showLoginForm && (
+                <Button
+                    style={styles.otherAuthenticationMethodButton}
+                    textStyle={styles.otherAuthenticationMethodButtonText}
+                    title="Back"
+                    onPress={() => setShowLoginForm(false)}
+                />
             )}
         </View>
         </>
@@ -339,22 +362,26 @@ const styles = StyleSheet.create({
       backgroundColor: 'rgba(0, 0, 0, 0.8)',
       padding: 10,
       borderRadius: 10,
-      width: '40%',
+      width: 120,
       marginHorizontal: 10,
     },
     openButton: {
         alignSelf: 'center',
+        bottom: 10,
+        opacity: 0.7,
         backgroundColor: 'rgba(0, 0, 0, 0.8)',
         padding: 10,
         borderRadius: 10,
+        width: 120,
         marginHorizontal: 10,
+        marginTop: 50,
     },
     loginButtonContainer: {
       flex: 1,
       justifyContent: 'center',
       alignItems: 'center',
       padding: 24,
-      marginTop: 280,
+      marginTop: 340,
     },
     title: {
       alignSelf: 'center',
@@ -392,6 +419,7 @@ const styles = StyleSheet.create({
         padding: 10,
         borderRadius: 5,
         marginBottom: 10,
+        width: 200,
     },
     messageText: {
         textAlign: 'center',
@@ -403,5 +431,33 @@ const styles = StyleSheet.create({
         width: 175, // Set your desired width
         height: 40, // Set your desired height
         marginBottom: 20, // Optional: adjust spacing
+    },
+    loginRegisterSwitchButton: {
+        backgroundColor: 'rgba(0, 0, 0, 0.0)',
+        padding: 10,
+        borderRadius: 10,
+        marginTop: 30,
+        alignSelf: 'center',
+    },
+    loginRegisterSwitchButtonText: {
+        color: 'white',
+        fontSize: 16,
+        textDecorationLine: 'underline',
+    },
+    otherAuthenticationMethodButton: {
+        opacity: 0.7,
+        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+        padding: 10,
+        borderRadius: 10,
+        width: 80,
+        marginHorizontal: 10,
+        position: 'absolute',
+        alignSelf: 'center',
+        bottom: 40,
+    },
+
+    otherAuthenticationMethodButtonText: {
+        color: 'white',
+        fontSize: 16,
     },
 });

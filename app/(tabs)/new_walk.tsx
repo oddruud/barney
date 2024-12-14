@@ -19,7 +19,7 @@ import InviteUsersModal from '@/components/modals/InviteUsersModal';
 import { fetchAddress } from '@/utils/geoUtils';
 import { PlannedWalk } from '@/types/PlannedWalk';
 import ProfileImage from '@/components/ProfileImage';
-import { useSmartService } from '@/contexts/SmartServiceContext';
+import { useGenAI } from '@/contexts/GenAIContext';
 import { RouteInfo } from '@/types/RouteInfo';
 
 
@@ -35,7 +35,7 @@ export default function NewWalkScreen() {
     title: '',
     description: ''
   });
-  const { smartService } = useSmartService();
+  const { genAIService } = useGenAI();
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [isLoadingLocation, setIsLoadingLocation] = useState(true);
   const [groupSize, setGroupSize] = useState(2); // Default group size
@@ -145,7 +145,7 @@ export default function NewWalkScreen() {
     }
   };
 
-  async function createWalk() {
+  async function createWalk(): Promise<PlannedWalk> {
     const invitedUserIds = invitedUsers.map(user => user.id); // Extract user IDs
 
     const walk: PlannedWalk = {
@@ -168,10 +168,16 @@ export default function NewWalkScreen() {
       cancelled: false,
     };
 
-    await dataProxy.createPlannedWalk(walk).then((id) => {
-      router.push(`/details/${id}`);
-    });
+    return walk;
+  }
 
+  const getRewardForWalk = async (walk: PlannedWalk) => {
+    const rewardInfo = await genAIService.getRewardForWalk(walk);
+    
+    if (rewardInfo) {
+      console.log("Saving reward info", rewardInfo);
+      await dataProxy.saveRewardInfo(rewardInfo);
+    }
   }
 
   const handleMapPress = async (event: any) => {
@@ -295,16 +301,24 @@ export default function NewWalkScreen() {
       <Animated.View style={{ transform: [{ translateY: buttonRowAnimation }] }}>
       <View style={styles.buttonRow}>
         <Button
-          onPress={inviteUser}
           title="Invite Friends"
+          onPress={inviteUser}
           style={styles.inviteButton}
         />
         <Button
+          title="Create Walk"
           onPress={async () => {
+            console.log("Creating walk");
             await fetchAddressAndUpdateLocation(location.latitude, location.longitude);
-            createWalk();
+            const walk = await createWalk();
+            
+            await dataProxy.createPlannedWalk(walk).then((id) => {
+              walk.id = id;
+              getRewardForWalk(walk);
+              router.push(`/details/${id}`);
+            });
           }}
-          title="Schedule Walk"
+          
           style={styles.submitButton}
         />
       </View>
@@ -333,7 +347,7 @@ export default function NewWalkScreen() {
             });
             await fetchAddressAndUpdateLocation(location.latitude, location.longitude);
           }}
-          allowRouteCreation={true}
+          allowRouteCreation={false}
           onRouteCreated={async (routeInfo: RouteInfo) => {
             console.log("route has been created");
             console.log(routeInfo.description);

@@ -5,7 +5,7 @@ import { StyleSheet } from 'react-native';
 import { Button } from '@/components/Button';
 import { Text } from '@/components/Themed';
 import { fetchAddress } from '@/utils/geoUtils';
-import { useSmartService } from '@/contexts/SmartServiceContext';
+import { useGenAI } from '@/contexts/GenAIContext';
 import { RouteInfo } from '@/types/RouteInfo';
 
 interface FullscreenMapModalProps {
@@ -29,7 +29,7 @@ const FullscreenMapModal: React.FC<FullscreenMapModalProps> = ({title,visible, a
   const [address, setAddress] = useState('');
   const opacity = useRef(new Animated.Value(0)).current;
   const scale = useRef(new Animated.Value(0)).current;
-  const { smartService } = useSmartService();
+  const { genAIService } = useGenAI();
 
   useEffect(() => {
     setRoute(route);
@@ -88,7 +88,7 @@ const FullscreenMapModal: React.FC<FullscreenMapModalProps> = ({title,visible, a
 
     if (allowRouteCreation) { 
       const addressString = address.title + ", " + address.description;
-      const routeInfo : RouteInfo | null = await smartService.createRoute(latitude, longitude,addressString, 30);
+      const routeInfo : RouteInfo | null = await genAIService.createRoute(latitude, longitude,addressString, 30);
       
       if (routeInfo) {
         console.log(routeInfo.description);
@@ -101,9 +101,6 @@ const FullscreenMapModal: React.FC<FullscreenMapModalProps> = ({title,visible, a
           },
         }});
     
-        //console.log("Setting route markers");
-        //setRoute(routeMarkers);
-        //setRouteUpdated(routeMarkers.length);
         if (onRouteCreated) {
           onRouteCreated(routeInfo);
         }

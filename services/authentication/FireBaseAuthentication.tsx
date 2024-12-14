@@ -1,7 +1,6 @@
 import { auth } from '@/fireBaseConfig';
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, User } from 'firebase/auth';
 import { Authentication } from './AuthenticationInterface';
-import { AuthenticationError } from './AuthenticationError';
 import { FirebaseError } from 'firebase/app';
 
 

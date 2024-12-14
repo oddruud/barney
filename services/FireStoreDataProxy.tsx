@@ -11,7 +11,7 @@ import { calculateDistance, haversineDistance } from '@/utils/geoUtils';
 import { LocationObject } from 'expo-location';
 import { UserDetailsWithDistance } from '@/types/UserDetailsWithDistance';
 import { UserInteraction } from '@/types/UserInteraction';
-
+import { RewardInfo } from '@/types/RewardInfo';
 class FireStoreDataProxy implements DataProxy {
 
   async initialize(): Promise<void> {
@@ -482,8 +482,21 @@ async uploadToFirebase(uri:string, name:string, onProgress:((progress:number)=>v
     const sorted : ChatMessage[] = messages.sort((a, b) => a.timestamp.seconds - b.timestamp.seconds);
     return sorted[sorted.length - 1];
   }
-}
 
+  async saveRewardInfo(rewardInfo: RewardInfo): Promise<void> {
+    console.log("Saving reward info", rewardInfo);
+    const db = getFirestore();
+    await setDoc(doc(db, "rewards", rewardInfo.walkId), rewardInfo);
+  }
+
+  async getRewardInfo(walkId: string): Promise<RewardInfo | null> {
+    console.log("Getting reward info for walk", walkId);
+    const db = getFirestore();
+    const docRef = doc(db, "rewards", walkId);
+    const docSnap = await getDoc(docRef);
+    return docSnap.data() as RewardInfo | null;
+  }
+}
 
 
 export { FireStoreDataProxy };

@@ -6,6 +6,7 @@ import { WalkWithDistance } from '@/types/WalkWithDistance';
 import { LocationObject } from 'expo-location';
 import { UserDetailsWithDistance } from '@/types/UserDetailsWithDistance';
 import { UserInteraction } from '@/types/UserInteraction';
+import { RewardInfo } from '@/types/RewardInfo';
 
 // Define the DataProxy interface
 interface DataProxy {
@@ -65,10 +66,14 @@ interface DataProxy {
     // Create user interaction for users
     createUserInteractionForUsers(userId1: string, userId2: string): Promise<UserInteraction | null>;
 
-   
-   
     // Get last chat mesage for chat id
     getLastChatMessageForChatId(chatId: string): Promise<ChatMessage | null>;
+
+    //save reward info
+    saveRewardInfo(rewardInfo: RewardInfo): Promise<void>;
+
+    //get reward info
+    getRewardInfo(walkId: string): Promise<RewardInfo | null>;
 }
 
 export { DataProxy };

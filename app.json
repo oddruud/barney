@@ -4,6 +4,7 @@
     "slug": "letswalk",
     "version": "0.7",
     "environment": "development",
+    "genAIserver": "http://roboruud.nl:8181",
     "useDummyData": false,
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
@@ -37,6 +38,9 @@
       "favicon": "./assets/images/favicon.png"
     },
     "plugins": [
+      [
+        "@react-native-google-signin/google-signin"
+      ],
       [
         "expo-video",
         {

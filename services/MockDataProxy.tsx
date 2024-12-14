@@ -9,6 +9,7 @@ import { LocationObject } from 'expo-location';
 import { calculateDistance, haversineDistance } from '@/utils/geoUtils';
 import { UserDetailsWithDistance } from '@/types/UserDetailsWithDistance';
 import { UserInteraction } from '@/types/UserInteraction';
+import { RewardInfo } from '@/types/RewardInfo';
 // Implement the DummyDataProxy class
 class MockDataProxy implements DataProxy {
 
@@ -298,6 +299,24 @@ async getRandomWalkingQuote(): Promise<Quote> {
   }
 
   async createUserInteractionForUsers(userId1: string, userId2: string): Promise<UserInteraction | null> {
+    return new Promise((resolve) => {
+      resolve(null);
+    });
+  }
+
+  async getLastChatMessageForChatId(chatId: string): Promise<ChatMessage | null> {
+    return new Promise((resolve) => {
+      resolve(null);
+    });
+  }
+
+  async saveRewardInfo(rewardInfo: RewardInfo): Promise<void> {
+    return new Promise((resolve) => {
+      resolve();
+    });
+  }
+
+  async getRewardInfo(walkId: string): Promise<RewardInfo | null> {
     return new Promise((resolve) => {
       resolve(null);
     });

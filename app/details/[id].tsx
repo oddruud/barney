@@ -12,6 +12,9 @@ import { router } from 'expo-router';
 import { useData } from '@/contexts/DataContext';
 import { IconSymbol } from '@/components/ui/IconSymbol';
 import { getPrevRouteName } from '@/utils/routeUtils';
+import { RewardInfo } from '@/types/RewardInfo';
+import RewardComponent from '@/components/RewardComponent';
+
 // Define a sleep function
 const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
@@ -24,6 +27,7 @@ export default function WalkDetails() {
   const { dataProxy } = useData();
   const [walkDetails, setWalkDetails] = useState<PlannedWalk | null>(null);
   const [organizerDetails, setOrganizerDetails] = useState<UserDetails | null>(null);
+  const [rewardInfo, setRewardInfo] = useState<RewardInfo | null>(null);
 
   useEffect(() => {
     const fetchWalkDetails = async () => {
@@ -34,10 +38,15 @@ export default function WalkDetails() {
         const user = await dataProxy.getUserDetailsById(walk.userId);
         setOrganizerDetails(user || null);
       }
+    };
 
+    const fetchRewardInfo = async () => { 
+      const rewardInfo = await dataProxy.getRewardInfo(id);
+      setRewardInfo(rewardInfo || null);
     };
 
     fetchWalkDetails();
+    fetchRewardInfo();
   }, []);
 
     useEffect(() => {
@@ -73,6 +82,11 @@ export default function WalkDetails() {
         <TouchableOpacity onPress={() => setActiveTab('details')} style={activeTab === 'details' ? styles.activeTab : styles.tab}>
           <Text style={styles.tabText}>Info</Text>
         </TouchableOpacity>
+        {rewardInfo && (
+          <TouchableOpacity onPress={() => setActiveTab('reward')} style={activeTab === 'reward' ? styles.activeTab : styles.tab}>
+            <Text style={styles.tabText}>Reward</Text>
+          </TouchableOpacity>
+        )}
         <TouchableOpacity onPress={() => setActiveTab('chat')} style={activeTab === 'chat' ? styles.activeTab : styles.tab}>
           <Text style={styles.tabText}>Chat</Text>
         </TouchableOpacity>
@@ -115,6 +129,10 @@ export default function WalkDetails() {
             }
           }}
         />
+      )}
+
+      {activeTab === 'reward' && (
+        <RewardComponent rewardInfo={rewardInfo} />
       )}
 
       {activeTab === 'chat' && (
