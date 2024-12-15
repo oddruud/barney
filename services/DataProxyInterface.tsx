@@ -74,6 +74,9 @@ interface DataProxy {
 
     //get reward info
     getRewardInfo(walkId: string): Promise<RewardInfo | null>;
+
+    //get random front page video
+    getRandomFrontPageVideo(): Promise<string>;
 }
 
 export { DataProxy };

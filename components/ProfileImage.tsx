@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Animated,StyleSheet, StyleProp, ImageStyle, View, Image, Text } from 'react-native';
-import { localCache } from '@/services/LocalCache';
+import { localCache } from '@/controllers/LocalCache';
 import { UserDetails } from '@/types/UserDetails';
 
 

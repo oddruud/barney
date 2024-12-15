@@ -321,6 +321,12 @@ async getRandomWalkingQuote(): Promise<Quote> {
       resolve(null);
     });
   }
+
+  async getRandomFrontPageVideo(): Promise<string> {
+    return new Promise((resolve) => {
+      resolve("https://roboruud.nl/walk.mp4");
+    });
+  }
 }
 
 export { MockDataProxy };

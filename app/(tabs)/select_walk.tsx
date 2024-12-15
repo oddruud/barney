@@ -43,7 +43,7 @@ export default function SelectWalkScreen() {
 
       {/* Tab Content */}
       {activeTab === 'myArea' && (
-        <SelectWalkInArea minSearchRadius={1} maxSearchRadius={50} initialStartDate={new Date()} initialEndDate={new Date(new Date().setDate(new Date().getDate() + 7))} />
+        <SelectWalkInArea initialStartDate={new Date()} initialEndDate={new Date(new Date().setDate(new Date().getDate() + 7))} />
       )}
 
       {activeTab === 'invites' && (

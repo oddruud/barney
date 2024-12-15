@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import {StyleProp, ImageStyle, View, Image } from 'react-native';
-import { localCache } from '@/services/LocalCache';
+import { localCache } from '@/controllers/LocalCache';
 
 interface CachedImageProps {
   url: string;

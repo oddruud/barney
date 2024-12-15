@@ -1,4 +1,3 @@
-import { LocationData } from '@/types/Location';
 import { PlannedWalk } from '@/types/PlannedWalk';
 import { RouteInfo } from '@/types/RouteInfo';
 import { RewardInfo } from '@/types/RewardInfo';
@@ -31,6 +30,9 @@ class GenAIService {
             const address = await fetchAddress(walk.latitude, walk.longitude);
             const addressString = `${address.title}, ${address.description}`;
             const url = `${GenAIService.serverUrl}/reward`;
+
+            console.log("calling " + url, "with address " + addressString + " and description" + walk.description);
+
             const response = await fetch(url, {
                 method: 'POST',
                 headers: {
@@ -41,6 +43,8 @@ class GenAIService {
                     "intention": walk.description
                 })
             });
+
+            console.log("response: " + response);
 
             if (!response.ok) {
                 throw new Error('Network response was not ok');
@@ -63,7 +67,7 @@ class GenAIService {
                 return null;
             }
         } catch (error) {
-            console.error('Error posting location:', error);
+            console.error('getRewardForWalk network error', error);
             return null;
         }
         return null;

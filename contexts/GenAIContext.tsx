@@ -17,7 +17,7 @@ const GenAIContext = createContext<GenAIContextType | undefined>(undefined);
 // Create the provider component
 export const GenAIProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     const genAIService = GenAIService.getInstance();
-    const genAIServerUrl = "http://roboruud.nl:8181"; //(Constants.expoConfig as CustomExpoConfig)?.genAIserver || 'http://localhost:8080';
+    const genAIServerUrl = "http://roboruud.nl:8181";//'http://localhost:8080';//"http://roboruud.nl:8181"; //(Constants.expoConfig as CustomExpoConfig)?.genAIserver || 'http://localhost:8080';
     
     if (genAIServerUrl) {
         GenAIService.setServerUrl(genAIServerUrl);

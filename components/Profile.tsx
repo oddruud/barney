@@ -9,7 +9,7 @@ import * as ImagePicker from 'expo-image-picker';
 import ImageManipulator from 'expo-image-manipulator';
 import { UserDetails } from '../types/UserDetails';
 import { authentication } from '@/services/authentication/Authentication';
-import LocalUserData from '@/services/LocalUserData';
+import LocalUserData from '@/controllers/LocalUserData';
 import { router } from 'expo-router';
 import { useData } from '@/contexts/DataContext';
 import { useUser } from '@/contexts/UserContext';
@@ -120,9 +120,6 @@ const Profile: React.FC<ProfileProps> = ({
     
     });
   };
-
-
-
 
   const handleContinue = async () => {
     if (bio.length > 0 && name.length > 0) {

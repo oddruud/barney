@@ -28,7 +28,6 @@ function WalkItem({ item, showDate, animated }: { item: PlannedWalk, showDate: b
   const fetchRewardInfo = async () => {
     const rewardInfo = await dataProxy.getRewardInfo(item.id);
     setRewardInfo(rewardInfo);
-    console.log("Reward info for walk:",item.description, rewardInfo);
   };
 
   useEffect(() => {
@@ -66,7 +65,11 @@ function WalkItem({ item, showDate, animated }: { item: PlannedWalk, showDate: b
     >
       <Link href={{ pathname: '/details/[id]', params: { id: item.id } }}>
         <View style={styles.walkHeader}>
-          {organizer && <ProfileImage user={organizer} style={styles.profileImage} />}
+          {organizer ? (
+            <ProfileImage user={organizer} style={styles.profileImage} />
+          ) : (
+            <View style={styles.profileImagePlaceholder} />
+          )}
           <View style={styles.walkInfo}>
             <Text style={styles.date}>
               {showDate ? `${new Date(item.dateTime).toLocaleDateString(undefined, { day: 'numeric', month: 'short' })} at ${new Date(item.dateTime).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })}` : new Date(item.dateTime).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })}
@@ -169,6 +172,13 @@ const styles = StyleSheet.create({
       width: 80,
       height: 80,
       borderRadius: 8,
+    },
+    profileImagePlaceholder: {
+      width: 75,
+      height: 75,
+      borderRadius: 37.5,
+      marginRight: 12,
+      backgroundColor: '#e0e0e0',
     },
   });
   

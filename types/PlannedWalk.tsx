@@ -1,3 +1,7 @@
+import { RewardInfo } from "./RewardInfo";
+import { UserDetails } from "./UserDetails";
+
+//database return
 export interface PlannedWalk {
     id: string;
     dateTime: string;

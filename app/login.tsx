@@ -8,9 +8,10 @@ import { authentication } from '@/services/authentication/Authentication';
 import { getAuth, onAuthStateChanged, User, GoogleAuthProvider, signInWithPopup, sendEmailVerification } from "firebase/auth";
 import { useData } from '@/contexts/DataContext';
 import * as Linking from 'expo-linking';
-import { FirebaseError } from 'firebase/app';
 import { UserDetails } from '@/types/UserDetails';
 import { Environment, useEnvironment } from '@/contexts/EnvironmentContext';
+import { useGlobalEventsEmitter, GlobalEventEnum } from '@/contexts/GlobalEventsContext';
+import { parseFirebaseError } from '@/utils/firebaseErrorParsingUtil';
 
 
 function sleep(ms: number) {
@@ -32,12 +33,19 @@ export default function LoginScreen() {
     const [message, setMessage] = useState<Message | null>(null);
     const [showLoginForm, setShowLoginForm] = useState(false);
     const { environment } = useEnvironment();
+    const globalEventsEmitter = useGlobalEventsEmitter();
     const [isRegistering, setIsRegistering] = useState(false);
     const [isInProgress, setIsInProgress] = useState(false);
-
-    const videoSource = 'https://roboruud.nl/walk.mp4';    
+    const [videoSource, setVideoSource] = useState('');   
     const fadeAnim = useRef(new Animated.Value(0)).current; // Initial opacity value of 0
     const buttonFadeAnim = useRef(new Animated.Value(0)).current; // Initial opacity value for button
+
+
+    useEffect(() => {
+        dataProxy.getRandomFrontPageVideo().then((videoUrl) => {
+            setVideoSource(videoUrl);
+        });
+    }, []);
 
     useEffect(() => {
         Animated.timing(fadeAnim, {
@@ -53,6 +61,10 @@ export default function LoginScreen() {
         }).start();
     }, [fadeAnim, buttonFadeAnim]);
 
+    const handleVideoLoaded = () => {
+        console.log("video loaded emitting event");
+        globalEventsEmitter.emit(GlobalEventEnum.VIDEO_LOADED);
+    }
 
     const loginUser = async (user: User) => {
         console.log("user signed in", user.uid);
@@ -94,31 +106,6 @@ export default function LoginScreen() {
         } else {
             console.log("no user signed in");
         }
-        //todo make this a hook
-        /*
-        onAuthStateChanged(auth, (user: User | null) => { 
-          if (user) {
-            if (environment === Environment.Development) {
-                console.log("environment is development, log in immediately");
-                console.log("user signed in", user.uid);
-                loginUser(user);
-            } else {
-                console.log("environment is production or staging, verify email");
-                if (user.emailVerified) {
-                    loginUser(user);
-                } else {
-                    //todo place in authentication service
-                    sendEmailVerification(user).then(() => {
-                        console.log("email verification sent");
-                        setMessage({ message: 'Please verify your email', type: 'success' });
-                    }).catch((error) => {
-                        console.error("Error sending email verification", error);
-                    });
-                }
-            }
-          }
-          */
-
     }, []);
 
     const handleSignUpPress = async () => {
@@ -133,7 +120,7 @@ export default function LoginScreen() {
             });
         }
     }).catch((error) => {
-        setMessage({ message: parseError(error), type: 'error' });
+        setMessage({ message: parseFirebaseError(error), type: 'error' });
     });
     }
 
@@ -144,38 +131,9 @@ export default function LoginScreen() {
                 loginUser(user);
             }
         }).catch((error) => {
-            setMessage({ message: parseError(error), type: 'error' });
+            setMessage({ message: parseFirebaseError(error), type: 'error' });
         });
     }
-
-    const parseError = (error: FirebaseError): string => {
-        if (error.code === 'auth/invalid-email') {
-            return 'Invalid email address';
-        }
-        if (error.code === 'auth/wrong-password') {
-            return 'Wrong password';
-        }
-
-        if (error.code === 'auth/missing-password') {
-            return 'Please enter a password';
-        }
-
-        if (error.code === 'auth/user-not-found') {
-            return 'User not found';
-        }
-        if (error.code === 'auth/email-already-in-use') {
-            return 'Email already in use';
-        }
-        if (error.code === 'auth/weak-password') {
-            return 'Weak password';
-        }
-        if (error.code === 'auth/invalid-credential') {
-            return 'username and/or password incorrect';
-        }
-
-        return error.code;
-    }
-
 
     const loadUserDetails = async (uid: string): Promise<UserDetails | null> => {
        const userData = await dataProxy.getUserDetailsById(uid).then((userData) => {
@@ -238,17 +196,20 @@ export default function LoginScreen() {
     return (
         <>
         <View style={styles.container}>
-            <Video
-                source={{ uri: videoSource }}
-                rate={1.0}
-                volume={1.0}
-                isMuted={false}
-                resizeMode={ResizeMode.COVER}
-                useNativeControls={false}
-                shouldPlay={true}
-                isLooping={true}
-                style={styles.video}
-            />
+            {videoSource && (
+                <Video
+                    source={{ uri: videoSource }}
+                    rate={1.0}
+                    volume={1.0}
+                    isMuted={false}
+                    resizeMode={ResizeMode.COVER}
+                    useNativeControls={false}
+                    shouldPlay={true}
+                    isLooping={true}
+                    style={styles.video}
+                    onLoad={handleVideoLoaded}
+                />
+            )}
 
             {isLoggingIn && (
                 <Image
@@ -272,7 +233,7 @@ export default function LoginScreen() {
                         )}
                         <Button
                             style={styles.openButton}
-                            title="Enter"
+                            title="Let's Walk"
                             onPress={() => setShowLoginForm(true)}
                         />
                         </>

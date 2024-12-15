@@ -7,19 +7,18 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import * as Location from 'expo-location';
 import { PlannedWalk } from '@/types/PlannedWalk';
 import { Text } from '@/components/Themed';
-import { useUser } from '@/contexts/UserContext';
-import { calculateDistance, haversineDistance } from '@/utils/geoUtils';
+import { calculateDistance } from '@/utils/geoUtils';
 import WalkDetailsModal from '@/components/modals/WalkDetailsModal';
 import { useData } from '@/contexts/DataContext';
 import { WalkWithDistance } from '@/types/WalkWithDistance';
 import WalkSelect from '@/components/WalkSelect';
 import { useSettings } from '@/contexts/SettingsContext';
 import { Button } from '@/components/Button';
+
 export default function SelectWalkInArea({
   initialStartDate = new Date(),
   initialEndDate = new Date(new Date().setDate(new Date().getDate() + 7)),
 }) {
-  const { user } = useUser();
   const { dataProxy } = useData();
   const { settings } = useSettings();
   const [selectedWalk, setSelectedWalk] = useState<PlannedWalk | null>(null);
@@ -60,40 +59,33 @@ export default function SelectWalkInArea({
     })();
   }, []);
 
-  useEffect(() => {
-    const fetchWalks = async () => {
-      const fetchedWalks = await dataProxy.getPlannedWalks();
-      setWalks(fetchedWalks);
-    };
-
-    fetchWalks();
-  }, []);
-
-    // Reset state variables to their initial values
-    useFocusEffect(
-      React.useCallback(() => {
-        const fetchWalks = async () => {
+  useFocusEffect(
+    React.useCallback(() => {
+      const fetchWalks = async () => {
+        try {
           const fetchedWalks = await dataProxy.getPlannedWalks();
           setWalks(fetchedWalks);
-        };
-    
-        fetchWalks();
-  
-        return () => {
-        
-        };
-      }, [])
-    );
+        } catch (error) {
+          console.error("Error fetching walks:", error);
+        }
+      };
 
-    useEffect(() => {
+      fetchWalks();
 
-      const walksWithDistance: WalkWithDistance[] = [];
-      if (walks.length > 0 && userLocation) {
-        const sortedByDistance = filteredWalks.sort((a, b) => calculateDistance(userLocation, a) - calculateDistance(userLocation, b));
-        sortedByDistance.forEach(walk => {
-          const distance = calculateDistance(userLocation, walk);
-          walksWithDistance.push({...walk, distance});
-        });
+      return () => {
+        // Cleanup if necessary
+      };
+    }, [])
+  );
+
+  useEffect(() => {
+    const walksWithDistance: WalkWithDistance[] = [];
+    if (walks.length > 0 && userLocation) {
+      const sortedByDistance = filteredWalks.sort((a, b) => calculateDistance(userLocation, a) - calculateDistance(userLocation, b));
+      sortedByDistance.forEach(walk => {
+        const distance = calculateDistance(userLocation, walk);
+        walksWithDistance.push({...walk, distance});
+      });
 
         setWalksSortedByDistance(walksWithDistance);
       }

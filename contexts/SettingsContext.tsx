@@ -1,7 +1,7 @@
 import React, { createContext, useState, useContext, ReactNode, useEffect } from 'react';
 import {useData} from '@/contexts/DataContext';
 import { Settings } from '@/types/Settings';
-import LocalSettings from '@/services/LocalSettings';
+import LocalSettings from '@/controllers/LocalSettings';
 
 interface SettingsContextType {
     settings: Settings;

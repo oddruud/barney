@@ -13,6 +13,10 @@ import { EnvironmentProvider } from '@/contexts/EnvironmentContext';
 import { DataProvider } from '@/contexts/DataContext';
 import { SettingsProvider } from '@/contexts/SettingsContext';
 import { GenAIProvider } from '@/contexts/GenAIContext';
+import { GlobalEventsProvider } from '@/contexts/GlobalEventsContext';
+import { useGlobalEventsEmitter, GlobalEventEnum } from '@/contexts/GlobalEventsContext';
+import { GlobalEventsEmitter } from '@/controllers/GlobalEventsEmitter';
+
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -20,35 +24,44 @@ SplashScreen.preventAutoHideAsync();
 export default function RootLayout() {
   const colorScheme = useColorScheme();
   const [user, setUser] = useState<UserDetails>();
+
   const [loaded] = useFonts({
     'SpaceMono': require('../assets/fonts/SpaceMono-Regular.ttf'),
     'Voltaire-Frangela': require('../assets/fonts/Voltaire-Frangela.ttf'),
   });
 
+  const onLoginScreenVideoLoaded = () => {
+    console.log("video loaded");
+    SplashScreen.hideAsync();
+  }
+
   useEffect(() => {
+    GlobalEventsEmitter.getInstance().on(GlobalEventEnum.VIDEO_LOADED, onLoginScreenVideoLoaded);
+
     if (loaded) {
-      SplashScreen.hideAsync();
-      router.replace("/login"); 
+      router.replace("/login");
     }
   }, [loaded]);
 
-  if (!loaded) {
-    return null;
-  }
+  //if (!loaded) {
+  //  return null;
+  //}
 
   return (
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
       <EnvironmentProvider>
         <DataProvider>
           <GenAIProvider>
-          <UserProvider>
-            <SettingsProvider>
+            <GlobalEventsProvider>
+              <UserProvider>
+                <SettingsProvider>
             <Stack initialRouteName="login">
               <Stack.Screen 
           name="login" 
           options={{ 
             headerShown: false,
-            title: 'Login'
+            title: 'Login',
+            animation: 'none',
           }} 
         />
         <Stack.Screen 
@@ -97,6 +110,7 @@ export default function RootLayout() {
           <StatusBar style="auto" />
             </SettingsProvider>
           </UserProvider>
+          </GlobalEventsProvider>
           </GenAIProvider>
         </DataProvider>
       </EnvironmentProvider>

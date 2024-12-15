@@ -12,6 +12,10 @@ import { LocationObject } from 'expo-location';
 import { UserDetailsWithDistance } from '@/types/UserDetailsWithDistance';
 import { UserInteraction } from '@/types/UserInteraction';
 import { RewardInfo } from '@/types/RewardInfo';
+import { Video } from '@/types/Video';
+
+//TODO add try catches
+
 class FireStoreDataProxy implements DataProxy {
 
   async initialize(): Promise<void> {
@@ -22,25 +26,32 @@ class FireStoreDataProxy implements DataProxy {
 
   //get all planned walks that are not cancelled. todo create function where dateTime is in the future
   async getPlannedWalks(): Promise<PlannedWalk[]> {
-    const db = getFirestore();
-    const collectionRef = collection(db, "walks");
-    const q = query(
-      collectionRef, 
-      where("cancelled", "==", false)
-    );
-    const querySnapshot = await getDocs(q);
+    try {
+      const db = getFirestore();
+      const collectionRef = collection(db, "walks");
+      const q = query(
+        collectionRef, 
+        where("cancelled", "==", false)
+      );
+      const querySnapshot = await getDocs(q);
 
-//for each walk, get the userDetails and add it to the walk
-    const walksWithUserDetails = await Promise.all(querySnapshot.docs.map(async (doc) => {
-      const walk = doc.data() as PlannedWalk;
-      const userDetails = await this.getUserDetailsById(walk.userId);
-      walk.fullName = userDetails?.fullName ?? '';
-      walk.username = userDetails?.userName ?? '';
-      walk.profileImage = userDetails?.profileImage ?? '';
-      return walk;
-    }));
-    
-    return walksWithUserDetails;
+      //for each walk, get the userDetails and add it to the walk
+      const walksWithUserDetails = await Promise.all(querySnapshot.docs.map(async (doc) => {
+        const walk = doc.data() as PlannedWalk;
+        if (walk.userId) {
+          const userDetails = await this.getUserDetailsById(walk.userId);
+          walk.fullName = userDetails?.fullName ?? '';
+          walk.username = userDetails?.userName ?? '';
+          walk.profileImage = userDetails?.profileImage ?? '';
+        }
+        return walk;
+      }));
+      
+      return walksWithUserDetails;
+    } catch (error) {
+      console.error("Error fetching planned walks:", error);
+      throw error;
+    }
   }
 
   async getJoinedWalksByUserId(userId: string): Promise<PlannedWalk[]> {
@@ -441,13 +452,13 @@ async uploadToFirebase(uri:string, name:string, onProgress:((progress:number)=>v
     ];
 
     if (userInteractions.length === 0) {
-      return await this.createUserInteraction(userId1, userId2);
+      return await this.createUserInteractionForUsers(userId1, userId2);
     }
 
     return userInteractions[0];
   } 
 
-  async createUserInteraction(userId1: string, userId2: string): Promise<UserInteraction> {
+  async createUserInteractionForUsers(userId1: string, userId2: string): Promise<UserInteraction> {
     const db = getFirestore();
     const collectionRef = collection(db, "userInteractions");
     const userInteractionId = getRandomId();
@@ -484,17 +495,24 @@ async uploadToFirebase(uri:string, name:string, onProgress:((progress:number)=>v
   }
 
   async saveRewardInfo(rewardInfo: RewardInfo): Promise<void> {
-    console.log("Saving reward info", rewardInfo);
     const db = getFirestore();
     await setDoc(doc(db, "rewards", rewardInfo.walkId), rewardInfo);
   }
 
   async getRewardInfo(walkId: string): Promise<RewardInfo | null> {
-    console.log("Getting reward info for walk", walkId);
     const db = getFirestore();
     const docRef = doc(db, "rewards", walkId);
     const docSnap = await getDoc(docRef);
     return docSnap.data() as RewardInfo | null;
+  }
+
+  async getRandomFrontPageVideo(): Promise<string> {
+    const db = getFirestore();
+    const collectionRef = collection(db, "frontPageVideos");
+    const querySnapshot = await getDocs(collectionRef);
+    const randomIndex = Math.floor(Math.random() * querySnapshot.docs.length);
+    const randomVideo = querySnapshot.docs[randomIndex].data() as Video;
+    return randomVideo.url;
   }
 }
 
