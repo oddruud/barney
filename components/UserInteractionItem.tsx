@@ -38,7 +38,7 @@ const UserInteractionItem: React.FC<UserInteractionItemProps> = ({ userInteracti
           {lastMessage && (
             <>
               <Text style={styles.lastMessage}>
-                {lastMessage.length > 50 ? `${lastMessage.substring(0, 40)}...` : lastMessage}
+                {lastMessage.length > 25 ? `${lastMessage.substring(0, 25)}...` : lastMessage}
               </Text>
               <Text style={styles.lastMessageDate}>
                 {formatLastMessageDate(lastMessageDate)}

@@ -38,7 +38,7 @@ export default function NewWalkScreen() {
   const { genAIService } = useGenAI();
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [isLoadingLocation, setIsLoadingLocation] = useState(true);
-  const [groupSize, setGroupSize] = useState(2); // Default group size
+  const [groupSize, setGroupSize] = useState('2'); // Default group size
   const [invitedUsers, setInvitedUsers] = useState<UserDetails[]>([]); // New state for invited users
   const [isInviteUserModalVisible, setIsInviteUserModalVisible] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -90,7 +90,7 @@ export default function NewWalkScreen() {
       });
       setShowDatePicker(false);
       setIsLoadingLocation(true);
-      setGroupSize(2);
+      setGroupSize('2');
       setInvitedUsers([]);
       setIsInviteUserModalVisible(false);
       setIsLoading(true);
@@ -238,14 +238,12 @@ export default function NewWalkScreen() {
         <ThemedText style={styles.label}>Group Size</ThemedText>
         <ThemedTextInput
           style={[styles.input, styles.descriptionInput]}
-          value={groupSize.toString()}
-          onChangeText={(text) => setGroupSize(parseInt(text))}
+          value={groupSize}
+          onChangeText={setGroupSize}
+          keyboardType="numeric"
           placeholder="Enter group size"
         />
      
-        <Text>Selected Group Size: {groupSize}</Text>
-       
-
         {/* Location Map */}
         <ThemedText style={styles.label}>Location (tap map to set)</ThemedText>
         {Platform.OS !== 'web' && (
@@ -292,11 +290,9 @@ export default function NewWalkScreen() {
             </View>
           </>
         )}
-
       </ScrollView>
 
-   
-
+  
       {/* Invite User and Submit Buttons at the bottom */}
       <Animated.View style={{ transform: [{ translateY: buttonRowAnimation }] }}>
       <View style={styles.buttonRow}>

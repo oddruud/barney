@@ -16,6 +16,7 @@ import { GenAIProvider } from '@/contexts/GenAIContext';
 import { GlobalEventsProvider } from '@/contexts/GlobalEventsContext';
 import { useGlobalEventsEmitter, GlobalEventEnum } from '@/contexts/GlobalEventsContext';
 import { GlobalEventsEmitter } from '@/controllers/GlobalEventsEmitter';
+import { getAuth, onAuthStateChanged } from 'firebase/auth';
 
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
@@ -31,21 +32,30 @@ export default function RootLayout() {
   });
 
   const onLoginScreenVideoLoaded = () => {
-    console.log("video loaded");
+    console.log("onLoginScreenVideoLoaded: video loaded");
     SplashScreen.hideAsync();
+
+    GlobalEventsEmitter.getInstance().off(GlobalEventEnum.VIDEO_LOADED, onLoginScreenVideoLoaded);
   }
 
   useEffect(() => {
-    GlobalEventsEmitter.getInstance().on(GlobalEventEnum.VIDEO_LOADED, onLoginScreenVideoLoaded);
+    const auth = getAuth();
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        SplashScreen.hideAsync();
+        console.log("user is signed in");
+        router.replace("/(tabs)");
+      } else {
+        console.log("user is not signed in");
+        router.replace("/login");
+      }
+    });
+  }, []);
 
-    if (loaded) {
-      router.replace("/login");
-    }
+  useEffect(() => {
+    GlobalEventsEmitter.getInstance().on(GlobalEventEnum.VIDEO_LOADED, onLoginScreenVideoLoaded);
   }, [loaded]);
 
-  //if (!loaded) {
-  //  return null;
-  //}
 
   return (
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>

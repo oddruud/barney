@@ -46,6 +46,9 @@ interface DataProxy {
     updateUser(userDetails: UserDetails): Promise<void>;
     // Join a walk
     joinWalk(walkId: string, userId: string): Promise<PlannedWalk | null>;
+
+    // Unsubscribe from a walk
+    unsubscribeFromWalk(walkId: string, userId: string): Promise<PlannedWalk | null> 
     // Register a user
     registerUser(uid: string, email: string): Promise<UserDetails | null>;
     // Get all users

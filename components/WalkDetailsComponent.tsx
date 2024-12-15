@@ -12,6 +12,8 @@ import ProfileImage from './ProfileImage';
 import AreYouSureModal from './modals/AreYouSureModal';
 import { addToCalendar } from '../utils/calendarUtils';
 import FullscreenMapModal from './modals/FullscreenMapModal';
+
+
 interface WalkDetailsComponentProps {
   walkDetails: PlannedWalk;
   user: UserDetails | null;
@@ -31,7 +33,6 @@ const WalkDetailsComponent: React.FC<WalkDetailsComponentProps> = ({
 }) => {
   const fadeAnim = useRef(new Animated.Value(0)).current; // Initial value for opacity: 0
   const [users, setUsers] = useState<UserDetails[]>([]);
-  const [organizer, setOrganizer] = useState<UserDetails | null>(null);
   const [isLocalUserJoined, setIsLocalUserJoined] = useState(false);
   const [updateState, setUpdateState] = useState(0);
   const [isInvited, setIsInvited] = useState(false);
@@ -42,7 +43,6 @@ const WalkDetailsComponent: React.FC<WalkDetailsComponentProps> = ({
   const { dataProxy } = useData();
   const [isCalendarButtonPressed, setIsCalendarButtonPressed] = useState(false);
   const isOrganizer = user?.id === walkDetails.userId;
-  const isCancelled = walkDetails.cancelled;
   const [isAddedToCalendarModalVisible, setIsAddedToCalendarModalVisible] = useState(false);
   const [fullscreenMapModalVisible, setFullscreenMapModalVisible] = useState(false);
   const [isFull, setIsFull] = useState(false);
@@ -63,13 +63,6 @@ const WalkDetailsComponent: React.FC<WalkDetailsComponentProps> = ({
       setUsers(users);
     };
     fetchUsersFromJoinedUserIds();
-
-    const fetchOrganizer = async () => {
-      const organizer = await dataProxy.getUserDetailsById(walkDetails.userId);
-      setOrganizer(organizer);
-    };
-
-    fetchOrganizer();
 
     setIsLocalUserJoined(walkDetails.joinedUserIds.includes(user?.id ?? 0));
     setIsInvited(walkDetails.invitedUserIds.includes(user?.id ?? 0));
@@ -219,7 +212,7 @@ const WalkDetailsComponent: React.FC<WalkDetailsComponentProps> = ({
             ]}
           >
             <TouchableOpacity onPress={onProfileImagePress}>
-              {organizer && <ProfileImage user={organizer} style={styles.profileImageSmall} />}
+              {walkDetails.organizer && <ProfileImage user={walkDetails.organizer} style={styles.profileImageSmall} />}
             </TouchableOpacity>
             <Text style={styles.hostText}>
               {isOrganizer ? "Organized by you" : `With ${walkDetails.fullName}`}
@@ -248,7 +241,7 @@ const WalkDetailsComponent: React.FC<WalkDetailsComponentProps> = ({
         </View>
       </ScrollView>
       
-      {!isCancelled ? (
+      {!walkDetails.cancelled ? (
         <Animated.View style={{ transform: [{ translateY: buttonAnim }] }}>
            <View style={styles.buttonRow}>
           <Button

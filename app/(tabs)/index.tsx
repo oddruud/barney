@@ -100,8 +100,6 @@ export default function HomeScreen() {
   const [userLocation, setUserLocation] = useState<LocationObject | null>(null);
   const [walksSortedByDistance, setWalksSortedByDistance] = useState<WalkWithDistance[]>([]);
   const [closestWalk, setClosestWalk] = useState<WalkWithDistance | null>(null);
-  const [hoursfromNow, setHoursFromNow] = useState<number>(0);
-  const [minutesfromNow, setMinutesFromNow] = useState<number>(0);
   const { dataProxy } = useData();
   const { settings} = useSettings();
 
@@ -191,16 +189,6 @@ export default function HomeScreen() {
       }
   }, [walksSortedByDistance]);
 
-
-  useEffect(() => {
-    console.log("closestWalk", closestWalk);
-    const difference = (new Date(closestWalk ?  closestWalk.dateTime : new Date())).getTime() - new Date().getTime();
-    const hours = Math.floor((difference / (1000 * 60 * 60)));
-    const minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
-    setHoursFromNow(hours);
-    setMinutesFromNow(minutes);
-  }, [closestWalk]);
-
   const handleShare = async () => {
     try {
       const result = await Share.share({
@@ -254,9 +242,6 @@ export default function HomeScreen() {
           style={styles.invitationButton}
         />
       )}
-
- 
-
       <View style={styles.bottomContainer}>
         {nextWalk ? (
           <>
@@ -334,7 +319,6 @@ const styles = StyleSheet.create({
 
   },
   nextWalkText: {
-    fontFamily: 'SpaceMono',
     fontSize: 12,
     color: '#000000',
     textAlign: 'center',

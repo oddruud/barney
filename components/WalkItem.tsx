@@ -7,7 +7,6 @@ import { StyleSheet } from 'react-native';
 import { IconSymbol } from '../components/ui/IconSymbol';
 import { Map } from '../components/Map';
 import ProfileImage from './ProfileImage';
-import { UserDetails } from '@/types/UserDetails';
 import { useData } from '@/contexts/DataContext';
 import { RewardInfo } from '@/types/RewardInfo';
 import CachedImage from './CachedImage';
@@ -16,24 +15,7 @@ function WalkItem({ item, showDate, animated }: { item: PlannedWalk, showDate: b
   const { dataProxy } = useData();
   const fadeAnim = useRef(new Animated.Value(animated ? 0 : 1)).current;
   const scaleAnim = useRef(new Animated.Value(animated ? 0.8 : 1)).current;
-  const [organizer, setOrganizer] = useState<UserDetails | null>(null);
-  const [rewardInfo, setRewardInfo] = useState<RewardInfo | null>(null);
   const isPastWalk = new Date(item.dateTime) < new Date();
-
-  const fetchOrganizer = async () => {
-    const organizer = await dataProxy.getUserDetailsById(item.userId);
-    setOrganizer(organizer);
-  };
-
-  const fetchRewardInfo = async () => {
-    const rewardInfo = await dataProxy.getRewardInfo(item.id);
-    setRewardInfo(rewardInfo);
-  };
-
-  useEffect(() => {
-    fetchOrganizer();
-    fetchRewardInfo();
-  }, []);
 
   useEffect(() => {
     if (animated) {
@@ -65,10 +47,8 @@ function WalkItem({ item, showDate, animated }: { item: PlannedWalk, showDate: b
     >
       <Link href={{ pathname: '/details/[id]', params: { id: item.id } }}>
         <View style={styles.walkHeader}>
-          {organizer ? (
-            <ProfileImage user={organizer} style={styles.profileImage} />
-          ) : (
-            <View style={styles.profileImagePlaceholder} />
+          {item.organizer && (
+            <ProfileImage user={item.organizer} style={styles.profileImage} />
           )}
           <View style={styles.walkInfo}>
             <Text style={styles.date}>
@@ -84,10 +64,10 @@ function WalkItem({ item, showDate, animated }: { item: PlannedWalk, showDate: b
               </View>
             )}
           </View>
-          {rewardInfo && (
-            <CachedImage url={rewardInfo.image} style={styles.rewardImage} />
+          {item.reward && (
+            <CachedImage url={item.reward.image} style={styles.rewardImage} />
           )}
-          {!rewardInfo && (
+          {!item.reward && (
             <Map
               initialRegion={{
                 latitude: item.latitude,

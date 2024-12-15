@@ -1,5 +1,5 @@
 import { auth } from '@/fireBaseConfig';
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, User } from 'firebase/auth';
+import { createUserWithEmailAndPassword, sendPasswordResetEmail, signInWithEmailAndPassword, signOut, User } from 'firebase/auth';
 import { Authentication } from './AuthenticationInterface';
 import { FirebaseError } from 'firebase/app';
 
@@ -43,6 +43,10 @@ class FireBaseAuthentication implements Authentication {
       });
       
       return userCredential;
+    }
+
+    async resetPassword(email: string): Promise<void> {
+      await sendPasswordResetEmail(auth, email);
     }
 
     async logout(): Promise<void> {

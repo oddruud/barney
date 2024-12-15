@@ -28,21 +28,21 @@ export default function LoginScreen() {
     const { setUser } = useUser();
     const { dataProxy } = useData();
     const [isLoggingIn, setIsLoggingIn] = useState(false);
-    const [email, setEmail] = useState('yelp@yolo.com');
-    const [password, setPassword] = useState('testtest');
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
     const [message, setMessage] = useState<Message | null>(null);
     const [showLoginForm, setShowLoginForm] = useState(false);
     const { environment } = useEnvironment();
     const globalEventsEmitter = useGlobalEventsEmitter();
     const [isRegistering, setIsRegistering] = useState(false);
-    const [isInProgress, setIsInProgress] = useState(false);
     const [videoSource, setVideoSource] = useState('');   
     const fadeAnim = useRef(new Animated.Value(0)).current; // Initial opacity value of 0
     const buttonFadeAnim = useRef(new Animated.Value(0)).current; // Initial opacity value for button
-
+    const [forgotPasswordMode, setForgotPasswordMode] = useState(false);
 
     useEffect(() => {
         dataProxy.getRandomFrontPageVideo().then((videoUrl) => {
+            console.log("video url", videoUrl);
             setVideoSource(videoUrl);
         });
     }, []);
@@ -76,6 +76,19 @@ export default function LoginScreen() {
             }
         });
     }
+    const handleResetPasswordPress = async () => {
+        console.log("password reset");
+        await authentication.resetPassword(email);
+        setMessage({ message: 'Password reset email sent', type: 'success' });
+        setForgotPasswordMode(false);
+    };
+
+    const cancelForgotPasswordPress = () => {
+        console.log("Cancel Forgot Password pressed");
+        setForgotPasswordMode(false);
+
+
+    }
 
     const loginOrVerifyEmail = async (user: User) => {
         if (environment === Environment.Development) {
@@ -101,6 +114,9 @@ export default function LoginScreen() {
         const auth = getAuth();
 
         const currentUser = auth.currentUser;
+
+        console.log("current user", currentUser);
+
         if (currentUser) {
             loginOrVerifyEmail(currentUser);
         } else {
@@ -193,6 +209,12 @@ export default function LoginScreen() {
 
     const isGoogleSignInEnabled = false;
 
+    const handleForgotPasswordPress = () => {
+        console.log("Forgot Password pressed");
+        setForgotPasswordMode(true);
+        // Implement password reset logic here
+    };
+
     return (
         <>
         <View style={styles.container}>
@@ -248,37 +270,73 @@ export default function LoginScreen() {
                                 keyboardType="email-address"
                                 autoCapitalize="none"
                             />
-                            <Text style={styles.label}>Password</Text>
-                            <TextInput
-                                style={styles.input}
-                                placeholder="Enter your password"
-                                value={password}
-                                onChangeText={setPassword}
-                                secureTextEntry
-                            />
+                            {!forgotPasswordMode && (
+                                <>
+                                <Text style={styles.label}>Password</Text>
+                                <TextInput
+                                    style={styles.input}
+                                    placeholder="Enter your password"
+                                    value={password}
+                                    onChangeText={setPassword}
+                                    secureTextEntry
+                                />
+                                </>
+                            )}
                             {message ? (
                                 <Text style={{...styles.messageText, color: message.type === 'error' ? 'red' : 'green'}}>{message.message}</Text>
                             ) : null}
-                            <View style={styles.buttonRow}>
+                            <View>
                                 {isRegistering ? (
                                     <Button style={styles.loginButton}
                                         title="Register" 
                                         onPress={handleSignUpPress} 
                                     />
                                 ) : (
+                                    <>
+                                {!forgotPasswordMode && (
+                                    <>
                                     <Button style={styles.loginButton}
                                         title="Login" 
                                         onPress={handleLoginPress} 
                                     />
+                                    
+                                    <Button
+                                    style={styles.forgotPasswordButton}
+                                    textStyle={styles.forgotPasswordButtonText}
+                                    title="Forgot Password?"
+                                    onPress={handleForgotPasswordPress}
+                                />
+                                </>
+                                )}
+                                {forgotPasswordMode && (
+                                    <>
+                                    <Button
+                                        style={[styles.loginButton, {width: 160}]}
+
+                                        title="Reset Password"
+                                        onPress={handleResetPasswordPress}
+                                    />
+                                        <Button
+                                        style={[styles.loginRegisterSwitchButton, {width: 160}]}
+                                        textStyle={styles.loginRegisterSwitchButtonText}
+                                        title="Back"
+                                        onPress={cancelForgotPasswordPress}
+                                    />
+                                    </>
+                                )}
+                                </>
                                 )}
                             </View>
-                            <Button style={styles.loginRegisterSwitchButton} textStyle={styles.loginRegisterSwitchButtonText}
+
+                            {!forgotPasswordMode && (
+                                <Button style={styles.loginRegisterSwitchButton} textStyle={styles.loginRegisterSwitchButtonText}
                                     title={isRegistering ? "Login" : "Register"} 
                                     onPress={() => {
                                         setMessage(null);
                                         setIsRegistering(!isRegistering)
                                     }} 
                                 />
+                            )}
                        
                         
                         </View>
@@ -288,15 +346,6 @@ export default function LoginScreen() {
                 </>
                 </TouchableWithoutFeedback>
                 </KeyboardAvoidingView>
-            )}
-            
-            {showLoginForm && (
-                <Button
-                    style={styles.otherAuthenticationMethodButton}
-                    textStyle={styles.otherAuthenticationMethodButtonText}
-                    title="Back"
-                    onPress={() => setShowLoginForm(false)}
-                />
             )}
         </View>
         </>
@@ -325,6 +374,7 @@ const styles = StyleSheet.create({
       borderRadius: 10,
       width: 120,
       marginHorizontal: 10,
+      marginTop: 20,
     },
     openButton: {
         alignSelf: 'center',
@@ -342,7 +392,7 @@ const styles = StyleSheet.create({
       justifyContent: 'center',
       alignItems: 'center',
       padding: 24,
-      marginTop: 340,
+      marginTop: 420,
     },
     title: {
       alignSelf: 'center',
@@ -420,5 +470,29 @@ const styles = StyleSheet.create({
     otherAuthenticationMethodButtonText: {
         color: 'white',
         fontSize: 16,
+    },
+    forgotPasswordButton: {
+        backgroundColor: 'rgba(0, 0, 0, 0.0)',
+        padding: 10,
+        borderRadius: 10,
+        marginTop: 10,
+        alignSelf: 'center',
+    },
+    forgotPasswordButtonText: {
+        color: 'white',
+        fontSize: 16,
+        textDecorationLine: 'underline',
+    },
+    resetPasswordButton: {
+        backgroundColor: 'rgba(0, 0, 0, 0.0)',
+        padding: 10,
+        borderRadius: 10,
+        marginTop: 10,
+        alignSelf: 'center',
+    },
+    resetPasswordButtonText: {
+        color: 'white',
+        fontSize: 16,
+        textDecorationLine: 'underline',
     },
 });

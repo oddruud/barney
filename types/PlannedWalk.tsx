@@ -20,4 +20,6 @@ export interface PlannedWalk {
     joinedUserIds: string[];
     invitedUserIds: string[];
     cancelled: boolean;
+    organizer?: UserDetails | null;
+    reward?: RewardInfo | null;
   }

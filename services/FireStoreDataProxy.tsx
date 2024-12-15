@@ -38,13 +38,7 @@ class FireStoreDataProxy implements DataProxy {
       //for each walk, get the userDetails and add it to the walk
       const walksWithUserDetails = await Promise.all(querySnapshot.docs.map(async (doc) => {
         const walk = doc.data() as PlannedWalk;
-        if (walk.userId) {
-          const userDetails = await this.getUserDetailsById(walk.userId);
-          walk.fullName = userDetails?.fullName ?? '';
-          walk.username = userDetails?.userName ?? '';
-          walk.profileImage = userDetails?.profileImage ?? '';
-        }
-        return walk;
+        return this.fillPlannedWalkWithUserDetails(walk);
       }));
       
       return walksWithUserDetails;
@@ -67,14 +61,9 @@ class FireStoreDataProxy implements DataProxy {
 
     const walksWithUserDetails = await Promise.all(querySnapshot.docs.map(async (doc) => {
       const walk = doc.data() as PlannedWalk;
-      const userDetails = await this.getUserDetailsById(walk.userId);
-      walk.fullName = userDetails?.fullName ?? '';
-      walk.username = userDetails?.userName ?? '';
-      walk.profileImage = userDetails?.profileImage ?? '';
-      return walk;
+      return this.fillPlannedWalkWithUserDetails(walk);
     }));
 
-    
     const sorted = walksWithUserDetails.sort((a, b) => new Date(a.dateTime).getTime() - new Date(b.dateTime).getTime());
     return sorted;
   }
@@ -91,17 +80,29 @@ class FireStoreDataProxy implements DataProxy {
     const querySnapshot = await getDocs(q);
     const walksWithUserDetails = await Promise.all(querySnapshot.docs.map(async (doc) => {
       const walk = doc.data() as PlannedWalk;
-      const userDetails = await this.getUserDetailsById(walk.userId);
-      walk.fullName = userDetails?.fullName ?? '';
-      walk.username = userDetails?.userName ?? '';
-      walk.profileImage = userDetails?.profileImage ?? '';
-      return walk;
+      return this.fillPlannedWalkWithUserDetails(walk);
     }));
     //remove walks that have a date in the past
     const walksWithUserDetailsFromNow = walksWithUserDetails.filter(walk => new Date(walk.dateTime) > new Date());
 
     const sorted = walksWithUserDetailsFromNow.sort((a, b) => new Date(a.dateTime).getTime() - new Date(b.dateTime).getTime());
     return sorted
+  }
+
+  async fillPlannedWalkWithUserDetails(walk: PlannedWalk): Promise<PlannedWalk> {
+    if (!walk.userId) return walk;
+
+    const userDetails = await this.getUserDetailsById(walk.userId);
+    walk.organizer = userDetails;
+
+    const reward = await this.getRewardInfo(walk.id);
+    walk.reward = reward;
+
+    //todo remove these in favour of organizer object
+    walk.fullName = userDetails?.fullName ?? '';
+    walk.username = userDetails?.userName ?? '';
+    walk.profileImage = userDetails?.profileImage ?? '';
+    return walk;
   }
 
   async declineInvite(walkId: string, userId: string): Promise<PlannedWalk | null> {
@@ -171,19 +172,14 @@ class FireStoreDataProxy implements DataProxy {
     
     let walkData = await getDoc(docRef).then((docSnap) => {
       const plannedWalk = docSnap.data() as PlannedWalk | null;
+      if (plannedWalk) {
+        return this.fillPlannedWalkWithUserDetails(plannedWalk);
+      }
       return plannedWalk;
     }).catch((error) => {
       console.error("Error getting user details", error);
       throw error;
     });
-
-    if (walkData) {
-      const userDetails = await this.getUserDetailsById(walkData.userId);
-      walkData.fullName = userDetails?.fullName ?? '';
-      walkData.username = userDetails?.userName ?? '';
-      walkData.profileImage = userDetails?.profileImage ?? '';
-    }
-
 
     return walkData as PlannedWalk | null;
   }

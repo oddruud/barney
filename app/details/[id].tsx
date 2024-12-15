@@ -6,7 +6,6 @@ import ChatComponent from '../../components/ChatComponent';
 import WalkDetailsComponent from '../../components/WalkDetailsComponent';
 import AboutComponent from '../../components/AboutComponent';
 import { PlannedWalk } from '../../types/PlannedWalk';
-import { UserDetails } from '../../types/UserDetails';
 import { useUser } from '@/contexts/UserContext';
 import { router } from 'expo-router';
 import { useData } from '@/contexts/DataContext';
@@ -26,27 +25,14 @@ export default function WalkDetails() {
   const { user } = useUser();
   const { dataProxy } = useData();
   const [walkDetails, setWalkDetails] = useState<PlannedWalk | null>(null);
-  const [organizerDetails, setOrganizerDetails] = useState<UserDetails | null>(null);
   const [rewardInfo, setRewardInfo] = useState<RewardInfo | null>(null);
 
   useEffect(() => {
     const fetchWalkDetails = async () => {
       const walk = await dataProxy.getPlannedWalk(id);    
       setWalkDetails(walk || null);
-
-      if (walk) {
-        const user = await dataProxy.getUserDetailsById(walk.userId);
-        setOrganizerDetails(user || null);
-      }
     };
-
-    const fetchRewardInfo = async () => { 
-      const rewardInfo = await dataProxy.getRewardInfo(id);
-      setRewardInfo(rewardInfo || null);
-    };
-
     fetchWalkDetails();
-    fetchRewardInfo();
   }, []);
 
     useEffect(() => {
@@ -124,23 +110,22 @@ export default function WalkDetails() {
           onDeclineInvite={async () => {
             if (user) {
               await dataProxy.declineInvite(walkDetails.id, user.id);
-              await sleep(100);
               router.back();
             }
           }}
         />
       )}
 
-      {activeTab === 'reward' && (
-        <RewardComponent rewardInfo={rewardInfo} />
+      {activeTab === 'reward' && walkDetails.reward && (
+        <RewardComponent rewardInfo={walkDetails.reward} />
       )}
 
       {activeTab === 'chat' && (
         <ChatComponent chatId={id} user={user}/>
       )}
 
-      {activeTab === 'about' && organizerDetails && (
-        <AboutComponent user={organizerDetails} showRateButton={true} />
+      {activeTab === 'about' && walkDetails.organizer && (
+        <AboutComponent user={walkDetails.organizer} showRateButton={true} />
       )}
     </View>
   );

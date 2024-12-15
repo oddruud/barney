@@ -239,6 +239,7 @@ async getRandomWalkingQuote(): Promise<Quote> {
       }, 10); // Simulate async delay
     });
   }
+
   async registerUser(uid: string, email: string): Promise<UserDetails | null> {
     return new Promise((resolve) => {
       console.log("register user", uid, email);
@@ -327,6 +328,7 @@ async getRandomWalkingQuote(): Promise<Quote> {
       resolve("https://roboruud.nl/walk.mp4");
     });
   }
+  
 }
 
 export { MockDataProxy };

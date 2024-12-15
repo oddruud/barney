@@ -18,6 +18,11 @@ class GlobalEventsEmitter {
         if (!this.eventListenersMap.has(event)) {
             this.eventListenersMap.set(event, []);
         }
+
+        if (this.eventListenersMap.get(event)?.includes(listener)) {
+            return;
+        }
+        
         this.eventListenersMap.get(event)?.push(listener);
     }
 

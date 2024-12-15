@@ -20,7 +20,7 @@ PODS:
     - React-Core
   - EXNotifications (0.29.11):
     - ExpoModulesCore
-  - Expo (52.0.18):
+  - Expo (52.0.11):
     - ExpoModulesCore
   - ExpoAdapterGoogleSignIn (13.1.0):
     - ExpoModulesCore
@@ -32,15 +32,15 @@ PODS:
     - ExpoModulesCore
   - ExpoBlur (14.0.1):
     - ExpoModulesCore
-  - ExpoCalendar (14.0.5):
+  - ExpoCalendar (14.0.4):
     - ExpoModulesCore
-  - ExpoFileSystem (18.0.5):
+  - ExpoFileSystem (18.0.4):
     - ExpoModulesCore
   - ExpoFont (13.0.1):
     - ExpoModulesCore
   - ExpoHaptics (14.0.0):
     - ExpoModulesCore
-  - ExpoHead (4.0.11):
+  - ExpoHead (4.0.9):
     - ExpoModulesCore
   - ExpoImageManipulator (13.0.5):
     - EXImageLoader
@@ -54,9 +54,9 @@ PODS:
     - ExpoModulesCore
   - ExpoLinking (7.0.3):
     - ExpoModulesCore
-  - ExpoLocation (18.0.4):
+  - ExpoLocation (18.0.2):
     - ExpoModulesCore
-  - ExpoModulesCore (2.1.1):
+  - ExpoModulesCore (2.0.6):
     - DoubleConversion
     - glog
     - hermes-engine
@@ -81,11 +81,11 @@ PODS:
     - Yoga
   - ExpoSharing (13.0.0):
     - ExpoModulesCore
-  - ExpoSplashScreen (0.29.18):
+  - ExpoSplashScreen (0.29.13):
     - ExpoModulesCore
   - ExpoSymbols (0.2.0):
     - ExpoModulesCore
-  - ExpoSystemUI (4.0.6):
+  - ExpoSystemUI (4.0.4):
     - ExpoModulesCore
   - ExpoVideo (2.0.2):
     - ExpoModulesCore
@@ -1849,7 +1849,7 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
-  - RNReanimated (3.16.5):
+  - RNReanimated (3.16.3):
     - DoubleConversion
     - glog
     - hermes-engine
@@ -1869,10 +1869,10 @@ PODS:
     - ReactCodegen
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
-    - RNReanimated/reanimated (= 3.16.5)
-    - RNReanimated/worklets (= 3.16.5)
+    - RNReanimated/reanimated (= 3.16.3)
+    - RNReanimated/worklets (= 3.16.3)
     - Yoga
-  - RNReanimated/reanimated (3.16.5):
+  - RNReanimated/reanimated (3.16.3):
     - DoubleConversion
     - glog
     - hermes-engine
@@ -1892,9 +1892,9 @@ PODS:
     - ReactCodegen
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
-    - RNReanimated/reanimated/apple (= 3.16.5)
+    - RNReanimated/reanimated/apple (= 3.16.3)
     - Yoga
-  - RNReanimated/reanimated/apple (3.16.5):
+  - RNReanimated/reanimated/apple (3.16.3):
     - DoubleConversion
     - glog
     - hermes-engine
@@ -1915,7 +1915,7 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
-  - RNReanimated/worklets (3.16.5):
+  - RNReanimated/worklets (3.16.3):
     - DoubleConversion
     - glog
     - hermes-engine
@@ -2408,27 +2408,27 @@ SPEC CHECKSUMS:
   EXConstants: dd2fe64c6cdb1383b694c309a63028a8e9f2be6d
   EXImageLoader: 759063a65ab016b836f73972d3bb25404888713d
   EXNotifications: e27ed9ad086026ef0cdd5ddbf9be60abd18232c8
-  Expo: dc7907584c3517c592315a59719180037703ff33
+  Expo: 148aac4ce0da148c63447d09ae41ddb153f35506
   ExpoAdapterGoogleSignIn: da10ae7e7c1d73a10c2facebcdfe5ebea8e073ce
   ExpoAsset: 8138f2a9ec55ae1ad7c3871448379f7d97692d15
   ExpoAudio: 6a61d59e80c5a2714a5c128f7b96d59c60137cf1
   ExpoBlur: 562b3da84d3cd79016c411671eaf71a404266415
-  ExpoCalendar: 540f2576e76530bc46a1c93d9966fdf6b29d614f
-  ExpoFileSystem: 2161e16165279fb46e138d8ea8795c71cc6718be
+  ExpoCalendar: 584170a07064802a186bc199914d4b6db4119e27
+  ExpoFileSystem: dc2679a2b5d4c465ca881129074da95faee943d5
   ExpoFont: 7522d869d84ee2ee8093ee997fef5b86f85d856b
   ExpoHaptics: e636188d1d5f7ccb79f3c1bfab47aaf5a1768c73
-  ExpoHead: c2695f9e8d685d6fa76e7a42006b0b3420cf2d50
+  ExpoHead: a623db43433938dcfbd6a38c27381055d01a0f3a
   ExpoImageManipulator: 774eb1a17c5db07944d6f9000650d422ebb3ce47
   ExpoImagePicker: 440a560c9bfc63edae854d08b9f12f75bd11c112
   ExpoKeepAwake: 783e68647b969b210a786047c3daa7b753dcac1f
   ExpoLinearGradient: 7ca3b1d1625a1ab85c129abce4a3cdc78a9500a3
   ExpoLinking: a8332a219379ba80f8e612d5a5de4a3da446886e
-  ExpoLocation: f13126dee9bf4c1499eb16b64f15afe9da9403f5
-  ExpoModulesCore: f7db8b4faee7e5b94ad55f2bf781781a0bcf934d
+  ExpoLocation: e0c5b5212381b0b800a2c1f715be823d17c51b05
+  ExpoModulesCore: bb3f481a7912159f2289a653e4195146170f0a00
   ExpoSharing: 39a198e64bf522948fe60e270e49a0c7757912c1
-  ExpoSplashScreen: 5818efe67bdbcc862b97fef589571c5b4d53fa7d
+  ExpoSplashScreen: 43692d041bf848883410ed9d8836871ca5cf4d6a
   ExpoSymbols: 81d7f433d7a7b20658029eae524a4fa93627159e
-  ExpoSystemUI: 2d729aea8219f03af1b1996c1d14488a01fea94a
+  ExpoSystemUI: 97ec8f20af5e8ca18d3191c5c72e8a04e6e2f02d
   ExpoVideo: f1993ca14d715dceb8ae2c21f4ea91dccd8c76b3
   ExpoWebBrowser: f08aaf1c8a02af8a768d83793186cb6d2c69f529
   FBLazyVector: be7314029d6ec6b90f0f75ce1195b8130ed9ac4f
@@ -2509,7 +2509,7 @@ SPEC CHECKSUMS:
   RNFS: 4ac0f0ea233904cb798630b3c077808c06931688
   RNGestureHandler: fc5ce5bf284640d3af6431c3a5c3bc121e98d045
   RNGoogleSignin: edec18754ff4af2cfee46072609ec5a7a754291a
-  RNReanimated: eb3170ded1ec1f61d8129c6cc2df06778f99703f
+  RNReanimated: 006a5d3961bf09c1e96d62ed436e02b2e43b89bb
   RNScreens: 27587018b2e6082f5172b1ecf158c14a0e8842d6
   RNSVG: 536cd3c866c878faf72beaba166c8b02fe2b762b
   RNVectorIcons: 07792a9538e8577c1263fcad187712e90d65d8fb
