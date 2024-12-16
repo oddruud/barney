@@ -172,6 +172,7 @@ export default function NewWalkScreen() {
   }
 
   const getRewardForWalk = async (walk: PlannedWalk) => {
+    console.log("Getting reward for walk", walk.id);
     const rewardInfo = await genAIService.getRewardForWalk(walk);
     
     if (rewardInfo) {

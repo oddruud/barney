@@ -113,6 +113,24 @@ class GenAIService {
 
         return null;
     }
+
+    public async pingServer(): Promise<boolean> {
+        try {
+            const url = `${GenAIService.serverUrl}/ping`;
+            const response = await fetch(url, {
+                method: 'GET',
+            });
+
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+
+            return true;
+        } catch (error) {
+            console.error('Ping server error:', error);
+            return false;
+        }
+    }
 }
 
 export {GenAIService};

@@ -23,8 +23,8 @@ export default function SelectWalkInArea({
   const { settings } = useSettings();
   const [selectedWalk, setSelectedWalk] = useState<PlannedWalk | null>(null);
   const [userLocation, setUserLocation] = useState<Location.LocationObject | null>(null);
-  const [startDate, setStartDate] = useState<Date | null>(initialStartDate);
-  const [endDate, setEndDate] = useState<Date | null>(initialEndDate);
+  const [startDate, setStartDate] = useState<Date>(initialStartDate);
+  const [endDate, setEndDate] = useState<Date>(initialEndDate);
   const [fadeAnim] = useState(new Animated.Value(0));
   const [walks, setWalks] = useState<PlannedWalk[]>([]);
   const [filteredWalks, setFilteredWalks] = useState<PlannedWalk[]>([]);
@@ -142,11 +142,11 @@ export default function SelectWalkInArea({
   };
 
   const handleStartDateChange = (event: any, date?: Date) => {
-    setStartDate(date || null);
+    setStartDate(date || new Date());
   };
 
   const handleEndDateChange = (event: any, date?: Date) => {
-    setEndDate(date || null);
+    setEndDate(date || new Date());
   };
 
   const handleChooseWalk = (walk: WalkWithDistance) => {
@@ -161,7 +161,8 @@ export default function SelectWalkInArea({
         const walkDate = new Date(walk.dateTime);
         const distance = calculateDistance(userLocation, walk);
         return (
-          walkDate >= new Date() &&
+          walkDate >= startDate &&
+          walkDate <= endDate &&
           distance <= settings.searchRadius
         );
       } else {
@@ -261,9 +262,9 @@ const styles = StyleSheet.create({
     marginRight: 10,
   },
   title: {
-    fontSize: 28,
+    fontSize: 20,
     fontWeight: 'bold',
-    color: '#00796b',
+    color: '#000',
     marginBottom: 16,
     marginTop: 16,
     textAlign: 'center',

@@ -119,18 +119,36 @@ class FireStoreDataProxy implements DataProxy {
   }
 
   async updatePlannedWalk(id: string, updatedWalk: PlannedWalk): Promise<void> {
-    const db = getFirestore();
-    const docRef = doc(db, "walks", id);
-    await setDoc(docRef, updatedWalk).then(()=>{
-    });
+
+    try {
+      if (!updatedWalk.reward) {
+        updatedWalk.reward = null;
+      }
+
+      if (!updatedWalk.organizer) {
+        updatedWalk.organizer = null;
+      }
+
+      const db = getFirestore();
+      const docRef = doc(db, "walks", id);
+      await setDoc(docRef, updatedWalk);
+    } catch (error) {
+      console.error("Error updating planned walk", id);
+      throw error;
+    }
   }
 
   async cancelPlannedWalk(id: string): Promise<void> {
     const db = getFirestore();
-    const walk = await this.getPlannedWalk(id);
-    if (walk) {
-      walk.cancelled = true;
-      await this.updatePlannedWalk(id, walk);
+    try {
+      const walk = await this.getPlannedWalk(id);
+      if (walk) {
+        walk.cancelled = true;
+        await this.updatePlannedWalk(id, walk);
+      }
+    } catch (error) {
+      console.error("Error cancelling planned walk", error);
+      throw error;
     }
   }
 
@@ -144,10 +162,12 @@ class FireStoreDataProxy implements DataProxy {
   async getUserDetailsById(id: string): Promise<UserDetails | null> {
     const db = getFirestore();
     const docRef = doc(db, "users", id);
-    
-    let userData = await getDoc(docRef).then((docSnap) => {
+
+    let userData;
+    try {
+      const docSnap = await getDoc(docRef);
       const userDetails = docSnap.data() as UserDetails | null;
-      
+
       //TODO: remove this after testing
       if (userDetails) {
         userDetails.isVerified = true;
@@ -157,11 +177,11 @@ class FireStoreDataProxy implements DataProxy {
         }
       }
 
-      return userDetails;
-    }).catch((error) => {
+      userData = userDetails;
+    } catch (error) {
       console.error("Error getting user details", error);
       throw error;
-    });
+    }
 
     return userData as UserDetails | null;
   }
@@ -172,6 +192,7 @@ class FireStoreDataProxy implements DataProxy {
     
     let walkData = await getDoc(docRef).then((docSnap) => {
       const plannedWalk = docSnap.data() as PlannedWalk | null;
+
       if (plannedWalk) {
         return this.fillPlannedWalkWithUserDetails(plannedWalk);
       }
@@ -211,6 +232,15 @@ class FireStoreDataProxy implements DataProxy {
     const db = getFirestore();
     const walkId = getRandomId();
     const walkWithId = {...walk, id: walkId};
+
+    if (!walkWithId.reward) {
+      walkWithId.reward = null;
+    }
+
+    if (!walkWithId.organizer) {
+      walkWithId.organizer = null;
+    }
+
     await setDoc(doc(db, "walks", walkWithId.id), walkWithId).then(() => {  
       return walkWithId.id;
     }).catch((error) => {
@@ -231,12 +261,17 @@ class FireStoreDataProxy implements DataProxy {
   }
 
   async getRandomWalkingQuote(): Promise<Quote> {
-    const db = getFirestore();
-    const collectionRef = collection(db, "quotes");
-    const querySnapshot = await getDocs(collectionRef);
-    const randomIndex = Math.floor(Math.random() * querySnapshot.docs.length);
-    const randomQuote = querySnapshot.docs[randomIndex].data() as Quote;
-    return randomQuote;
+      const db = getFirestore();
+      const collectionRef = collection(db, "quotes");
+      try {
+        const querySnapshot = await getDocs(collectionRef);
+        const randomIndex = Math.floor(Math.random() * querySnapshot.docs.length);
+        const randomQuote = querySnapshot.docs[randomIndex].data() as Quote;
+        return randomQuote;
+      } catch (error) {
+        console.error("Error getting random walking quote", error);
+        throw error;
+      }
   }
 
   //TODO very naive implementation, todo: use only future walks

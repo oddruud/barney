@@ -3,6 +3,8 @@ import { GlobalEventsEmitter } from '@/controllers/GlobalEventsEmitter';
 
 enum GlobalEventEnum {
     VIDEO_LOADED = "VIDEO_LOADED",
+    USER_SIGNED_IN = "USER_SIGNED_IN",
+    USER_SIGNED_OUT = "USER_SIGNED_OUT",
 }
 
 // Create a context

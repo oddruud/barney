@@ -34,26 +34,24 @@ export default function RootLayout() {
   const onLoginScreenVideoLoaded = () => {
     console.log("onLoginScreenVideoLoaded: video loaded");
     SplashScreen.hideAsync();
+    removeGlobalEventsListeners();
+  }
 
+  const onUserSignedIn = () => {
+    SplashScreen.hideAsync();
+    console.log("onUserSignedIn: user signed in");
+    removeGlobalEventsListeners();
+  }
+
+  const removeGlobalEventsListeners = () => {
     GlobalEventsEmitter.getInstance().off(GlobalEventEnum.VIDEO_LOADED, onLoginScreenVideoLoaded);
+    GlobalEventsEmitter.getInstance().off(GlobalEventEnum.USER_SIGNED_IN, onUserSignedIn);
   }
 
   useEffect(() => {
-    const auth = getAuth();
-    onAuthStateChanged(auth, (user) => {
-      if (user) {
-        SplashScreen.hideAsync();
-        console.log("user is signed in");
-        router.replace("/(tabs)");
-      } else {
-        console.log("user is not signed in");
-        router.replace("/login");
-      }
-    });
-  }, []);
-
-  useEffect(() => {
     GlobalEventsEmitter.getInstance().on(GlobalEventEnum.VIDEO_LOADED, onLoginScreenVideoLoaded);
+    GlobalEventsEmitter.getInstance().on(GlobalEventEnum.USER_SIGNED_IN, onUserSignedIn);
+    router.replace("/login");
   }, [loaded]);
 
 

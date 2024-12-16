@@ -42,7 +42,6 @@ export default function LoginScreen() {
 
     useEffect(() => {
         dataProxy.getRandomFrontPageVideo().then((videoUrl) => {
-            console.log("video url", videoUrl);
             setVideoSource(videoUrl);
         });
     }, []);
@@ -74,6 +73,8 @@ export default function LoginScreen() {
             } else {
                 router.replace("/(tabs)");
             }
+        }).catch((error) => {
+            console.error("Error fetching user data:", error);
         });
     }
     const handleResetPasswordPress = async () => {
@@ -86,8 +87,6 @@ export default function LoginScreen() {
     const cancelForgotPasswordPress = () => {
         console.log("Cancel Forgot Password pressed");
         setForgotPasswordMode(false);
-
-
     }
 
     const loginOrVerifyEmail = async (user: User) => {
@@ -108,20 +107,22 @@ export default function LoginScreen() {
         }
     }
 
+
+
+
     useEffect(() => {
         console.log("environment is ", environment);
 
         const auth = getAuth();
+        auth.onAuthStateChanged((user) => {
+            if (user) {
+                globalEventsEmitter.emit(GlobalEventEnum.USER_SIGNED_IN);
+                loginOrVerifyEmail(user);
+            } else {
+                console.log("no user signed in");
+            }
+        });
 
-        const currentUser = auth.currentUser;
-
-        console.log("current user", currentUser);
-
-        if (currentUser) {
-            loginOrVerifyEmail(currentUser);
-        } else {
-            console.log("no user signed in");
-        }
     }, []);
 
     const handleSignUpPress = async () => {

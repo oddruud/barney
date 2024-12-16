@@ -11,8 +11,8 @@ const RewardComponent: React.FC<RewardComponentProps> = ({ rewardInfo }) => {
   return (
     <View style={styles.container}>
       <CachedImage url={rewardInfo.image} style={styles.image} />
-      <Text style={styles.name}>{rewardInfo.name}</Text>
-      <Text style={styles.description}>{rewardInfo.description}</Text>
+      <Text style={styles.name}>{rewardInfo.name.replace(/['"]/g, '')}</Text>
+      <Text style={styles.description}>{rewardInfo.description.replace(/['"]/g, '')}</Text>
     </View>
   );
 };

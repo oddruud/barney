@@ -13,6 +13,7 @@ import { IconSymbol } from '@/components/ui/IconSymbol';
 import { getPrevRouteName } from '@/utils/routeUtils';
 import { RewardInfo } from '@/types/RewardInfo';
 import RewardComponent from '@/components/RewardComponent';
+import { useGenAI } from '@/contexts/GenAIContext';
 
 // Define a sleep function
 const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
@@ -25,15 +26,28 @@ export default function WalkDetails() {
   const { user } = useUser();
   const { dataProxy } = useData();
   const [walkDetails, setWalkDetails] = useState<PlannedWalk | null>(null);
-  const [rewardInfo, setRewardInfo] = useState<RewardInfo | null>(null);
-
+  const { genAIService } = useGenAI();
   useEffect(() => {
     const fetchWalkDetails = async () => {
-      const walk = await dataProxy.getPlannedWalk(id);    
+      const walk = await dataProxy.getPlannedWalk(id);
       setWalkDetails(walk || null);
+
+      // Polling logic: continue fetching if reward is null or undefined
+      if (!walk?.reward) {
+        const genAIIsOnline = await genAIService.pingServer();
+        if (genAIIsOnline) {
+          console.log('Polling for reward...');
+          await sleep(3000); // Wait for 3 seconds before retrying
+          fetchWalkDetails();
+        } else {
+          console.log('GenAI is offline, skipping polling');
+        }
+      }
     };
     fetchWalkDetails();
   }, []);
+
+  
 
     useEffect(() => {
       const prevRouteName = getPrevRouteName(navigation);
@@ -68,7 +82,7 @@ export default function WalkDetails() {
         <TouchableOpacity onPress={() => setActiveTab('details')} style={activeTab === 'details' ? styles.activeTab : styles.tab}>
           <Text style={styles.tabText}>Info</Text>
         </TouchableOpacity>
-        {rewardInfo && (
+        {walkDetails.reward && (
           <TouchableOpacity onPress={() => setActiveTab('reward')} style={activeTab === 'reward' ? styles.activeTab : styles.tab}>
             <Text style={styles.tabText}>Reward</Text>
           </TouchableOpacity>
