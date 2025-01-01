@@ -111,9 +111,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     zIndex: 1000,
     width: '100%',
-    height: 80,
+    height: 100,
     position: 'absolute',
-    bottom: 80,
+    bottom: 70,
     backgroundColor: 'rgba(0,0,0,0.4)',
   },
   inner: {

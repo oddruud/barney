@@ -14,6 +14,10 @@ import { WalkWithDistance } from '@/types/WalkWithDistance';
 import WalkSelect from '@/components/WalkSelect';
 import { useSettings } from '@/contexts/SettingsContext';
 import { Button } from '@/components/Button';
+import FiltersModal from '@/components/modals/FiltersModal';
+import { DeviceType, getDeviceType } from '@/utils/deviceUtils';
+
+const deviceType = getDeviceType();
 
 export default function SelectWalkInArea({
   initialStartDate = new Date(),
@@ -179,37 +183,14 @@ export default function SelectWalkInArea({
 
   return (
     <ThemedView style={styles.container}>
-      <Modal
-        visible={isModalVisible}
-        transparent={true}
-        animationType="fade"
-        onRequestClose={toggleModal}
-      >
-        <View style={styles.modalBackground}>
-          <View style={styles.modalContent}>
-            <Text style={styles.title}>Filters</Text>
-            <ThemedView style={styles.dateContainer}>
-              <Text style={styles.label}>Between:</Text>
-              <DateTimePicker
-                value={startDate || new Date()}
-                mode="date"
-                display="default"
-                onChange={handleStartDateChange}
-              />
-            </ThemedView>
-            <ThemedView style={styles.dateContainer}>
-              <Text style={styles.label}>And:</Text>
-              <DateTimePicker
-                value={endDate || new Date(new Date().setDate(new Date().getDate() + 7))}
-                mode="date"
-                display="default"
-                onChange={handleEndDateChange}
-              />
-            </ThemedView>
-            <Button title="Close" onPress={toggleModal} />
-          </View>
-        </View>
-      </Modal>
+      <FiltersModal
+        isVisible={isModalVisible}
+        startDate={startDate}
+        endDate={endDate}
+        onStartDateChange={handleStartDateChange}
+        onEndDateChange={handleEndDateChange}
+        onClose={toggleModal}
+      />
 
       {userLocation && (
         <Map
@@ -355,7 +336,8 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   buttonText: {
-    fontSize: 12,
+    fontSize: deviceType === DeviceType.Tablet ? 20 : 16  ,
     color: '#fff',
+    padding: 10,
   },
 });

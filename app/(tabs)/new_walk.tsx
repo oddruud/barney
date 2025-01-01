@@ -21,7 +21,9 @@ import { PlannedWalk } from '@/types/PlannedWalk';
 import ProfileImage from '@/components/ProfileImage';
 import { useGenAI } from '@/contexts/GenAIContext';
 import { RouteInfo } from '@/types/RouteInfo';
+import { DeviceType, getDeviceType } from '@/utils/deviceUtils';
 
+const deviceType = getDeviceType();
 
 export default function NewWalkScreen() {
   const { user } = useUser();
@@ -216,14 +218,28 @@ export default function NewWalkScreen() {
         )}
 
         {/* Duration Input */}
-        <ThemedText style={styles.label}>How long (minutes)</ThemedText>
+        <View style={styles.durationContainer}>
+        <ThemedText style={styles.label}>Duration (minutes)</ThemedText>
         <ThemedTextInput
-          style={styles.input}
+          style={[styles.input, styles.durationInput]}
           value={duration}
           onChangeText={setDuration}
+            keyboardType="numeric"
+            placeholder="Enter duration in minutes"
+          />
+        </View>
+
+        {/* Group Size Input */}
+        <View style={styles.groupSizeContainer}>
+        <ThemedText style={styles.label}>Group Size</ThemedText>
+        <ThemedTextInput
+          style={[styles.input, styles.groupSizeInput]}
+          value={groupSize}
+          onChangeText={setGroupSize}
           keyboardType="numeric"
-          placeholder="Enter duration in minutes"
+          placeholder="Enter group size"
         />
+        </View>
 
         {/* Walk Description */}
         <ThemedText style={styles.label}>Intention</ThemedText>
@@ -235,15 +251,7 @@ export default function NewWalkScreen() {
           multiline
         />
 
-        {/* Group Size Input */}
-        <ThemedText style={styles.label}>Group Size</ThemedText>
-        <ThemedTextInput
-          style={[styles.input, styles.descriptionInput]}
-          value={groupSize}
-          onChangeText={setGroupSize}
-          keyboardType="numeric"
-          placeholder="Enter group size"
-        />
+        
      
         {/* Location Map */}
         <ThemedText style={styles.label}>Location (tap map to set)</ThemedText>
@@ -262,7 +270,7 @@ export default function NewWalkScreen() {
                 title: location.title || 'Selected Location',
                 description: location.description || 'Tap to set details'
               }]}
-              height={150}
+              height={deviceType === DeviceType.Tablet ? 300 : 150}
               initialRegion={{
                 latitude: location.latitude,
                 longitude: location.longitude,
@@ -360,7 +368,10 @@ export default function NewWalkScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 20,
+    paddingLeft: deviceType === DeviceType.Tablet ? 100 : 20,
+    paddingRight: deviceType === DeviceType.Tablet ? 100 : 20,
+    paddingTop: 20,
+    paddingBottom: 20,
     backgroundColor: '#f5f5f5',
     marginTop: 30,
   },
@@ -368,15 +379,15 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   title: {
-    fontSize: 24,
+    fontSize: deviceType === DeviceType.Tablet ? 28 : 24,
     fontWeight: 'bold',
     color: '#00796b',
     marginBottom: 12,
     textAlign: 'center',
   },
   label: {
-    fontSize: 14,
-    marginTop: 10,
+    fontSize: deviceType === DeviceType.Tablet ? 18 : 16,
+    marginTop:deviceType === DeviceType.Tablet ? 30 : 10,
     marginBottom: 4,
     color: '#555',
   },
@@ -393,6 +404,9 @@ const styles = StyleSheet.create({
     shadowRadius: 5,
     elevation: 3,
   },
+  durationInput: {
+    width: 100,
+  },
   submitButton: {
     flex: 1,
     marginLeft: 10,
@@ -406,8 +420,13 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   descriptionInput: {
+    height: deviceType === DeviceType.Tablet ? 100 : 40,
+    textAlignVertical: 'top',
+  },
+  groupSizeInput: {
     height: 40,
     textAlignVertical: 'top',
+    width: 100,
   },
   inviteButton: {
     flex: 1,
@@ -432,14 +451,18 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
   profileImage: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
+    width: deviceType === DeviceType.Tablet ? 80 : 60,
+    height: deviceType === DeviceType.Tablet ? 80 : 60,
+    borderRadius: deviceType === DeviceType.Tablet ? 40 : 30,
     marginRight: 10,
   },
   locationText: {
     marginTop: 10,
-    fontSize: 16,
+    fontSize: deviceType === DeviceType.Tablet ? 18 : 16,
     color: '#555',
+  },
+  groupSizeContainer: {
+  },
+  durationContainer: {
   },
 });

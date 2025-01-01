@@ -5,6 +5,7 @@ import { UserDetailsWithDistance } from '../types/UserDetailsWithDistance';
 import { useData } from '@/contexts/DataContext';
 import UserInteractionItem from './UserInteractionItem';
 import { useFocusEffect } from '@react-navigation/native';
+import { DeviceType, getDeviceType } from '@/utils/deviceUtils';
 
 
 interface PeopleListProps {
@@ -47,25 +48,35 @@ const PeopleList: React.FC<PeopleListProps> = ({ user, searchRadius }) => {
     }, [])
   );
 
+  const deviceType = getDeviceType();
+
+  const styles = StyleSheet.create({
+    container: {
+      flex: 1,
+      justifyContent: 'space-between',
+      padding: 16,
+    },
+    userInteractionItem: {
+      marginBottom: 16,
+      width: deviceType === DeviceType.Tablet ? '50%' : '100%',
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+  });
+
   return (
     <View style={styles.container}>
       <FlatList
         data={userInteractions}
         keyExtractor={(item) => item.user.email.toString()}
         renderItem={({ item }) => (
-          <UserInteractionItem userInteraction={item} />
+          <View style={styles.userInteractionItem}>
+            <UserInteractionItem userInteraction={item} />
+          </View>
         )}
       />
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'space-between',
-    padding: 16,
-  },
-});
 
 export default PeopleList;
