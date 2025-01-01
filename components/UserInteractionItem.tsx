@@ -93,12 +93,15 @@ const styles = StyleSheet.create({
       padding: 16,
       marginBottom: 16,
       borderRadius: 10,
-      borderWidth: 1,
-      borderColor: 'gray',
       backgroundColor: 'white',
       width: '100%',
       alignItems: 'center',
       justifyContent: 'center',
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.25,
+      shadowRadius: 3.84,
+      elevation: 5,
   
     },
     link: {

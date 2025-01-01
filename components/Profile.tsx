@@ -176,7 +176,7 @@ const Profile: React.FC<ProfileProps> = ({
       <TouchableOpacity style={styles.settingsButton} onPress={() => {
         router.push("/settings");
       }}>
-        <Ionicons name="settings-outline" size={24} color="black" />
+        <Ionicons name="settings-outline" size={deviceType === DeviceType.Tablet ? 48 : 24} color="black" />
       </TouchableOpacity>
         <TouchableOpacity onPress={pickImage} style={styles.profileImageContainer}>
           {profileImage ? (
@@ -283,7 +283,7 @@ const styles = StyleSheet.create({
     },
     container: {
       height: windowHeight,
-      padding: deviceType === DeviceType.Phone ? 20 : 40,
+      padding: deviceType === DeviceType.Phone ? 20 : 60,
       marginTop: deviceType === DeviceType.Phone ? 70 : 100,
       backgroundColor: '#e9eae4',
     },
@@ -322,7 +322,7 @@ const styles = StyleSheet.create({
     label: {
       fontSize: 16,
       fontWeight: '600',
-      marginBottom: 4,
+      marginBottom: 10,
       backgroundColor: '#e9eae4',
     },
     descriptionInput: {

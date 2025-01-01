@@ -9,6 +9,7 @@ import { useUser } from '@/contexts/UserContext';
 import { useData } from '@/contexts/DataContext';
 import { useFocusEffect } from '@react-navigation/native';
 import { DeviceType, getDeviceType } from '@/utils/deviceUtils';
+import { IconSymbol } from '@/components/ui/IconSymbol.ios';
 
 enum ActiveTab {
   Today = 'today',
@@ -45,12 +46,18 @@ export default function PlannedWalks() {
   const futureWalks = plannedWalks.filter(walk => new Date(walk.dateTime) >= tomorrow);
 
   const renderWalkItem = (walk: PlannedWalk) => {
+    const walkDate = new Date(walk.dateTime);
+    const isToday = walkDate.toLocaleDateString(userLocale) === today.toLocaleDateString(userLocale);
+
     return (
       <View style={styles.proposedWalkItemContainer}>
         {deviceType === DeviceType.Tablet && (
           <View style={styles.walkItemDate}>
-            <Text style={styles.walkItemDateText}>
-              {new Date(walk.dateTime).toLocaleTimeString(userLocale, { hour: '2-digit', minute: '2-digit' })}
+           {!isToday &&( <Text style={styles.walkItemDateText}>
+              {walkDate.toLocaleDateString(userLocale, { weekday: 'short', day: 'numeric', month: 'short' })}
+            </Text>)}
+            <Text style={styles.walkItemTimeText}>
+              {walkDate.toLocaleTimeString(userLocale, { hour: '2-digit', minute: '2-digit' })}
             </Text>
           </View>
         )}
@@ -182,6 +189,12 @@ const styles = StyleSheet.create({
     marginLeft: 50,
   },
   walkItemDateText: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#00796b',
+    alignSelf: 'center',
+  },
+  walkItemTimeText: {
     fontSize: 30,
     fontWeight: 'bold',
     color: '#00796b',

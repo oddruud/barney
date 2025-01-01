@@ -14,7 +14,7 @@ import AreYouSureModal from '@/components/modals/AreYouSureModal';
 import { DeviceType, getDeviceType } from '@/utils/deviceUtils';
 
 const deviceType = getDeviceType();
-  
+
 export default function SettingsScreen() {
   const router = useRouter();
   const { settings, setSettings } = useSettings();
@@ -29,8 +29,11 @@ export default function SettingsScreen() {
   const confirmDeleteAccount = () => {
     if (user.id) {
       dataProxy.deleteUser(user.id).then(() => {
+        console.log('User deleted');
         authentication.deleteAccount().then(() => {
+          console.log('Account deleted');
           LocalUserData.getInstance().clearUserData();
+          console.log('LocalUserData cleared');
           router.navigate('/login');
         });
       });
@@ -59,7 +62,7 @@ export default function SettingsScreen() {
         <Text style={styles.title}>Settings</Text>
         <Text>Search Radius: {settings.searchRadius} km</Text>
         <Slider
-          style={{ width: 200, height: 40 }}
+          style={{ width: deviceType === DeviceType.Tablet ? 300 : 100, height: 40 }}
           minimumValue={1}
           maximumValue={100}
           step={1}
@@ -95,10 +98,11 @@ const styles = StyleSheet.create({
     paddingVertical: 15,
   },
   title: {
-    fontSize: 24,
+    fontSize: 36,
     fontWeight: 'bold',
     marginBottom: 20,
     marginTop: 20,
+    color: '#00796b',
   },
   deleteButton: {
     marginTop: 10,

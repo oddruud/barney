@@ -55,6 +55,7 @@ const PeopleList: React.FC<PeopleListProps> = ({ user, searchRadius }) => {
       flex: 1,
       justifyContent: 'space-between',
       padding: 16,
+      marginTop: 32,
     },
     userInteractionItem: {
       marginBottom: 16,

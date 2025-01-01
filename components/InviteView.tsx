@@ -9,6 +9,9 @@ import { useData } from '@/contexts/DataContext';
 import { useFocusEffect } from '@react-navigation/native';
 import { DeviceType, getDeviceType } from '@/utils/deviceUtils';
 
+
+const deviceType = getDeviceType();
+
 export default function InviteView() {
   const { user } = useUser();
   const [invitedWalks, setInvitedWalks] = useState<PlannedWalk[]>([]);
@@ -28,12 +31,22 @@ export default function InviteView() {
   );
 
   const deviceType = getDeviceType();
+  const userLocale = Intl.DateTimeFormat().resolvedOptions().locale;
 
-  const renderWalkItem = ({ item }: { item: PlannedWalk }) => (
-    <View style={styles.walkItemContainer}>
-      <WalkItem item={item} showDate={true} animated={true} />
-    </View>
-  );
+  const renderWalkItem = (walk: PlannedWalk) => {
+    return (
+      <View style={styles.proposedWalkItemContainer}>
+        {deviceType === DeviceType.Tablet && (
+          <View style={styles.walkItemDate}>
+            <Text style={styles.walkItemDateText}>
+              {new Date(walk.dateTime).toLocaleTimeString(userLocale, { hour: '2-digit', minute: '2-digit' })}
+            </Text>
+          </View>
+        )}
+        <WalkItem item={walk} showDate={false} animated={false} />
+      </View>
+    );
+  };
 
   return (
     <View style={styles.container}>
@@ -45,7 +58,7 @@ export default function InviteView() {
             <>
               <FlatList
                 data={invitedWalks}
-                renderItem={renderWalkItem}
+                renderItem={({ item }) => renderWalkItem(item)}
                 keyExtractor={(item) => item.id}
                 style={styles.list}
               />
@@ -99,5 +112,25 @@ const styles = StyleSheet.create({
   },
   walkItemContainer: {
     marginBottom: 10,
+  },
+  proposedWalkItemContainer: {
+    marginTop: 16,
+    width: deviceType === DeviceType.Phone ? '100%' : '50%',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  walkItemDate: {
+    width: '30%',
+    alignItems: 'center',
+    justifyContent: 'center',
+    alignSelf: 'center',
+    marginRight: 80,
+    marginLeft: 50,
+  },
+  walkItemDateText: {
+    fontSize: 30,
+    fontWeight: 'bold',
+    color: '#00796b',
+    alignSelf: 'center',
   },
 });

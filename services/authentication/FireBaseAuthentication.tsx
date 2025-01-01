@@ -52,8 +52,13 @@ class FireBaseAuthentication implements Authentication {
 
     async deleteAccount(): Promise<void> {
       if (auth.currentUser) {
-        console.log('Deleting account', auth.currentUser);
-        await deleteUser(auth.currentUser);
+        console.log('Deleting account', auth.currentUser.email);
+        try {
+          await deleteUser(auth.currentUser);
+          console.log('Account deleted');
+        } catch (error) {
+          console.error('Error deleting account', error);
+        }
       } else {
         console.error("No user currently signed in.");
       }
