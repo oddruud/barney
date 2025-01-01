@@ -12,6 +12,7 @@ import ProfileImage from './ProfileImage';
 import AreYouSureModal from './modals/AreYouSureModal';
 import { addToCalendar } from '../utils/calendarUtils';
 import FullscreenMapModal from './modals/FullscreenMapModal';
+import { DeviceType, getDeviceType } from '@/utils/deviceUtils';
 
 
 interface WalkDetailsComponentProps {
@@ -22,6 +23,9 @@ interface WalkDetailsComponentProps {
   onJoinPress: () => void;
   onDeclineInvite: () => void;
 }
+
+const deviceType = getDeviceType();
+const logoSize = deviceType === DeviceType.Phone ? 16 : 30;
 
 const WalkDetailsComponent: React.FC<WalkDetailsComponentProps> = ({
   walkDetails,
@@ -165,6 +169,7 @@ const WalkDetailsComponent: React.FC<WalkDetailsComponentProps> = ({
       <ScrollView>
         <View style={{ flex: 1 }}>
           <Map
+
             onPress={() => setFullscreenMapModalVisible(true)}
             initialRegion={{
               latitude: walkDetails.latitude,
@@ -186,20 +191,25 @@ const WalkDetailsComponent: React.FC<WalkDetailsComponentProps> = ({
               },
             ]}
             width="100%"
-            height={240}
+            style={{
+              height: deviceType === DeviceType.Phone ? 240 : 360,
+              marginTop: 20,
+            }}
           />
           
           <View style={styles.walkDetailsContainer}>
             <Text style={styles.descriptionText}>{walkDetails.description}</Text>
-            <View style={styles.durationContainer}>
-              <IconSymbol name="timer" size={16} color="#333" style={styles.icon} />
-              <ThemedText>{walkDetails.duration * 60} minutes</ThemedText>
-            </View>
-            <View style={styles.participantsContainer}>
-              <IconSymbol name="person" size={16} color="#333" style={styles.icon} />
-              <ThemedText>
+            <View style={styles.walkDetailsRow}>
+              <View style={styles.durationContainer}>
+                <IconSymbol name="timer" size={logoSize} color="#333" style={styles.icon} />
+                <ThemedText style={styles.durationText}>{walkDetails.duration * 60} minutes</ThemedText>
+              </View>
+              <View style={styles.participantsContainer}>
+                <IconSymbol name="person" size={logoSize} color="#333" style={styles.icon} />
+                <ThemedText style={styles.participantsText}>
                 {walkDetails.joinedUserIds.length} / {walkDetails.maxParticipants}
               </ThemedText>
+              </View>
             </View>
           </View> 
           <Animated.View
@@ -282,17 +292,19 @@ const WalkDetailsComponent: React.FC<WalkDetailsComponentProps> = ({
           )}
 
           {isLocalUserJoined && (
-            <Button
-              title={isOrganizer ? "Cancel Walk" : "Leave Walk"}
-              onPress={() => {
+            <View style={styles.buttonRow}>
+              <Button
+                title={isOrganizer ? "Cancel Walk" : "Leave Walk"}
+                onPress={() => {
                 if (isOrganizer) {
                   setIsAreYouSureModalVisible(true);
                 } else {
                   handleCancelPress();
                 }
               }}
-              style={styles.cancelButton}
-            />
+                style={styles.cancelButton}
+              />
+            </View>
           )}
         </Animated.View>
       ) : (
@@ -335,12 +347,15 @@ const WalkDetailsComponent: React.FC<WalkDetailsComponentProps> = ({
   );
 };
 
+
+const bodyTextSize = deviceType === DeviceType.Phone ? 16 : 24;
+
 const styles = StyleSheet.create({
   profileContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: 4,
-    marginTop: 4,
+    marginTop: 16,
   },
   profileImageSmall: {
     width: 40,
@@ -351,13 +366,13 @@ const styles = StyleSheet.create({
     borderColor: '#00796b',
   },
   textBold: {
-    fontSize: 16,
+    fontSize: bodyTextSize,
     fontWeight: 'bold',
     color: '#333',
     marginBottom: 8,
   },
   descriptionText: {
-    fontSize: 16,
+    fontSize: bodyTextSize,
     color: '#666',
     marginBottom: 8,
     marginTop: 0,
@@ -365,9 +380,10 @@ const styles = StyleSheet.create({
     padding: 8,
   },
   hostText: {
-    fontSize: 16,
+    fontSize: bodyTextSize,
     color: '#333',
     marginBottom: 8,
+
   },
   walkDetailsContainer: {
     marginTop: 8,
@@ -375,7 +391,8 @@ const styles = StyleSheet.create({
   durationContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 8,
+    marginBottom: 14,
+
   },
   iconContainer: {
     flexDirection: 'row',
@@ -387,7 +404,8 @@ const styles = StyleSheet.create({
   participantsContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 8,
+    marginBottom: 14,
+    marginLeft: 16,
   },
   usersListContainer: {
     marginTop: 16,
@@ -404,11 +422,11 @@ const styles = StyleSheet.create({
     marginRight: 8,
   },
   userName: {
-    fontSize: 16,
+    fontSize: bodyTextSize,
     color: '#333',
   },
   organizerText: {
-    fontSize: 14,
+    fontSize: bodyTextSize,
     color: '#007aff',
     marginLeft: 8,
   },
@@ -435,34 +453,38 @@ const styles = StyleSheet.create({
   },
   modalButton: {
     marginHorizontal: 10,
-    width: '45%',
+    width: deviceType === DeviceType.Phone ? '45%' : '20%',
   },
   modalButtonYes: {
     marginHorizontal: 10,
     backgroundColor: '#ff0000',
-    width: '45%',
+    width: deviceType === DeviceType.Phone ? '45%' : '20%',
   },
   cancelButton: {
     marginTop: 16,
     backgroundColor: '#ff0000',
+    width: deviceType === DeviceType.Phone ? '45%' : '20%',
   },
   buttonStyle: {
     marginTop: 16,
     backgroundColor: '#007aff',
-    width: '45%',
+    width: deviceType === DeviceType.Phone ? '45%' : '20%',
   },
   joinButton: {
-    width: '45%',
+    width: deviceType === DeviceType.Phone ? '45%' : '20%',
     backgroundColor: '#007aff',
   },
   declineButton: {
     backgroundColor: '#ff0000',
-    width: '45%',
+    width: deviceType === DeviceType.Phone ? '45%' : '20%',
   },
   buttonRow: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    justifyContent: 'center',
     marginTop: 16,
+    //center the buttons
+    alignItems: 'center',
+    gap: 16,
   },
   fullWidthButton: {
     width: '100%',
@@ -482,6 +504,16 @@ const styles = StyleSheet.create({
   shareImage: {
     width: 24,
     height: 24,
+  },
+  durationText: {
+    fontSize: bodyTextSize,
+  },
+  participantsText: {
+    fontSize: bodyTextSize,
+  },
+  walkDetailsRow: {
+    flexDirection: 'row',
+    marginTop: 16,
   },
 });
 

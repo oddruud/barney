@@ -7,12 +7,16 @@ import StarRating from './StarRating';  // Import the new StarRating component
 import RateUserModal from './modals/RateUserModal';  // Import the new modal component
 import ProfileImage from './ProfileImage';
 import { useData } from '@/contexts/DataContext';
+import { DeviceType, getDeviceType } from '@/utils/deviceUtils';
 
 
 interface AboutComponentProps {
   user: UserDetails;
   showRateButton: boolean;
 };
+
+const deviceType = getDeviceType();
+const bodyTextSize = deviceType === DeviceType.Phone ? 16 : 24;
 
 const AboutComponent: React.FC<AboutComponentProps> = ({ user, showRateButton }) => {
   const fadeAnim = useRef(new Animated.Value(0)).current; // Initial value for opacity: 0
@@ -86,7 +90,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   settingsText: {
-    fontSize: 16,
+    fontSize: bodyTextSize,
     color: '#333',
     marginLeft: 8,
   },
@@ -105,20 +109,20 @@ const styles = StyleSheet.create({
     borderColor: '#00796b',
   },
   text: {
-    fontSize: 16,
+    fontSize: bodyTextSize,
     color: '#333',
     marginBottom: 4,
     marginTop: 4,
   },
   bioText: {
-    fontSize: 16,
+    fontSize: bodyTextSize,
     color: '#333',
     marginBottom: 4,
     marginTop: 16,
     fontStyle: 'italic',
   },
   textBold: {
-    fontSize: 16,
+    fontSize: bodyTextSize,
     fontWeight: 'bold',
     color: '#333',
     marginBottom: 8,
@@ -131,6 +135,9 @@ const styles = StyleSheet.create({
   },
   rateButton: {
     marginBottom: 20,
+    fontSize: bodyTextSize,
+    alignSelf: 'center',
+    width: deviceType === DeviceType.Phone ? '100%' : '50%',
   },
 });
 

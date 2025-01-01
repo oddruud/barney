@@ -14,10 +14,16 @@ import { router } from 'expo-router';
 import { useData } from '@/contexts/DataContext';
 import { useUser } from '@/contexts/UserContext';
 import { Ionicons } from '@expo/vector-icons'; // Import an icon library
+import { DeviceType, getDeviceType } from '@/utils/deviceUtils';
 
 interface ProfileProps {
   firstLogin: boolean;
 }
+
+const windowWidth = Dimensions.get('window').width;
+const windowHeight = Dimensions.get('window').height;
+const deviceType = getDeviceType();
+
 
 const Profile: React.FC<ProfileProps> = ({
   firstLogin,
@@ -249,8 +255,6 @@ const Profile: React.FC<ProfileProps> = ({
 
 export default Profile;
 
-const windowHeight = Dimensions.get('window').height;
-
 const styles = StyleSheet.create({
     headerImage: {
       color: '#808080',
@@ -280,8 +284,8 @@ const styles = StyleSheet.create({
     },
     container: {
       height: windowHeight,
-      padding: 20,
-      marginTop: 70,  
+      padding: deviceType === DeviceType.Phone ? 20 : 40,
+      marginTop: deviceType === DeviceType.Phone ? 70 : 100,
       backgroundColor: '#e9eae4',
     },
     slider: {
@@ -296,19 +300,19 @@ const styles = StyleSheet.create({
     },
     profileImageContainer: {
       alignSelf: 'center',
-      marginBottom: 20,
+      marginBottom: deviceType === DeviceType.Phone ? 20 : 40,
     },
     profileImage: {
-      width: 120,
-      height: 120,
-      borderRadius: 60,
+      width: deviceType === DeviceType.Phone ? 120 : 160,
+      height: deviceType === DeviceType.Phone ? 120 : 160,
+      borderRadius: deviceType === DeviceType.Phone ? 60 : 80,
       borderWidth: 1,
       borderColor: '#808080',
     },
     profileImagePlaceholder: {
-      width: 120,
-      height: 120,
-      borderRadius: 60,
+      width: deviceType === DeviceType.Phone ? 120 : 160,
+      height: deviceType === DeviceType.Phone ? 120 : 160,
+      borderRadius: deviceType === DeviceType.Phone ? 60 : 80,
       borderWidth: 1,
       borderColor: '#808080',
       alignItems: 'center',
@@ -327,9 +331,12 @@ const styles = StyleSheet.create({
       padding: 12,
       minHeight: 100,
       textAlignVertical: 'top',
+      fontSize: deviceType === DeviceType.Phone ? 16 : 18,
     },
     saveButton: {
       marginTop: 20,
+      width: deviceType === DeviceType.Phone ? 160 : 200,
+      alignSelf: 'center',
     },
     nameContainer: {
       marginVertical: 20,
@@ -338,6 +345,7 @@ const styles = StyleSheet.create({
       borderRadius: 8,
       padding: 12,
       minHeight: 40,
+      fontSize: deviceType === DeviceType.Phone ? 16 : 18,
     },
     ratingContainer: {
       marginVertical: 20,
@@ -346,7 +354,10 @@ const styles = StyleSheet.create({
     },
     logoutButton: {
       marginTop: 10,
-      backgroundColor: '#f44336', // Red color for logout
+      backgroundColor: '#f44330', // Red color for logout
+      width: deviceType === DeviceType.Phone ? 160 : 200,
+      alignSelf: 'center',
+      fontSize: deviceType === DeviceType.Phone ? 16 : 24,
     },
     modalContainer: {
       flex: 1,

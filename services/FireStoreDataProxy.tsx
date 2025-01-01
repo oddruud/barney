@@ -2,7 +2,7 @@ import { PlannedWalk } from '../types/PlannedWalk';
 import { UserDetails } from '../types/UserDetails';
 import { ChatMessage } from '../types/ChatMessage';
 import { DataProxy } from './DataProxyInterface';
-import {getDocs,collection, doc, getDoc, getFirestore, setDoc, query, where, orderBy} from "firebase/firestore";
+import {getDocs,collection, doc, getDoc, getFirestore, setDoc, query, where, orderBy, Timestamp, QueryConstraint, deleteDoc} from "firebase/firestore";
 import { getRandomId } from '../utils/IDUtils';
 import { Quote } from '@/types/Quote';
 import { getStorage, ref, uploadBytesResumable, getDownloadURL, UploadMetadata } from "firebase/storage";
@@ -25,14 +25,24 @@ class FireStoreDataProxy implements DataProxy {
   }
 
   //get all planned walks that are not cancelled. todo create function where dateTime is in the future
-  async getPlannedWalks(): Promise<PlannedWalk[]> {
+  async getPlannedWalks(from?: Timestamp, to?: Timestamp): Promise<PlannedWalk[]> {
     try {
       const db = getFirestore();
       const collectionRef = collection(db, "walks");
-      const q = query(
-        collectionRef, 
+
+      const constraints: QueryConstraint[] = [
         where("cancelled", "==", false)
-      );
+      ];
+
+      if (from) {
+        constraints.push(where("dateTime", ">=", from));
+      }
+      if (to) {
+        constraints.push(where("dateTime", "<=", to));
+      }
+
+      const q = query(collectionRef, ...constraints);
+
       const querySnapshot = await getDocs(q);
 
       //for each walk, get the userDetails and add it to the walk
@@ -530,20 +540,44 @@ async uploadToFirebase(uri:string, name:string, onProgress:((progress:number)=>v
     await setDoc(doc(db, "rewards", rewardInfo.walkId), rewardInfo);
   }
 
+
   async getRewardInfo(walkId: string): Promise<RewardInfo | null> {
-    const db = getFirestore();
-    const docRef = doc(db, "rewards", walkId);
-    const docSnap = await getDoc(docRef);
-    return docSnap.data() as RewardInfo | null;
+    try {
+      const db = getFirestore();
+      const docRef = doc(db, "rewards", walkId);
+      const docSnap = await getDoc(docRef);
+      return docSnap.data() as RewardInfo | null;
+    } catch (error) {
+      console.error("Error getting reward info", error);
+      throw error;
+    }
   }
 
   async getRandomFrontPageVideo(): Promise<string> {
-    const db = getFirestore();
-    const collectionRef = collection(db, "frontPageVideos");
-    const querySnapshot = await getDocs(collectionRef);
-    const randomIndex = Math.floor(Math.random() * querySnapshot.docs.length);
-    const randomVideo = querySnapshot.docs[randomIndex].data() as Video;
-    return randomVideo.url;
+    try {
+      const db = getFirestore();
+      const collectionRef = collection(db, "frontPageVideos");
+      const querySnapshot = await getDocs(collectionRef);
+      const randomIndex = Math.floor(Math.random() * querySnapshot.docs.length);
+      const randomVideo = querySnapshot.docs[randomIndex].data() as Video;
+      return randomVideo.url;
+    } catch (error) {
+      console.error("Error getting random front page video", error);
+      throw error;
+    }
+  }
+
+  async deleteUser(userId: string): Promise<void> {
+    console.log('Deleting use', userId);
+    try {
+      const db = getFirestore();
+      const userRef = doc(db, "users", userId);
+      console.log('Deleting user', userRef);
+      await deleteDoc(userRef);
+    } catch (error) {
+      console.error("Error deleting user", error);
+      throw error;
+    }
   }
 }
 

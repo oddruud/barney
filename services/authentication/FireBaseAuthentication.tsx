@@ -1,5 +1,5 @@
 import { auth } from '@/fireBaseConfig';
-import { createUserWithEmailAndPassword, sendPasswordResetEmail, signInWithEmailAndPassword, signOut, User } from 'firebase/auth';
+import { createUserWithEmailAndPassword, deleteUser, sendPasswordResetEmail, signInWithEmailAndPassword, signOut, User } from 'firebase/auth';
 import { Authentication } from './AuthenticationInterface';
 import { FirebaseError } from 'firebase/app';
 
@@ -47,6 +47,16 @@ class FireBaseAuthentication implements Authentication {
 
     async resetPassword(email: string): Promise<void> {
       await sendPasswordResetEmail(auth, email);
+    }
+
+
+    async deleteAccount(): Promise<void> {
+      if (auth.currentUser) {
+        console.log('Deleting account', auth.currentUser);
+        await deleteUser(auth.currentUser);
+      } else {
+        console.error("No user currently signed in.");
+      }
     }
 
     async logout(): Promise<void> {

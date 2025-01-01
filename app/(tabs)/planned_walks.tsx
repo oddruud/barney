@@ -3,17 +3,26 @@ import { StyleSheet, FlatList, View, TouchableOpacity } from 'react-native';
 import { Text } from '../../components/Themed';
 import WalkItem from '../../components/WalkItem';
 import { PlannedWalk } from '../../types/PlannedWalk';
+import TabButton from '../../components/TabButton';
 
 import { useUser } from '@/contexts/UserContext';
 import { useData } from '@/contexts/DataContext';
 import { useFocusEffect } from '@react-navigation/native';
+import { DeviceType, getDeviceType } from '@/utils/deviceUtils';
+
+enum ActiveTab {
+  Today = 'today',
+  Upcoming = 'upcoming',
+}
+
+const deviceType = getDeviceType();
 
 export default function PlannedWalks() {
   const { user } = useUser();
   const { dataProxy } = useData();
   const [plannedWalks, setPlannedWalks] = useState<PlannedWalk[]>([]);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState('today');
+  const [activeTab, setActiveTab] = useState<ActiveTab>(ActiveTab.Today);
 
   useFocusEffect(
     React.useCallback(() => {
@@ -35,47 +44,66 @@ export default function PlannedWalks() {
   tomorrow.setDate(tomorrow.getDate() + 1);
   const futureWalks = plannedWalks.filter(walk => new Date(walk.dateTime) >= tomorrow);
 
+  const renderWalkItem = (walk: PlannedWalk) => {
+    return (
+      <View style={styles.proposedWalkItemContainer}>
+        {deviceType === DeviceType.Tablet && (
+          <View style={styles.walkItemDate}>
+            <Text style={styles.walkItemDateText}>
+              {new Date(walk.dateTime).toLocaleTimeString(userLocale, { hour: '2-digit', minute: '2-digit' })}
+            </Text>
+          </View>
+        )}
+        <WalkItem item={walk} showDate={false} animated={false} />
+      </View>
+    );
+  };
+
   return (
     <View style={styles.container}>
       <View style={styles.tabContainer}>
-        <TouchableOpacity onPress={() => setActiveTab('today')} style={activeTab === 'today' ? styles.activeTab : styles.tab}>
-          <Text style={styles.tabText}>Today</Text>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={() => setActiveTab('upcoming')} style={activeTab === 'upcoming' ? styles.activeTab : styles.tab}>
-          <Text style={styles.tabText}>Upcoming</Text>
-        </TouchableOpacity>
+        <TabButton 
+          title="Today" 
+          isActive={activeTab === ActiveTab.Today} 
+          onPress={() => setActiveTab(ActiveTab.Today)} 
+        />
+        <TabButton 
+          title="Upcoming" 
+          isActive={activeTab === ActiveTab.Upcoming} 
+          onPress={() => setActiveTab(ActiveTab.Upcoming)} 
+        />
       </View>
 
       {loading ? (
         <Text style={styles.loadingText}></Text>
       ) : (
         <>
-          {activeTab === 'today' && todaysWalks.length > 0 && (
+          {activeTab === ActiveTab.Today && todaysWalks.length > 0 && (
             <>
               <FlatList
                 data={todaysWalks}
-                renderItem={({ item }) => <WalkItem item={item} showDate={false} animated={false} />}
+                renderItem={({ item }) => renderWalkItem(item)}
                 keyExtractor={(item) => item.id}
                 style={styles.list}
               />
             </>
           )}
-          {activeTab === 'upcoming' && futureWalks.length > 0 && (
+          {activeTab === ActiveTab.Upcoming && futureWalks.length > 0 && (
             <>
               <FlatList
                 data={futureWalks}
-                renderItem={({ item }) => <WalkItem item={item} showDate={true} animated={false} />}
+                renderItem={({ item }) => renderWalkItem(item)}
                 keyExtractor={(item) => item.id}
                 style={styles.listUpcoming}
               />
             </>
           )}
-          {activeTab === 'today' && todaysWalks.length === 0 && (
+          {activeTab === ActiveTab.Today && todaysWalks.length === 0 && (
             <View style={styles.noWalksContainer}>
               <Text style={styles.noWalksText}>No walks planned for today</Text>
             </View>
           )}
-          {activeTab === 'upcoming' && futureWalks.length === 0 && (
+          {activeTab === ActiveTab.Upcoming && futureWalks.length === 0 && (
             <View style={styles.noWalksContainer}>
               <Text style={styles.noWalksText}>No upcoming walks</Text>
             </View>
@@ -138,5 +166,25 @@ const styles = StyleSheet.create({
     color: '#666',
     textAlign: 'center',
     marginTop: 20,
+  },
+  proposedWalkItemContainer: {
+    marginTop: 16,
+    width: deviceType === DeviceType.Phone ? '100%' : '50%',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  walkItemDate: {
+    width: '30%',
+    alignItems: 'center',
+    justifyContent: 'center',
+    alignSelf: 'center',
+    marginRight: 80,
+    marginLeft: 50,
+  },
+  walkItemDateText: {
+    fontSize: 30,
+    fontWeight: 'bold',
+    color: '#00796b',
+    alignSelf: 'center',
   },
 });

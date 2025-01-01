@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Image, StyleSheet, View, Animated, Share } from 'react-native';
+import { Image, StyleSheet, View, Animated, Share, Dimensions } from 'react-native';
 import * as Location from 'expo-location';
 import * as Notifications from 'expo-notifications';
 
@@ -102,6 +102,9 @@ export default function HomeScreen() {
   const [closestWalk, setClosestWalk] = useState<WalkWithDistance | null>(null);
   const { dataProxy } = useData();
   const { settings} = useSettings();
+
+  const { width, height } = Dimensions.get('window');
+  const isTablet = width >= 768; // A common breakpoint for tablets
 
   useEffect(() => {
     
@@ -250,7 +253,9 @@ export default function HomeScreen() {
             <NextWalkCountdown 
               prefix = "Next walk in "   nextWalkTime={new Date(`${nextWalk.dateTime}`)} 
             />
-            <WalkItem item={nextWalk} showDate={true} animated={true} />
+            <View style={styles.proposedWalkItemContainer}>
+              <WalkItem item={nextWalk} showDate={true} animated={true} />
+            </View>
           </View>
           </>
         ) : null}
@@ -271,10 +276,12 @@ export default function HomeScreen() {
   );
 }
 
+const isTablet = Dimensions.get('window').width >= 768;
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 16,
+    padding: isTablet ? 32 : 16,
     zIndex: 0,
     backgroundColor: '#e9eae4',
   },
@@ -282,8 +289,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor:  'rgba(0, 0, 0, 0.0)', // Changed to semi-transparent
-    padding: 16,
+    backgroundColor: 'rgba(0, 0, 0, 0.0)',
+    padding: isTablet ? 32 : 16,
   },
   stepContainer: {
     gap: 8,
@@ -297,8 +304,8 @@ const styles = StyleSheet.create({
     position: 'absolute',
   },
   image: {
-    width: 150,
-    height: 150,
+    width: isTablet ? 200 : 150,
+    height: isTablet ? 200 : 150,
     marginBottom: 16,
     zIndex: 1,
   },
@@ -308,18 +315,18 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   quoteContainer: {
-    padding: 16,
-    marginVertical: -40,
+    padding: isTablet ? 32 : 16,
+    marginVertical: isTablet ? -20 : -40,
     zIndex: 100,
   },
   quoteText: {
     fontFamily: 'Voltaire-Frangela',
-    fontSize: 18,
+    fontSize: isTablet ? 24 : 18,
     color: 'gray',
 
   },
   nextWalkText: {
-    fontSize: 12,
+    fontSize: isTablet ? 16 : 12,
     color: '#000000',
     textAlign: 'center',
   },
@@ -335,27 +342,27 @@ const styles = StyleSheet.create({
     width: '100%',
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginVertical: 16,
+    marginVertical: isTablet ? 32 : 16,
   },
   invitationButton: {
     marginHorizontal: 8,
     backgroundColor: '#4CAF50',
     borderRadius: 8,
     alignItems: 'center',
-    width: '45%',
+    width: 120,
     alignSelf: 'center',
-    height: 50,
-    marginTop:75,
+    height: isTablet ? 60 : 50,
+    marginTop: isTablet ? 100 : 75,
   },
   shareButton: {
     marginHorizontal: 8,
     backgroundColor: '#4CAF50',
     borderRadius: 8,
     alignItems: 'center',
-    width: '45%',
+    width: 120,
     alignSelf: 'center',
-    height: 50,
-    marginTop:16,
+    height: isTablet ? 60 : 50,
+    marginTop: isTablet ? 32 : 16,
   },
   buttonText: {
     fontFamily: 'SpaceMono',
@@ -397,7 +404,7 @@ const styles = StyleSheet.create({
 
   },
   usersText: {
-    fontSize: 12,
+    fontSize: 16,
     color: '#000000',
     textAlign: 'center',
   },
@@ -414,5 +421,10 @@ const styles = StyleSheet.create({
     marginBottom: 8,
     fontWeight: 'bold',
     textAlign: 'center',
+  },
+  proposedWalkItemContainer: {
+    marginTop: 16,
+    width: isTablet ? '50%' : '100%',
+    alignSelf: 'center',
   },
 });

@@ -7,6 +7,7 @@ import { PlannedWalk } from '../types/PlannedWalk';
 import { useUser } from '@/contexts/UserContext';
 import { useData } from '@/contexts/DataContext';
 import { useFocusEffect } from '@react-navigation/native';
+import { DeviceType, getDeviceType } from '@/utils/deviceUtils';
 
 export default function InviteView() {
   const { user } = useUser();
@@ -26,6 +27,14 @@ export default function InviteView() {
     }, [user?.id])
   );
 
+  const deviceType = getDeviceType();
+
+  const renderWalkItem = ({ item }: { item: PlannedWalk }) => (
+    <View style={styles.walkItemContainer}>
+      <WalkItem item={item} showDate={true} animated={true} />
+    </View>
+  );
+
   return (
     <View style={styles.container}>
       {loading ? (
@@ -36,7 +45,7 @@ export default function InviteView() {
             <>
               <FlatList
                 data={invitedWalks}
-                renderItem={({ item }) => <WalkItem item={item} showDate={true} animated={true} />}
+                renderItem={renderWalkItem}
                 keyExtractor={(item) => item.id}
                 style={styles.list}
               />
@@ -87,5 +96,8 @@ const styles = StyleSheet.create({
     color: '#666',
     textAlign: 'center',
     marginTop: 20,
+  },
+  walkItemContainer: {
+    marginBottom: 10,
   },
 });

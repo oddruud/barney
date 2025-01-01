@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { StyleSheet, Platform, Animated, View, Modal } from 'react-native';
 import { ThemedView } from '@/components/ThemedView';
 import { Map } from '@/components/Map';
@@ -29,7 +29,6 @@ export default function SelectWalkInArea({
   const [walks, setWalks] = useState<PlannedWalk[]>([]);
   const [filteredWalks, setFilteredWalks] = useState<PlannedWalk[]>([]);
   const [walksSortedByDistance, setWalksSortedByDistance] = useState<WalkWithDistance[]>([]);
-
   const [mapRegion, setMapRegion] = useState({
     latitude: 41.1579,
     longitude: -8.6291,
@@ -39,75 +38,67 @@ export default function SelectWalkInArea({
   const [scaleAnim] = useState(new Animated.Value(0));
   const [isModalVisible, setModalVisible] = useState(false);
 
-  useEffect(() => {
-    (async () => {
-      let { status } = await Location.requestForegroundPermissionsAsync();
-      if (status !== 'granted') {
-        console.log('Permission to access location was denied');
-        return;
-      }
-
-      let location = await Location.getCurrentPositionAsync({});
-      setUserLocation(location);
-
-      setMapRegion({
-        latitude: location.coords.latitude,
-        longitude: location.coords.longitude,
-        latitudeDelta: 0.0922,
-        longitudeDelta: 0.0421,
-      });
-    })();
-  }, []);
 
   useFocusEffect(
-    React.useCallback(() => {
-      const fetchWalks = async () => {
-        try {
-          const fetchedWalks = await dataProxy.getPlannedWalks();
-          setWalks(fetchedWalks);
-        } catch (error) {
-          console.error("Error fetching walks:", error);
-        }
-      };
-
+    useCallback(() => {
       fetchWalks();
-
-      return () => {
-        // Cleanup if necessary
-      };
     }, [])
   );
 
   useEffect(() => {
-    const walksWithDistance: WalkWithDistance[] = [];
-    if (walks.length > 0 && userLocation) {
-      const sortedByDistance = filteredWalks.sort((a, b) => calculateDistance(userLocation, a) - calculateDistance(userLocation, b));
-      sortedByDistance.forEach(walk => {
-        const distance = calculateDistance(userLocation, walk);
-        walksWithDistance.push({...walk, distance});
-      });
+    async function fetchWalks() {
+      await getUserLocation();
+      await new Promise(resolve => setTimeout(resolve, 100));
+      updateWalksSortedByDistance();
+    }
+    fetchWalks();
+  }, [filteredWalks]);
 
-        setWalksSortedByDistance(walksWithDistance);
-      }
-    }, [filteredWalks]);
+  useEffect(() => {
+    setFilteredWalks(filterWalks());
+  }, [walks, startDate, endDate, settings.searchRadius]);
 
-    useEffect(() => {
-      const filtered = filterWalks();
-      setFilteredWalks(filtered);
-    }, [walks, startDate, endDate, settings.searchRadius]);
+  useEffect(() => {
+    animateSelectedWalk();
+  }, [selectedWalk]);
 
-  const handleWalkSelect = (walk: WalkWithDistance) => {
-    if (walk){
-      setMapRegion({
-        latitude: walk.latitude,
-        longitude: walk.longitude,
-        latitudeDelta: 0.0922/4,
-        longitudeDelta: 0.0421/4,
-      });
+  const getUserLocation = async () => {
+    const { status } = await Location.requestForegroundPermissionsAsync();
+    if (status !== 'granted') {
+      console.log('Permission to access location was denied');
+      return;
+    }
+    const location = await Location.getCurrentPositionAsync({});
+    setUserLocation(location);
+    setMapRegion({
+      latitude: location.coords.latitude,
+      longitude: location.coords.longitude,
+      latitudeDelta: 0.0922,
+      longitudeDelta: 0.0421,
+    });
+  };
+
+  const fetchWalks = async () => {
+    try {
+      const fetchedWalks = await dataProxy.getPlannedWalks();
+      setWalks(fetchedWalks);
+    } catch (error) {
+      console.error("Error fetching walks:", error);
     }
   };
 
-  useEffect(() => {
+  const updateWalksSortedByDistance = () => {
+    if (walks.length > 0 && userLocation) {
+      const sortedByDistance = filteredWalks.sort((a, b) => calculateDistance(userLocation, a) - calculateDistance(userLocation, b));
+      const walksWithDistance = sortedByDistance.map(walk => ({
+        ...walk,
+        distance: calculateDistance(userLocation, walk),
+      }));
+      setWalksSortedByDistance(walksWithDistance);
+    }
+  };
+
+  const animateSelectedWalk = () => {
     if (selectedWalk) {
       Animated.parallel([
         Animated.timing(fadeAnim, {
@@ -125,11 +116,21 @@ export default function SelectWalkInArea({
       fadeAnim.setValue(0);
       scaleAnim.setValue(0);
     }
-  }, [selectedWalk]);
+  };
+
+  const handleWalkSelect = (walk: WalkWithDistance) => {
+    if (walk) {
+      setMapRegion({
+        latitude: walk.latitude,
+        longitude: walk.longitude,
+        latitudeDelta: 0.0922 / 4,
+        longitudeDelta: 0.0421 / 4,
+      });
+    }
+  };
 
   const handleMarkerPress = (marker: any) => {
     const walk = walks.find(w => w.id === marker.id);
-    //setSelectedWalk(walk || null);
     if (walk) {
       router.push(`/details/${walk.id}`);
     }
@@ -153,24 +154,24 @@ export default function SelectWalkInArea({
     if (walk) {
       router.push(`/details/${walk.id}`);
     }
-  }
+  };
 
-  const filterWalks = () : PlannedWalk[] => {
-    let filtered = walks.filter(walk => {
+  const filterWalks = (): PlannedWalk[] => {
+    return walks.filter(walk => {
       if (userLocation) {
         const walkDate = new Date(walk.dateTime);
         const distance = calculateDistance(userLocation, walk);
         return (
+          !walk.cancelled &&
+          walkDate >= new Date() &&
           walkDate >= startDate &&
           walkDate <= endDate &&
           distance <= settings.searchRadius
         );
-      } else {
-        return false;
       }
+      return false;
     });
-    return filtered;
-  }
+  };
 
   const toggleModal = () => {
     setModalVisible(!isModalVisible);
@@ -178,7 +179,6 @@ export default function SelectWalkInArea({
 
   return (
     <ThemedView style={styles.container}>
-
       <Modal
         visible={isModalVisible}
         transparent={true}
@@ -187,7 +187,7 @@ export default function SelectWalkInArea({
       >
         <View style={styles.modalBackground}>
           <View style={styles.modalContent}>
-          <Text style={styles.title}>Filters</Text>
+            <Text style={styles.title}>Filters</Text>
             <ThemedView style={styles.dateContainer}>
               <Text style={styles.label}>Between:</Text>
               <DateTimePicker
@@ -206,13 +206,12 @@ export default function SelectWalkInArea({
                 onChange={handleEndDateChange}
               />
             </ThemedView>
-
             <Button title="Close" onPress={toggleModal} />
           </View>
         </View>
       </Modal>
 
-      {Platform.OS !== 'web' && userLocation && (
+      {userLocation && (
         <Map
           markers={filteredWalks.map(walk => ({
             id: walk.id,
@@ -233,9 +232,7 @@ export default function SelectWalkInArea({
         />
       )}
       <Button style={styles.button} textStyle={styles.buttonText} title="Open Filters" onPress={toggleModal} />
-
       <WalkSelect walks={walksSortedByDistance} onWalkSelect={handleWalkSelect} onChooseWalk={handleChooseWalk} />
-
       <WalkDetailsModal
         visible={!!selectedWalk}
         walk={selectedWalk}

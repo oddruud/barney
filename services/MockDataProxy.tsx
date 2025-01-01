@@ -328,7 +328,12 @@ async getRandomWalkingQuote(): Promise<Quote> {
       resolve("https://roboruud.nl/walk.mp4");
     });
   }
-  
+
+  async deleteUser(userId: string): Promise<void> {
+    return new Promise((resolve) => {
+      resolve();
+    });
+  }
 }
 
 export { MockDataProxy };

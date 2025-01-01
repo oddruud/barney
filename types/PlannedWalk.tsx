@@ -1,3 +1,4 @@
+import { Timestamp } from "firebase/firestore";
 import { RewardInfo } from "./RewardInfo";
 import { UserDetails } from "./UserDetails";
 

@@ -17,6 +17,7 @@ import { GlobalEventsProvider } from '@/contexts/GlobalEventsContext';
 import { useGlobalEventsEmitter, GlobalEventEnum } from '@/contexts/GlobalEventsContext';
 import { GlobalEventsEmitter } from '@/controllers/GlobalEventsEmitter';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
+import { DeviceProvider } from '@/contexts/DeviceContext';
 
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.

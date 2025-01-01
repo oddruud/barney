@@ -156,7 +156,7 @@ export default function NewWalkScreen() {
       userId: user?.id ?? '',
       dateTime: date.toISOString(),
       duration: parseInt(duration) / 60,
-      maxParticipants: groupSize,
+      maxParticipants: parseInt(groupSize),
       description: description,
       location: location.title,
       longitude: location.longitude,

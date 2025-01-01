@@ -7,13 +7,14 @@ import { LocationObject } from 'expo-location';
 import { UserDetailsWithDistance } from '@/types/UserDetailsWithDistance';
 import { UserInteraction } from '@/types/UserInteraction';
 import { RewardInfo } from '@/types/RewardInfo';
+import { Timestamp } from 'firebase/firestore';
 
 // Define the DataProxy interface
 interface DataProxy {
     // Initialize the data proxy
     initialize(): Promise<void>;
     // Get all planned walks
-    getPlannedWalks(): Promise<PlannedWalk[]>;
+    getPlannedWalks(from?: Timestamp, to?: Timestamp): Promise<PlannedWalk[]>;
     // Get all walks joined by a user
     getJoinedWalksByUserId(userId: string): Promise<PlannedWalk[]>;
     // Get all invited walks by a user
@@ -51,6 +52,8 @@ interface DataProxy {
     unsubscribeFromWalk(walkId: string, userId: string): Promise<PlannedWalk | null> 
     // Register a user
     registerUser(uid: string, email: string): Promise<UserDetails | null>;
+    // Delete a user
+    deleteUser(userId: string): Promise<void>;
     // Get all users
     getAllUsers(): Promise<UserDetails[]>;
     // Upload an image
